@@ -1,0 +1,41 @@
+🎉 Background Remover Installation Complete!
+
+�️ IMPORTANT - Windows Defender False Positive Fix:
+If Windows Defender blocks the software or context menu doesn't work:
+1. Open Windows Security → Virus & threat protection
+2. Click "Manage settings" under Virus & threat protection settings
+3. Click "Add or remove exclusions" under Exclusions
+4. Add exclusion for: C:\Program Files\BackgroundRemover
+5. Restart your computer
+
+�📋 How to Use Background Remover:
+
+METHOD 1 (Recommended) - Right-Click Menu:
+• Right-click on any image file
+• Look for "Remove Background" option
+• If not visible, click "Show more options" first
+• Click "Remove Background"
+• Wait a few seconds for processing
+• Find the processed image in the same folder
+
+METHOD 2 - Desktop Shortcut:
+• Double-click "Background Remover" on your desktop
+• Select your preferred image file
+• Click "Open" to start processing
+• The program will automatically remove the background
+
+💡 Tips:
+• Supported formats: JPG, PNG, BMP, TIFF, WEBP
+• Processed images are saved with "_no_bg" suffix
+• For best results, use images with clear subjects
+
+🚨 If Context Menu Still Doesn't Work:
+1. Run "fix_windows_defender.bat" as Administrator
+2. Or manually add exclusions in Windows Defender
+3. Restart your computer
+4. Contact support if issues persist
+
+🍺 Enjoying the software? Consider buying us a Red Bull!
+📧 Questions? Contact us: palmarenterprise@gmail.com
+
+Thank you for choosing Palmer Enterprises Background Remover!

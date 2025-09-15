@@ -1,0 +1,62 @@
+Palmar Tech Background Remover - Free Software License
+====================================================
+
+Copyright (C) 2025 Palmer Enterprises. All rights reserved.
+
+This software is provided FREE OF CHARGE for personal and commercial use. By installing, copying, or otherwise using the Background Remover software ("SOFTWARE"), you agree to be bound by the terms of this license agreement.
+
+FREEMIUM LICENSE
+===============
+
+The SOFTWARE is protected by copyright laws and international copyright treaties. This SOFTWARE is provided as freeware - you may use it without charge, while Palmer Enterprises retains ownership of the intellectual property.
+
+1. GRANT OF FREE LICENSE
+   Palmer Enterprises grants you the following rights at no cost:
+
+   a) You may install and use the SOFTWARE on unlimited computers that you own or control.
+   b) You may use the SOFTWARE for personal and commercial purposes without restriction.
+   c) You may make backup copies of the SOFTWARE for archival purposes only.
+   d) This license is perpetual and does not expire as long as you comply with these terms.2. USAGE RIGHTS AND LIMITATIONS
+
+   a) Free Use: This SOFTWARE is completely free for personal and commercial use.
+   b) No Purchase Required: You are not required to make any payment to use this SOFTWARE.
+   c) Redistribution: You may share this SOFTWARE with others, provided you include this license.
+   d) Reverse Engineering: You may not reverse engineer, decompile, or disassemble the SOFTWARE.
+
+3. VOLUNTARY SUPPORT ("BUY ME A RED BULL")
+   While this SOFTWARE is free, development and maintenance require time and resources.
+   If you find this SOFTWARE useful, you may voluntarily support the developer:
+
+   - Support Button: Click "Buy me a Red Bull" in the SOFTWARE interface
+   - Banking Details: PALMER ENTERPRISES, Zenith Bank, Account: 1017441664
+   - Contact: palmarenterprise@gmail.com
+
+   All support is voluntary and does not affect your right to use the SOFTWARE.
+
+   c) Rental. You may not rent, lease, or lend the SOFTWARE PRODUCT.
+
+   d) Support Services. Palmar Tech may provide you with support services related to the SOFTWARE PRODUCT. Use of Support Services is governed by Palmar Tech policies.
+
+3. TERMINATION
+   Without prejudice to any other rights, Palmar Tech may terminate this EULA if you fail to comply with the terms and conditions of this EULA. In such event, you must destroy all copies of the SOFTWARE PRODUCT.
+
+4. COPYRIGHT
+   All title and copyrights in and to the SOFTWARE PRODUCT (including but not limited to any images, photographs, animations, video, audio, music, text, and "applets" incorporated into the SOFTWARE PRODUCT), the accompanying printed materials, and any copies of the SOFTWARE PRODUCT are owned by Palmar Tech. The SOFTWARE PRODUCT is protected by copyright laws and international treaty provisions.
+
+4. LIMITED WARRANTY
+   PALMER ENTERPRISES DISCLAIMS ALL WARRANTIES, EITHER EXPRESS OR IMPLIED, INCLUDING THE WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT SHALL PALMER ENTERPRISES BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE USE OF OR INABILITY TO USE THIS FREE SOFTWARE.
+
+5. AI PROCESSING DISCLAIMER
+   The SOFTWARE uses artificial intelligence technology for background removal. Results may vary depending on image quality and complexity. Palmer Enterprises makes no guarantee regarding the accuracy or quality of processing results.
+
+6. PRIVACY
+   The SOFTWARE processes images locally on your computer. No images are transmitted to external servers during the background removal process.
+
+7. SUPPORT AND CONTACT
+   - Use the buttons below to show support
+   - This SOFTWARE is provided as-is with community-based support
+
+By using this SOFTWARE, you acknowledge that you have read this agreement, understand it, and agree to be bound by its terms and conditions.
+
+---
+© 2025 Palmer Enterprises. All rights reserved.

@@ -1,0 +1,7 @@
+rembg>=2.0.60
+PyQt6>=6.6.0
+Pillow>=10.0.0
+onnxruntime==1.17.0
+numpy<2
+opencv-python-headless<4.10
+pyinstaller>=6.0.0
