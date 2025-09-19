@@ -31,23 +31,64 @@ A professional Windows desktop application that removes image backgrounds with s
 
 ## Quick Start
 
-### 1. Install Dependencies
+### 1. Setup Virtual Environment (Recommended)
 
 ```bash
+# Create virtual environment
+python -m venv .venv
+
+# Activate virtual environment
+# On Windows:
+.venv\Scripts\activate.ps1
+
+# Install dependencies
 pip install -r src/requirements.txt
 ```
 
 ### 2. Test the Application
 
 ```bash
-python src/main.py "path/to/test/image.jpg"
+python src/main_optimized.py "path/to/test/image.jpg"
 ```
 
 ### 3. Build Executable
 
 ```bash
-# Use the build script
-build.bat
+# Build optimized version
+python -m PyInstaller build_optimized.spec --clean --noconfirm
+
+# Create installer (requires Inno Setup 6)
+iscc installer_config.iss
+```
+
+## Build Artifacts
+
+**Note**: Build artifacts (`dist/`, `build/`, `output/`) are excluded from version control due to GitHub's file size limits:
+- `dist/BackgroundRemover.exe` (~171 MB) - Main executable
+- `output/BackgroundRemover_Setup.exe` (~98 MB) - Installer
+- `build/` directory contains PyInstaller cache files
+
+These files are automatically generated during the build process.
+
+## Development Workflow
+
+### Repository Management
+This repository uses `.gitignore` to exclude large build artifacts from version control:
+- Build files can exceed GitHub's 100MB file size limit
+- Virtual environment (`/.venv`) contains ~500MB of dependencies
+- Only source code and configuration files are tracked
+
+### Local Development Setup
+1. Clone repository: `git clone <repo-url>`
+2. Setup virtual environment: `python -m venv .venv`
+3. Activate environment: `.venv\Scripts\activate.ps1`
+4. Install dependencies: `pip install -r src/requirements.txt`
+5. Build when ready: `python -m PyInstaller build_optimized.spec --clean`
+
+### Release Management
+- Source code is maintained in GitHub
+- Build artifacts are generated locally or via CI/CD
+- Releases can be distributed via GitHub Releases (supports larger files)
 
 # Or manually:
 pyinstaller build.spec --clean --noconfirm
