@@ -8,40 +8,104 @@ import os
 import sys
 from pathlib import Path
 
-# Import rembg with proper error handling for PyInstaller
-try:
-    import rembg
-    from rembg import remove as rembg_remove
-    from PIL import Image
-    REMBG_AVAILABLE = True
-except ImportError as e:
-    rembg_remove = None
-    REMBG_AVAILABLE = False
+# Global library cache for faster subsequent loads
+_LIBRARY_CACHE = {
+    'rembg_remove': None,
+    'PIL_Image': None,
+    'loaded': False
+}
 
 class OptimizedBackgroundRemover:
     """Optimized background removal class with reduced complexity"""
 
     def __init__(self):
-        if not REMBG_AVAILABLE:
-            raise ImportError("rembg library not available. Please install: pip install rembg")
+        # Use global cache for faster loading
+        self._rembg_loaded = _LIBRARY_CACHE['loaded']
+        self._rembg_remove = _LIBRARY_CACHE['rembg_remove']
+        self._PIL_Image = _LIBRARY_CACHE['PIL_Image']
 
-    def remove_background(self, input_path):
+    def _load_rembg_libraries(self, progress_callback=None):
+        """Load rembg libraries on-demand with optimized caching"""
+        global _LIBRARY_CACHE
+
+        if _LIBRARY_CACHE['loaded']:
+            self._rembg_loaded = True
+            self._rembg_remove = _LIBRARY_CACHE['rembg_remove']
+            self._PIL_Image = _LIBRARY_CACHE['PIL_Image']
+            return True
+
+        try:
+            if progress_callback:
+                progress_callback("Hugging the edges nice and tight...")
+
+            # Optimized imports with minimal overhead
+            from rembg import remove
+            from PIL import Image
+
+            # Cache globally for faster subsequent loads
+            _LIBRARY_CACHE['rembg_remove'] = remove
+            _LIBRARY_CACHE['PIL_Image'] = Image
+            _LIBRARY_CACHE['loaded'] = True
+
+            self._rembg_remove = remove
+            self._PIL_Image = Image
+            self._rembg_loaded = True
+
+            return True
+
+        except ImportError as e:
+            if progress_callback:
+                progress_callback(f"Oops! AI magic failed to load: {str(e)}")
+            return False
+
+    def preload_model(self, progress_callback=None):
+        """Preload the AI model for faster subsequent processing"""
+        if not self._rembg_loaded:
+            return False
+
+        try:
+            if progress_callback:
+                progress_callback("Warming up the AI magic...")
+
+            # Process a small dummy image to warm up the model
+            dummy_img = self._PIL_Image.new('RGB', (10, 10), color='white')
+            self._rembg_remove(dummy_img)
+
+            if progress_callback:
+                progress_callback("AI magic is ready!")
+            return True
+
+        except Exception:
+            return False
+
+    def remove_background(self, input_path, progress_callback=None):
         """
         Remove background from image
 
         Args:
             input_path (str): Path to input image
+            progress_callback (function): Optional callback for progress updates
 
         Returns:
             tuple: (success: bool, output_path: str)
         """
         try:
+            # Load libraries first with progress updates
+            if not self._load_rembg_libraries(progress_callback):
+                return False, "Failed to load AI libraries. Please check installation."
+
             # Validate input
             if not os.path.exists(input_path):
                 return False, f"Input file not found: {input_path}"
 
+            if progress_callback:
+                progress_callback("Just a few second, adding the visual spice...")
+
             # Generate output path
             output_path = self._generate_output_path(input_path)
+
+            if progress_callback:
+                progress_callback("Sprinkling AI magic on your image...")
 
             # Process image
             success = self._process_image(input_path, output_path)
@@ -67,9 +131,9 @@ class OptimizedBackgroundRemover:
             with open(input_path, 'rb') as input_file:
                 input_data = input_file.read()
 
-            # Remove background
-            if rembg_remove:
-                output_data = rembg_remove(input_data)
+            # Remove background using loaded library
+            if self._rembg_remove:
+                output_data = self._rembg_remove(input_data)
             else:
                 return False
 

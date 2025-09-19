@@ -1,0 +1,42 @@
+# Build artifacts - these are generated files and shouldn't be in version control
+dist/
+build/
+output/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# PyInstaller specific
+*.spec.bak
+*.manifest
+*.exe.log
+
+# Test files (optional - you might want to keep test_image.jpg)
+# test_*.jpg
+# test_*.png
+
+# Windows specific
+*.lnk

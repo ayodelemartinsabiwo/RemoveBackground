@@ -22,21 +22,32 @@ class BackgroundRemovalThread(QThread):
     def __init__(self, input_path):
         super().__init__()
         self.input_path = input_path
+        self.remover = OptimizedBackgroundRemover()  # Create instance here
 
     def run(self):
         """Execute background removal in separate thread"""
         try:
-            self.progress.emit("Initializing background removal...")
-            remover = OptimizedBackgroundRemover()
+            def progress_callback(message):
+                self.progress.emit(message)
 
-            self.progress.emit("Hugging the edges nice and tight....")
-            success, output_path = remover.remove_background(self.input_path)
+            # Pass progress callback to remove_background
+            success, output_path = self.remover.remove_background(
+                self.input_path,
+                progress_callback=progress_callback
+            )
+
+            # Preload model for next time (non-blocking optimization)
+            if success:
+                try:
+                    self.remover.preload_model(progress_callback)
+                except:
+                    pass  # Don't fail if preloading fails
 
             if success:
                 self.progress.emit("Background removed successfully!")
                 self.finished.emit(True, output_path)
             else:
-                self.finished.emit(False, "Failed to remove background")
+                self.finished.emit(False, output_path)  # output_path contains error message
 
         except Exception as e:
             error_msg = f"Error: {str(e)}"

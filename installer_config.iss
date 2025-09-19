@@ -16,6 +16,7 @@ AllowNoIcons=yes
 OutputDir=output
 OutputBaseFilename=BackgroundRemover_Setup
 SetupIconFile=assets\icon.ico
+WizardImageFile=assets\splash.bmp
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -40,21 +41,26 @@ Source: "dist\BackgroundRemover.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "assets\icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "USER_GUIDE.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "fix_windows_defender.bat"; DestDir: "{app}"; Flags: ignoreversion
+Source: "open_installation_folder.bat"; DestDir: "{app}"; Flags: ignoreversion
+Source: "src\context_menu.py"; DestDir: "{app}"; Flags: ignoreversion
+Source: "install-context-menu.bat"; DestDir: "{app}"; Flags: ignoreversion
+Source: "uninstall-context-menu.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "docs\WINDOWS_DEFENDER_FIX.md"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\Background Remover"; Filename: "{app}\BackgroundRemover.exe"
 Name: "{group}\User Guide"; Filename: "{app}\USER_GUIDE.txt"
 Name: "{group}\Fix Windows Defender"; Filename: "{app}\fix_windows_defender.bat"; IconFilename: "{sys}\shell32.dll"; IconIndex: 78
+Name: "{group}\Open Installation Folder"; Filename: "{app}"; IconFilename: "{sys}\shell32.dll"; IconIndex: 3
 Name: "{group}\{cm:UninstallProgram,Background Remover}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\Background Remover"; Filename: "{app}\BackgroundRemover.exe"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\BackgroundRemover.exe"; Parameters: "--install-context-menu"; Flags: runhidden
+Filename: "{app}\install-context-menu.bat"; Flags: runhidden
 Filename: "{app}\BackgroundRemover.exe"; Description: "{cm:LaunchProgram,Background Remover}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
-Filename: "{app}\BackgroundRemover.exe"; Parameters: "--uninstall-context-menu"; Flags: runhidden
+Filename: "{app}\uninstall-context-menu.bat"; Flags: runhidden
 
 [Code]
 var

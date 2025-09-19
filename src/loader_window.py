@@ -153,7 +153,7 @@ class LoaderWindow(QWidget):
         title_label.setStyleSheet(f"""
             font-size: 22px;
             font-weight: bold;
-            color: {COLORS['TEXT_DARK']};
+            color: {COLORS['PRIMARY_ORANGE']};
             padding: 0px;
             margin: 0px;
         """)
@@ -226,24 +226,24 @@ class LoaderWindow(QWidget):
         # Remove spacing before button to eliminate all gaps
         # success_layout.addSpacing(2) - REMOVED
 
-        # Buttons frame with both support buttons
+        # Buttons frame with support buttons only
         button_frame = QFrame()
         button_frame.setStyleSheet("QFrame { background-color: transparent; border: none; }")
         button_layout = QHBoxLayout(button_frame)
         button_layout.setContentsMargins(0, 0, 0, 0)
-        button_layout.setSpacing(10)  # Space between buttons
+        button_layout.setSpacing(10)  # Spacing between two buttons
 
         # Red Bull button
         support_btn = QPushButton("🍺 Buy us a Red Bull!")
         support_btn.setFixedHeight(DIMENSIONS['BUTTON_HEIGHT'])
-        support_btn.setMaximumWidth(160)  # Reduced width to fit both buttons
+        support_btn.setMaximumWidth(160)  # Slightly wider with more space
         support_btn.setStyleSheet(get_primary_button_style())
         support_btn.clicked.connect(self.show_support_dialog)
 
         # Contact Us button with proper email icon and same orange color
         contact_btn = QPushButton("📧 Contact Us")
         contact_btn.setFixedHeight(DIMENSIONS['BUTTON_HEIGHT'])
-        contact_btn.setMaximumWidth(120)  # Smaller width for contact button
+        contact_btn.setMaximumWidth(120)  # Adjusted width
         contact_btn.setStyleSheet(get_primary_button_style())  # Use same orange styling
         contact_btn.clicked.connect(self.show_contact_dialog)
 
@@ -339,6 +339,26 @@ Best regards,
 
         # Open user's default email client
         QDesktopServices.openUrl(email_url)
+
+    def open_installation_folder(self):
+        """Open the installation folder where the application is located"""
+        import os
+        import sys
+
+        # Get the application's executable path
+        if getattr(sys, 'frozen', False):
+            # Running as compiled executable
+            app_path = sys.executable
+        else:
+            # Running as script
+            app_path = os.path.abspath(__file__)
+
+        # Get the directory containing the executable
+        install_dir = os.path.dirname(app_path)
+
+        # Open the installation directory
+        if os.path.exists(install_dir):
+            QDesktopServices.openUrl(QUrl.fromLocalFile(install_dir))
 
     def closeEvent(self, a0):
         """Handle window close event with cleanup"""

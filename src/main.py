@@ -19,11 +19,14 @@ class BackgroundRemovalThread(QThread):
 
     def run(self):
         try:
-            self.progress.emit("Initializing background removal...")
-            remover = OptimizedBackgroundRemover()
+            def progress_callback(message):
+                self.progress.emit(message)
 
-            self.progress.emit("Hugging the edges nice and tight....")
-            success, output_path = remover.remove_background(self.input_path)
+            remover = OptimizedBackgroundRemover()
+            success, output_path = remover.remove_background(
+                self.input_path,
+                progress_callback=progress_callback
+            )
 
             if success:
                 self.progress.emit("Background removed successfully!")

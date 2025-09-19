@@ -20,7 +20,7 @@ class ThemedSupportDialog(QDialog):
         """Initialize the support dialog UI"""
         self.setWindowTitle("Support Palmer Enterprises")
         self.setFixedSize(450, 480)
-        # Remove FramelessWindowHint to make dialog movable
+        # Remove FramelessWindowHint to make dialog movable and use standard window controls
         self.setWindowFlags(Qt.WindowType.Dialog)
 
         # Main layout
@@ -28,14 +28,13 @@ class ThemedSupportDialog(QDialog):
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        # Create main frame with proper rounded corners
+        # Create main frame with proper rounded corners (no custom header)
         main_frame = self._create_main_frame()
         layout.addWidget(main_frame)
         self.setLayout(layout)
 
-        # Apply transparent background without interfering with rounded corners
+        # Apply background styling
         self.setStyleSheet(get_support_dialog_style())
-        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
     def _create_main_frame(self):
         """Create and return the main frame with all content"""
@@ -46,63 +45,11 @@ class ThemedSupportDialog(QDialog):
         frame_layout.setSpacing(0)
         frame_layout.setContentsMargins(0, 0, 0, 0)
 
-        # Add header
-        header_frame = self._create_header()
-        frame_layout.addWidget(header_frame)
-
-        # Add content
+        # Add content directly (no custom header)
         content_frame = self._create_content()
         frame_layout.addWidget(content_frame)
 
         return main_frame
-
-    def _create_header(self):
-        """Create and return the header frame with close button"""
-        header_frame = QFrame()
-        header_frame.setFixedHeight(DIMENSIONS['HEADER_HEIGHT'])
-        header_frame.setStyleSheet(f"""
-            QFrame {{
-                background-color: {COLORS['LIGHT_GREY']};
-                border: none;
-                border-bottom: 1px solid {COLORS['BORDER_GREY']};
-                border-top-left-radius: {DIMENSIONS['BORDER_RADIUS']}px;
-                border-top-right-radius: {DIMENSIONS['BORDER_RADIUS']}px;
-            }}
-        """)
-
-        header_layout = QHBoxLayout(header_frame)
-        header_layout.setContentsMargins(15, 5, 10, 5)
-        header_layout.addStretch()
-
-        # Close button
-        close_btn = self._create_close_button()
-        header_layout.addWidget(close_btn)
-
-        return header_frame
-
-    def _create_close_button(self):
-        """Create and return the close button"""
-        close_btn = QPushButton("×")
-        close_btn.setFixedSize(DIMENSIONS['CLOSE_BUTTON_SIZE'], DIMENSIONS['CLOSE_BUTTON_SIZE'])
-        close_btn.setStyleSheet(f"""
-            QPushButton {{
-                background-color: transparent;
-                color: {COLORS['TEXT_LIGHT']};
-                border: none;
-                border-radius: {DIMENSIONS['CLOSE_BUTTON_SIZE']//2}px;
-                font-size: 18px;
-                font-weight: bold;
-            }}
-            QPushButton:hover {{
-                background-color: {COLORS['HOVER_GREY']};
-                color: #666;
-            }}
-            QPushButton:pressed {{
-                background-color: {COLORS['PRESSED_GREY']};
-            }}
-        """)
-        close_btn.clicked.connect(self.close)
-        return close_btn
 
     def _create_content(self):
         """Create and return the content frame"""
