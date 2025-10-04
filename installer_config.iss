@@ -10,6 +10,7 @@ AppCopyright=Copyright (C) 2025 Palmer Enterprises
 AppContact=palmarenterprise@gmail.com
 AppComments=Free AI-Powered Background Remover by Palmer Enterprises
 UninstallDisplayName=Background Remover (Free) by Palmer Enterprises
+UninstallDisplayIcon={app}\BackgroundRemover.exe
 DefaultDirName={autopf}\BackgroundRemover
 DefaultGroupName=Background Remover
 AllowNoIcons=yes
@@ -34,7 +35,7 @@ VersionInfoProductVersion=1.0
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
 
 [Files]
 Source: "dist\BackgroundRemover.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -45,18 +46,18 @@ Source: "open_installation_folder.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "src\context_menu.py"; DestDir: "{app}"; Flags: ignoreversion
 Source: "install-context-menu.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "uninstall-context-menu.bat"; DestDir: "{app}"; Flags: ignoreversion
-Source: "docs\WINDOWS_DEFENDER_FIX.md"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "docs\WINDOWS_DEFENDER_FIX.md"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\Background Remover"; Filename: "{app}\BackgroundRemover.exe"
+Name: "{group}\Background Remover"; Filename: "{app}\BackgroundRemover.exe"; IconFilename: "{app}\icon.ico"
 Name: "{group}\User Guide"; Filename: "{app}\USER_GUIDE.txt"
 Name: "{group}\Fix Windows Defender"; Filename: "{app}\fix_windows_defender.bat"; IconFilename: "{sys}\shell32.dll"; IconIndex: 78
 Name: "{group}\Open Installation Folder"; Filename: "{app}"; IconFilename: "{sys}\shell32.dll"; IconIndex: 3
 Name: "{group}\{cm:UninstallProgram,Background Remover}"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\Background Remover"; Filename: "{app}\BackgroundRemover.exe"; Tasks: desktopicon
+Name: "{autodesktop}\Background Remover"; Filename: "{app}\BackgroundRemover.exe"; IconFilename: "{app}\icon.ico"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\install-context-menu.bat"; Flags: runhidden
+Filename: "{app}\install-context-menu.bat"; Parameters: """{app}\BackgroundRemover.exe"""; Flags: runhidden
 Filename: "{app}\BackgroundRemover.exe"; Description: "{cm:LaunchProgram,Background Remover}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]

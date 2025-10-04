@@ -32,15 +32,20 @@ class OptimizedBackgroundRemover:
             self._rembg_loaded = True
             self._rembg_remove = _LIBRARY_CACHE['rembg_remove']
             self._PIL_Image = _LIBRARY_CACHE['PIL_Image']
+            if progress_callback:
+                progress_callback("AI libraries ready!")
             return True
 
         try:
             if progress_callback:
-                progress_callback("Hugging the edges nice and tight...")
+                progress_callback("Summoning the AI wizards... 🧙‍♂️")
 
             # Optimized imports with minimal overhead
             from rembg import remove
             from PIL import Image
+
+            if progress_callback:
+                progress_callback("AI wizards are ready! ✨")
 
             # Cache globally for faster subsequent loads
             _LIBRARY_CACHE['rembg_remove'] = remove

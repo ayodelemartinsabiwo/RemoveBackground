@@ -35,6 +35,12 @@ class LoaderWindow(QWidget):
         # Remove FramelessWindowHint to make window movable, keep WindowStaysOnTopHint
         self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint)
 
+        # Set window icon to use the BG icon (from PNG for custom design quality)
+        icon_pixmap = load_application_icon(size=256, use_svg=False)
+        if icon_pixmap:
+            from PyQt6.QtGui import QIcon
+            self.setWindowIcon(QIcon(icon_pixmap))
+
         # Make window background transparent to fix black corners with rounded border
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
 
@@ -125,16 +131,16 @@ class LoaderWindow(QWidget):
 
         title_layout = QHBoxLayout(title_frame)
         title_layout.setContentsMargins(0, 0, 0, 0)
-        title_layout.setSpacing(8)  # Increased spacing for better visual balance
-        title_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Center the entire title
+        title_layout.setSpacing(8)
+        title_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        # Icon - make it larger
+        # Icon - use PNG for custom design quality
         icon_label = QLabel()
-        icon_pixmap = self._create_bg_icon()  # Use custom BG icon
+        icon_pixmap = load_application_icon(size=36, use_svg=False)
         if icon_pixmap:
             icon_label.setPixmap(icon_pixmap)
         else:
-            # Fallback to BG text if icon creation fails
+            # Fallback to BG text if icon loading fails
             icon_label.setText("BG")
             icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             icon_label.setStyleSheet(f"""
@@ -145,10 +151,10 @@ class LoaderWindow(QWidget):
                 border-radius: 18px;
                 padding: 4px;
             """)
-        icon_label.setFixedSize(36, 36)  # Increased from 24x24
+        icon_label.setFixedSize(36, 36)
         title_layout.addWidget(icon_label)
 
-        # Title text - make it larger
+        # Title text
         title_label = QLabel("Background Remover")
         title_label.setStyleSheet(f"""
             font-size: 22px;
@@ -157,34 +163,48 @@ class LoaderWindow(QWidget):
             padding: 0px;
             margin: 0px;
         """)
-        title_label.setFont(QFont("Segoe UI", 22, QFont.Weight.Bold))  # Increased from 16
+        title_label.setFont(QFont("Segoe UI", 22, QFont.Weight.Bold))
         title_layout.addWidget(title_label)
 
         return title_frame
 
     def _create_bg_icon(self):
-        """Create a custom BG icon programmatically"""
+        """Create a custom BG icon programmatically matching the reference design"""
         try:
-            from PyQt6.QtGui import QPixmap, QPainter, QBrush, QPen, QFont, QColor
+            from PyQt6.QtGui import QPixmap, QPainter, QBrush, QPen, QFont, QColor, QFontMetrics
 
-            # Create a larger 36x36 pixmap
-            pixmap = QPixmap(36, 36)
+            # Create a 36x36 pixmap
+            size = 36
+            pixmap = QPixmap(size, size)
             pixmap.fill(Qt.GlobalColor.transparent)
 
             painter = QPainter(pixmap)
-            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+            painter.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
+            painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
 
-            # Draw orange circle background
+            # Minimal padding to maximize icon size while preventing edge clipping
+            padding = int(size * 0.01)  # 1% padding
+            circle_size = size - (padding * 2)
+
+            # Draw orange circle background with padding
             orange_color = QColor(COLORS['PRIMARY_ORANGE'])
             painter.setBrush(QBrush(orange_color))
             painter.setPen(QPen(Qt.GlobalColor.transparent))
-            painter.drawEllipse(2, 2, 32, 32)
+            painter.drawEllipse(padding, padding, circle_size, circle_size)
 
-            # Draw "BG" text larger
+            # Draw "BG" text with perfect centering
             painter.setPen(QPen(Qt.GlobalColor.white))
-            font = QFont("Segoe UI", 11, QFont.Weight.Bold)  # Increased from 7
+
+            # Increase font size to be more visible (40% of circle diameter)
+            font_size = max(int(circle_size * 0.40), 10)
+            font = QFont("Arial Black", font_size, QFont.Weight.ExtraBold)
             painter.setFont(font)
-            painter.drawText(pixmap.rect(), Qt.AlignmentFlag.AlignCenter, "BG")
+
+            # Use drawText with rect for perfect centering
+            from PyQt6.QtCore import QRect
+            text_rect = QRect(0, 0, size, size)
+            painter.drawText(text_rect, Qt.AlignmentFlag.AlignCenter, "BG")
 
             painter.end()
             return pixmap

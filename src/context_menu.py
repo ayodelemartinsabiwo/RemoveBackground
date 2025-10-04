@@ -17,10 +17,16 @@ class ContextMenuManager:
             exe_path (str): Path to the main executable
         """
         try:
+            # Use icon.ico for context menu icon instead of executable
+            icon_path = os.path.join(os.path.dirname(exe_path), "icon.ico")
+            if not os.path.exists(icon_path):
+                # Fallback to exe if icon missing
+                icon_path = exe_path
+
             # Create main registry key
             with winreg.CreateKey(winreg.HKEY_CLASSES_ROOT, self.registry_key) as key:
                 winreg.SetValue(key, "", winreg.REG_SZ, "Remove Background")
-                winreg.SetValueEx(key, "Icon", 0, winreg.REG_SZ, exe_path)
+                winreg.SetValueEx(key, "Icon", 0, winreg.REG_SZ, icon_path)
 
             # Create command registry key
             with winreg.CreateKey(winreg.HKEY_CLASSES_ROOT, self.command_key) as key:

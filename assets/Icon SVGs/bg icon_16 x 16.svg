@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 16 16">
+  <!-- Generator: Adobe Illustrator 29.9.0, SVG Export Plug-In . SVG Version: 2.1.1 Build 6)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: #fff;
+        font-family: MyriadPro-Bold, 'Myriad Pro';
+        font-size: 10.23px;
+        font-weight: 700;
+      }
+
+      .st1 {
+        fill: #ff6b35;
+      }
+    </style>
+  </defs>
+  <circle class="st1" cx="8" cy="8" r="8"/>
+  <text class="st0" transform="translate(1.42 11.54)"><tspan x="0" y="0">BG</tspan></text>
+</svg>

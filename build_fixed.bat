@@ -18,7 +18,7 @@ echo.
 :: Build using virtual environment Python
 echo 🔨 Building executable with PyInstaller...
 echo.
-.\.venv\Scripts\python.exe -m PyInstaller build.spec --clean --noconfirm
+.\.venv\Scripts\python.exe -m PyInstaller build_optimized.spec --clean --noconfirm
 
 if %errorlevel% == 0 (
     echo.

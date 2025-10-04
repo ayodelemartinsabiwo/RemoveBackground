@@ -22,7 +22,7 @@ class BackgroundRemovalThread(QThread):
     def __init__(self, input_path):
         super().__init__()
         self.input_path = input_path
-        self.remover = OptimizedBackgroundRemover()  # Create instance here
+        # Don't create remover instance here - do it in run() to avoid import delays
 
     def run(self):
         """Execute background removal in separate thread"""
@@ -30,8 +30,14 @@ class BackgroundRemovalThread(QThread):
             def progress_callback(message):
                 self.progress.emit(message)
 
+            # Emit initial progress immediately
+            progress_callback("Hugging the edges tight...")
+
+            # Create remover instance here to avoid blocking UI thread
+            remover = OptimizedBackgroundRemover()
+
             # Pass progress callback to remove_background
-            success, output_path = self.remover.remove_background(
+            success, output_path = remover.remove_background(
                 self.input_path,
                 progress_callback=progress_callback
             )
@@ -39,7 +45,7 @@ class BackgroundRemovalThread(QThread):
             # Preload model for next time (non-blocking optimization)
             if success:
                 try:
-                    self.remover.preload_model(progress_callback)
+                    remover.preload_model(progress_callback)
                 except:
                     pass  # Don't fail if preloading fails
 
@@ -121,6 +127,13 @@ def main():
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
 
+    # Set application icon (from PNG for custom design quality)
+    from window_utils import load_application_icon
+    from PyQt6.QtGui import QIcon
+    icon_pixmap = load_application_icon(size=256, use_svg=False)
+    if icon_pixmap:
+        app.setWindowIcon(QIcon(icon_pixmap))
+
     # Get image path from command line or file dialog
     if len(sys.argv) >= 2:
         image_path = sys.argv[1]
@@ -134,8 +147,13 @@ def main():
         show_error_dialog(f"File not found: {image_path}")
         return
 
-    # Create and show loader window
+    # Create and show loader window IMMEDIATELY (before heavy processing)
     loader = LoaderWindow()
+    loader.show()  # Show immediately
+    loader.update_status("Initializing Background Remover...")
+
+    # Process the event loop to make sure loader window appears quickly
+    app.processEvents()
 
     # Start background removal process
     thread = setup_background_removal(loader, image_path)

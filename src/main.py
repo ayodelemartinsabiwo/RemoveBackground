@@ -16,12 +16,14 @@ class BackgroundRemovalThread(QThread):
     def __init__(self, input_path):
         super().__init__()
         self.input_path = input_path
+        # Don't create remover instance here - do it in run() to avoid import delays
 
     def run(self):
         try:
             def progress_callback(message):
                 self.progress.emit(message)
 
+            # Create remover instance here to avoid blocking UI thread
             remover = OptimizedBackgroundRemover()
             success, output_path = remover.remove_background(
                 self.input_path,
@@ -129,6 +131,13 @@ def main():
 
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
+
+    # Set application icon
+    from window_utils import load_application_icon
+    from PyQt6.QtGui import QIcon
+    icon_pixmap = load_application_icon()
+    if icon_pixmap:
+        app.setWindowIcon(QIcon(icon_pixmap))
 
     # Get image path from command line or file dialog
     if len(sys.argv) >= 2:

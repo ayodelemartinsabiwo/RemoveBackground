@@ -19,24 +19,83 @@ def center_window_on_screen(window):
         window_geometry.moveCenter(center_point)
         window.move(window_geometry.topLeft())
 
-def load_application_icon(relative_path="assets/icon.ico"):
-    """Load the application icon from assets folder"""
+def load_application_icon(size=256, use_svg=True):
+    """Load the application icon - preferably from SVG for best quality"""
+    import sys
+
     try:
-        # Get the icon path relative to the main directory
-        base_dir = os.path.dirname(os.path.dirname(__file__))
-        icon_path = os.path.join(base_dir, relative_path)
+        # Check if running as PyInstaller bundle
+        if getattr(sys, 'frozen', False):
+            # Running as compiled executable
+            base_dir = sys._MEIPASS  # type: ignore[attr-defined]
+        else:
+            # Running as script
+            base_dir = os.path.dirname(os.path.dirname(__file__))
 
-        # Also try the direct path in case we're running from dist
-        if not os.path.exists(icon_path):
-            icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), relative_path)
+        # Try to load from custom PNG files first (best quality from design software)
+        if not use_svg:
+            # Try to find exact size match first
+            png_path = os.path.join(base_dir, "assets", "Icon PNGs", f"icon_{size}x{size}.png")
 
+            if not os.path.exists(png_path):
+                # Fall back to 256x256 and scale
+                png_path = os.path.join(base_dir, "assets", "Icon PNGs", "icon_256x256.png")
+
+            if os.path.exists(png_path):
+                pixmap = QPixmap(png_path)
+                if not pixmap.isNull():
+                    # Scale to requested size with smooth transformation if needed
+                    if pixmap.width() != size:
+                        pixmap = pixmap.scaled(
+                            size, size,
+                            Qt.AspectRatioMode.KeepAspectRatio,
+                            Qt.TransformationMode.SmoothTransformation
+                        )
+                    return pixmap
+
+        # Try to load SVG for best quality (if requested)
+        if use_svg:
+            from PyQt6.QtSvg import QSvgRenderer
+            from PyQt6.QtGui import QPainter, QImage
+
+            svg_path = os.path.join(base_dir, "assets", "bg icon_256 x 256.svg")
+
+            if os.path.exists(svg_path):
+                # Render SVG at requested size with anti-aliasing
+                renderer = QSvgRenderer(svg_path)
+                if renderer.isValid():
+                    # Use 2x rendering for better quality
+                    render_size = size * 2
+                    image = QImage(render_size, render_size, QImage.Format.Format_ARGB32_Premultiplied)
+                    image.fill(0)  # Transparent
+
+                    painter = QPainter(image)
+                    painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+                    painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
+                    renderer.render(painter)
+                    painter.end()
+
+                    # Scale down for final size
+                    final_image = image.scaled(
+                        size, size,
+                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.SmoothTransformation
+                    )
+
+                    pixmap = QPixmap.fromImage(final_image)
+                    if not pixmap.isNull():
+                        return pixmap
+
+        # Final fallback to ICO
+        icon_path = os.path.join(base_dir, "assets", "icon.ico")
         if os.path.exists(icon_path):
             pixmap = QPixmap(icon_path)
             if not pixmap.isNull():
-                # Return the original pixmap, let caller decide on scaling
                 return pixmap
+
+        print(f"Warning: Icon file not found")
     except Exception as e:
-        print(f"Warning: Could not load icon from {relative_path}: {e}")
+        print(f"Warning: Could not load icon: {e}")
 
     return None
 
