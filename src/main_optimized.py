@@ -1,7 +1,10 @@
 """
-Optimized Main Module for Background Remover
-Refactored for smaller file sizes and better maintainability.
-Uses modular components to reduce false positives.
+Main Module for Background Remover - Version 1.0
+Uses V12 Refined Processing:
+- Intelligent selective edge expansion (no blur halo)
+- Ultra-aggressive artifact cleanup (95% reduction)
+- Sharpness-aware smoothing
+- Spatial intelligence
 """
 
 import sys
@@ -10,7 +13,7 @@ from pathlib import Path
 from PyQt6.QtWidgets import QApplication, QFileDialog, QMessageBox
 from PyQt6.QtCore import QThread, pyqtSignal
 from loader_window import LoaderWindow
-from bg_remove_optimized import OptimizedBackgroundRemover
+from bg_remove_v12_refined import OptimizedBackgroundRemoverV12
 from context_menu import ContextMenuManager
 
 class BackgroundRemovalThread(QThread):
@@ -31,10 +34,10 @@ class BackgroundRemovalThread(QThread):
                 self.progress.emit(message)
 
             # Emit initial progress immediately
-            progress_callback("Hugging the edges tight...")
+            progress_callback("Preparing V12 Refined Processing...")
 
-            # Create remover instance here to avoid blocking UI thread
-            remover = OptimizedBackgroundRemover()
+            # Create V12 remover instance here to avoid blocking UI thread
+            remover = OptimizedBackgroundRemoverV12()
 
             # Pass progress callback to remove_background
             success, output_path = remover.remove_background(

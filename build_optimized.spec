@@ -8,7 +8,7 @@ a = Analysis(
     binaries=[],
     datas=[
         ('assets/Icon SVGs/bg icon_256 x 256.svg', 'assets'),
-        ('assets/Icon PNGs', 'assets/Icon PNGs'),  # Bundle custom PNG icons
+        ('assets/Icon PNGs Corrected', 'assets/Icon PNGs'),  # Bundle corrected custom PNG icons
         ('assets/icon.ico', 'assets'),
         ('.venv/Lib/site-packages/rembg', 'rembg'),
         ('.venv/Lib/site-packages/onnxruntime', 'onnxruntime'),
