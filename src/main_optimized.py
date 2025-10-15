@@ -1,10 +1,11 @@
 """
-Main Module for Background Remover - Version 1.0
-Uses V12 Refined Processing:
-- Intelligent selective edge expansion (no blur halo)
-- Ultra-aggressive artifact cleanup (95% reduction)
-- Sharpness-aware smoothing
-- Spatial intelligence
+Main Module for Background Remover - Version 1.2
+Uses Bulletproof Processing:
+- 100% bulletproof error handling - never crashes
+- Original witty loading messages restored
+- Fast loader initialization
+- Ultra-clean background artifact removal
+- Maximum hair preservation with clean backgrounds
 """
 
 import sys
@@ -13,7 +14,7 @@ from pathlib import Path
 from PyQt6.QtWidgets import QApplication, QFileDialog, QMessageBox
 from PyQt6.QtCore import QThread, pyqtSignal
 from loader_window import LoaderWindow
-from bg_remove_v12_refined import OptimizedBackgroundRemoverV12
+from bg_remove_v1_2_bulletproof import BackgroundRemoverV12Bulletproof
 from context_menu import ContextMenuManager
 
 class BackgroundRemovalThread(QThread):
@@ -33,11 +34,11 @@ class BackgroundRemovalThread(QThread):
             def progress_callback(message):
                 self.progress.emit(message)
 
-            # Emit initial progress immediately
-            progress_callback("Preparing V12 Refined Processing...")
+            # Emit initial progress immediately with witty message
+            progress_callback("🤗 Hugging the edges...")
 
-            # Create V12 remover instance here to avoid blocking UI thread
-            remover = OptimizedBackgroundRemoverV12()
+            # Create Bulletproof remover instance here to avoid blocking UI thread
+            remover = BackgroundRemoverV12Bulletproof()
 
             # Pass progress callback to remove_background
             success, output_path = remover.remove_background(
@@ -45,12 +46,9 @@ class BackgroundRemovalThread(QThread):
                 progress_callback=progress_callback
             )
 
-            # Preload model for next time (non-blocking optimization)
+                        # Model is already loaded during processing - no preloading needed
             if success:
-                try:
-                    remover.preload_model(progress_callback)
-                except:
-                    pass  # Don't fail if preloading fails
+                pass  # Ultra-clean version doesn't need separate preloading
 
             if success:
                 self.progress.emit("Background removed successfully!")

@@ -1,4 +1,8 @@
 # -*- mode: python ; coding: utf-8 -*-
+"""
+Distribution-Safe Build Configuration for Background Remover V1.2 Bulletproof
+Optimized to prevent extraction and framework errors on clean Windows systems
+"""
 
 block_cipher = None
 
@@ -7,69 +11,91 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[
-        ('assets/Icon SVGs/bg icon_256 x 256.svg', 'assets'),
-        ('assets/Icon PNGs Corrected', 'assets/Icon PNGs'),  # Bundle corrected custom PNG icons
+        # Essential assets only
         ('assets/icon.ico', 'assets'),
+        # Essential AI model dependencies
         ('.venv/Lib/site-packages/rembg', 'rembg'),
         ('.venv/Lib/site-packages/onnxruntime', 'onnxruntime'),
     ],
     hiddenimports=[
+        # Core AI processing - minimal required imports only
         'rembg',
-        'rembg.__init__',
         'rembg.bg',
         'rembg.session_factory',
-        'rembg.sessions',
         'rembg.sessions.base',
         'rembg.sessions.u2net',
-        'rembg.sessions.u2netp',
-        'rembg.sessions.silueta',
-        'rembg.sessions.isnet',
-        'rembg.sessions.sam',
+        'rembg.sessions.birefnet',
         'rembg.new_session',
+
+        # ONNX Runtime essentials
         'onnxruntime',
         'onnxruntime.capi',
-        'onnxruntime.capi.onnxruntime_pybind11_state',
-        'onnxruntime.capi._pybind_state',
         'onnxruntime.backend',
-        'onnxruntime.backend.backend',
+
+        # Image processing essentials
         'PIL',
         'PIL.Image',
         'PIL.ImageOps',
         'PIL.ImageFilter',
+
+        # GUI essentials - minimal PyQt6
         'PyQt6.QtCore',
         'PyQt6.QtWidgets',
         'PyQt6.QtGui',
+
+        # Computer vision essentials
         'cv2',
         'numpy',
-        'skimage',
-        'skimage.transform',
-        'skimage.measure',
-        'skimage.segmentation',
-        'scipy',
-        'scipy.ndimage',
-        'scipy.sparse',
-        'scipy.sparse.csgraph',
-        'numba',
-        'numba.core',
-        'numba.core.types',
-        'numba.typed',
-        'llvmlite',
-        'pooch',
-        'requests',
-        'tqdm',
-        'huggingface_hub',
-        'filelock',
-        'typing_extensions',
-        'packaging',
+
+        # Standard library modules needed by dependencies
+        'urllib',
+        'urllib.request',
+        'urllib.parse',
+        'urllib.error',
+        'http',
+        'http.client',
+        'socket',
+        'ssl',
+        'json',
+        'time',
+        'os',
+        'gc',
+        'datetime',
+        'collections',
+        'functools',
+        'itertools',
+        'importlib',
+        'pathlib',
+        'typing',
     ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[
+        # Only exclude the most problematic components
+        'scipy.ndimage',           # Causes morphology extraction errors
+        'skimage.morphology',      # Causes _misc_cy.cp312-win_amd64.pyd extraction errors
+        'skimage.segmentation',
+        'skimage.transform',
+        'skimage.measure',
+
+        # Exclude WebView components that cause framework errors
+        'PyQt6.QtWebEngine',       # Causes WebViewHost.exe framework errors
+        'PyQt6.QtWebEngineCore',
+        'PyQt6.QtWebEngineWidgets',
+        'PyQt6.QtWebChannel',
+
+        # Exclude heavy ML components we definitely don't use
+        'torch',
+        'torchvision',
+        'tensorflow',
+        'transformers',
+        'tokenizers',
         'matplotlib',
         'pandas',
-        'torch',
-        'torchvision'
+
+        # Exclude unused system components
+        'tkinter',                 # We use PyQt6, not tkinter
     ],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,

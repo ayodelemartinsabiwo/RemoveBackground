@@ -4,9 +4,9 @@ Contains the main LoaderWindow class for the background removal interface.
 Refactored from gui_loader.py for better organization and smaller file sizes.
 """
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QProgressBar, QFrame, QPushButton
-from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QUrl
-from PyQt6.QtGui import QFont, QCloseEvent, QDesktopServices
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QProgressBar, QFrame, QPushButton, QApplication
+from PyQt6.QtCore import Qt, QTimer, pyqtSignal
+from PyQt6.QtGui import QFont, QCloseEvent
 from gui_styles import (COLORS, DIMENSIONS, get_main_frame_style, get_header_frame_style,
                         get_close_button_style, get_title_style, get_status_label_style,
                         get_progress_bar_style, get_success_frame_style, get_primary_button_style)
@@ -29,23 +29,23 @@ class LoaderWindow(QWidget):
         self.setup_progress_animation()
 
     def init_ui(self):
-        """Initialize the user interface"""
+        """Initialize the user interface - optimized for instant display"""
         self.setWindowTitle("Background Remover")
         self.setFixedSize(DIMENSIONS['LOADER_WIDTH'], DIMENSIONS['LOADER_HEIGHT'])
         # Remove FramelessWindowHint to make window movable, keep WindowStaysOnTopHint
         self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint)
 
-        # Set window icon to use the BG icon (from PNG for custom design quality)
-        icon_pixmap = load_application_icon(size=256, use_svg=False)
-        if icon_pixmap:
-            from PyQt6.QtGui import QIcon
-            self.setWindowIcon(QIcon(icon_pixmap))
+        # Quick icon setup - use built-in if custom fails
+        try:
+            icon_pixmap = load_application_icon(size=64, use_svg=False)  # Smaller for speed
+            if icon_pixmap:
+                from PyQt6.QtGui import QIcon
+                self.setWindowIcon(QIcon(icon_pixmap))
+        except Exception:
+            pass  # Continue without icon if it fails
 
         # Make window background transparent to fix black corners with rounded border
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
-
-        # Center window on screen
-        center_window_on_screen(self)
 
         # Main layout with no margins for clean look
         layout = QVBoxLayout()
@@ -57,8 +57,16 @@ class LoaderWindow(QWidget):
         layout.addWidget(self.main_frame)
         self.setLayout(layout)
 
-        # Show immediately for fast response
+        # Show immediately FIRST for instant response
         self.show()
+
+        # Center window AFTER showing for faster display
+        center_window_on_screen(self)
+
+        # Force immediate update
+        QApplication.processEvents()
+        self.raise_()  # Bring to front immediately
+        QApplication.processEvents()  # Force immediate display
 
     def _create_main_frame(self):
         """Create and return the main frame with all content"""
@@ -93,7 +101,7 @@ class LoaderWindow(QWidget):
         content_layout.addWidget(self.title_frame)
 
         # Status label - make it larger and more prominent
-        self.status_label = QLabel("Initializing...")
+        self.status_label = QLabel("🤗 Hugging the edges...")
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.status_label.setStyleSheet(f"""
             font-size: 16px;
@@ -355,10 +363,26 @@ Best regards,
         encoded_body = urllib.parse.quote(body)
 
         # Create mailto URL
-        email_url = QUrl(f"mailto:palmarenterprise@gmail.com?subject={encoded_subject}&body={encoded_body}")
+        email_url = f"mailto:palmarenterprise@gmail.com?subject={encoded_subject}&body={encoded_body}"
 
-        # Open user's default email client
-        QDesktopServices.openUrl(email_url)
+        # Open user's default email client using subprocess (safer for distribution)
+        try:
+            import subprocess
+            import os
+            if os.name == 'nt':  # Windows
+                subprocess.run(['cmd', '/c', 'start', '', email_url], shell=True)
+            else:  # macOS/Linux
+                subprocess.run(['open' if sys.platform == 'darwin' else 'xdg-open', email_url])
+        except Exception as e:
+            print(f"Could not open email client: {e}")
+            # Fallback: Copy email to clipboard
+            try:
+                from PyQt6.QtWidgets import QApplication
+                clipboard = QApplication.clipboard()
+                if clipboard:
+                    clipboard.setText(f"Email: palmarenterprise@gmail.com\nSubject: {subject}\n\n{body}")
+            except:
+                pass
 
     def open_installation_folder(self):
         """Open the installation folder where the application is located"""
@@ -376,9 +400,16 @@ Best regards,
         # Get the directory containing the executable
         install_dir = os.path.dirname(app_path)
 
-        # Open the installation directory
+        # Open the installation directory using subprocess (safer for distribution)
         if os.path.exists(install_dir):
-            QDesktopServices.openUrl(QUrl.fromLocalFile(install_dir))
+            try:
+                import subprocess
+                if os.name == 'nt':  # Windows
+                    subprocess.run(['explorer', install_dir])
+                else:  # macOS/Linux
+                    subprocess.run(['open' if sys.platform == 'darwin' else 'xdg-open', install_dir])
+            except Exception as e:
+                print(f"Could not open installation directory: {e}")
 
     def closeEvent(self, a0):
         """Handle window close event with cleanup"""
