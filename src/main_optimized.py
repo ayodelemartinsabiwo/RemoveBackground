@@ -1,12 +1,15 @@
 """
-Main Module for Background Remover - Version 1.2
-Uses Bulletproof Processing:
-- 100% bulletproof error handling - never crashes
-- Original witty loading messages restored
-- Fast loader initialization
-- Ultra-clean background artifact removal
-- Maximum hair preservation with clean backgrounds
+Main entry point for the Background Remover application
+Uses the speed-optimized version targeting 40 seconds maximum
 """
+
+import os
+import sys
+import tkinter as tk
+import time
+from tkinter import messagebox
+
+# Use the proven working bulletproof version - NO speed optimizations for stability
 
 import sys
 import os
@@ -37,7 +40,7 @@ class BackgroundRemovalThread(QThread):
             # Emit initial progress immediately with witty message
             progress_callback("🤗 Hugging the edges...")
 
-            # Create Bulletproof remover instance here to avoid blocking UI thread
+            # Use the proven working bulletproof version
             remover = BackgroundRemoverV12Bulletproof()
 
             # Pass progress callback to remove_background

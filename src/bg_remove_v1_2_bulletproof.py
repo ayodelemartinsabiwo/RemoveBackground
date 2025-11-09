@@ -11,6 +11,7 @@ Features:
 """
 
 import os
+import sys
 import numpy as np
 from rembg import remove, new_session
 from PIL import Image, ImageFilter, ImageEnhance
@@ -18,18 +19,128 @@ import time
 import gc
 import cv2
 
+def _setup_safe_onnx_environment():
+    """
+    Setup ONNX Runtime environment for maximum PyInstaller compatibility
+    """
+    try:
+        # Set environment variables for ONNX Runtime stability
+        os.environ['ORT_DISABLE_ALL_LOGS'] = '1'
+        os.environ['OMP_NUM_THREADS'] = '1'
+        os.environ['ORT_ENABLE_PERF_COUNTERS'] = '0'
+        os.environ['ONNXRUNTIME_LOG_SEVERITY_LEVEL'] = '4'  # Errors only
+        os.environ['ORT_TENSORRT_UNAVAILABLE'] = '1'        # Disable TensorRT
+
+        # Try to import onnxruntime and verify it works
+        import onnxruntime as ort
+
+        # Get available providers, prioritize CPU for stability
+        available_providers = ort.get_available_providers()
+
+        # Use only CPU provider for maximum compatibility in PyInstaller
+        if 'CPUExecutionProvider' in available_providers:
+            return ['CPUExecutionProvider']
+        else:
+            raise RuntimeError("CPUExecutionProvider not available")
+
+    except Exception as e:
+        print(f"WARNING: ONNX Runtime setup issue: {e}")
+        # Return None to let rembg handle provider selection
+        return None
+
+# Setup ONNX environment at module import
+_onnx_providers = _setup_safe_onnx_environment()
+
+# Configure model download location for cross-machine compatibility
+def _setup_model_directory():
+    """
+    Setup model directory with priority:
+    1. Check for bundled models (in executable directory) - NO INTERNET NEEDED
+    2. Use writable AppData location for downloaded models
+    """
+    try:
+        if getattr(sys, 'frozen', False):
+            # Running as compiled executable
+
+            # First, check if models are bundled with the executable (PREFERRED!)
+            exe_dir = os.path.dirname(sys.executable)
+
+            # Try multiple possible locations for bundled models
+            possible_locations = [
+                os.path.join(exe_dir, '_internal', 'models'),  # PyInstaller onedir
+                os.path.join(exe_dir, 'models'),               # Direct bundling
+                os.path.join(exe_dir, '..', 'models'),         # Parent directory
+            ]
+
+            for bundled_models_dir in possible_locations:
+                if os.path.exists(bundled_models_dir) and os.path.isdir(bundled_models_dir):
+                    # Check if there are actual model files
+                    model_files = [f for f in os.listdir(bundled_models_dir) if f.endswith('.onnx')]
+                    if model_files:
+                        print(f"✓ Using bundled models (no internet required): {bundled_models_dir}")
+                        os.environ['U2NET_HOME'] = bundled_models_dir
+                        return bundled_models_dir
+
+            # Fallback: Use AppData for model downloads (requires internet first time)
+            model_dir = os.path.join(
+                os.environ.get('LOCALAPPDATA', os.path.expanduser('~')),
+                'BackgroundRemover',
+                'models'
+            )
+            os.makedirs(model_dir, exist_ok=True)
+            os.environ['U2NET_HOME'] = model_dir
+            return model_dir
+
+        else:
+            # Running as script - check for pre-downloaded models first
+            script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            bundled_models_dir = os.path.join(script_dir, 'models')
+
+            if os.path.exists(bundled_models_dir) and os.path.isdir(bundled_models_dir):
+                model_files = [f for f in os.listdir(bundled_models_dir) if f.endswith('.onnx')]
+                if model_files:
+                    print(f"✓ Using pre-downloaded models: {bundled_models_dir}")
+                    os.environ['U2NET_HOME'] = bundled_models_dir
+                    return bundled_models_dir
+
+            # Fallback: Use standard location for downloads
+            model_dir = os.path.join(os.path.expanduser('~'), '.u2net')
+            os.makedirs(model_dir, exist_ok=True)
+            os.environ['U2NET_HOME'] = model_dir
+            return model_dir
+
+    except Exception as e:
+        print(f"Model directory setup warning: {e}")
+        return None
+
+# Initialize model directory on module load
+_MODEL_DIR = _setup_model_directory()
+
+# Configure onnxruntime to use CPU only (more stable for PyInstaller)
+def _configure_onnxruntime():
+    """Configure onnxruntime for stability in PyInstaller builds"""
+    import os
+    # Force CPU-only execution (more stable)
+    os.environ['ORT_DISABLE_PROVIDERS'] = 'CUDA,DNNL,TENSORRT,OPENVINO'
+    os.environ['OMP_NUM_THREADS'] = '4'  # Limit threading
+
+try:
+    _configure_onnxruntime()
+except Exception as e:
+    print(f"Warning: Could not configure onnxruntime: {e}")
+
 class BackgroundRemoverV12Bulletproof:
     def __init__(self):
         self.session = None
         self.start_time = None
         self.progress_callback = None
 
-        # Original witty loading messages - pure fun, no technical terms
+        # Original fun loading messages - restored from working version
         self.witty_messages = [
             "🤗 Hugging the edges...",
             "✂️ Sharpening digital scissors...",
             "🎨 Mixing invisible paint...",
-            "�‍♀️ Casting transparency spells...",
+            "🧙‍♀️ Casting transparency spells...",
             "⚡ Charging magic wand...",
             "🎭 Playing hide and seek with backgrounds...",
             "🔍 Finding the edge of reality...",
@@ -37,10 +148,15 @@ class BackgroundRemoverV12Bulletproof:
             "🚀 Launching unwanted bits into space...",
             "💫 Making magic happen...",
             "🎪 Performing disappearing acts...",
-            "🔥 Melting away the clutter...",
-            "🎵 Dancing around the subject...",
-            "🏆 Polishing to perfection...",
-            "✨ Adding the final sparkle..."
+            "🔥 Melting backgrounds away...",
+            "🎵 Teaching pixels to dance...",
+            "� Achieving pixel perfection...",
+            "✨ Adding finishing touches...",
+            "🌟 Sprinkling transparency dust...",
+            "� Rehearsing the grand finale...",
+            "🔮 Consulting the pixel oracle...",
+            "🎨 Painting with invisible brushes...",
+            "🌈 Creating background-free rainbows..."
         ]
         self.current_message_index = 0
 
@@ -58,27 +174,101 @@ class BackgroundRemoverV12Bulletproof:
             self.progress_callback(message)
 
     def _bulletproof_session_init(self):
-        """Initialize session with complete error handling"""
+        """Initialize session with complete error handling and model verification"""
         if self.session is not None:
             return True
 
         try:
             self._update_progress("🤗 Hugging the edges...")
-            self.session = new_session('birefnet-portrait')
+
+            # Check if we have bundled models (no download needed)
+            bundled_models_available = False
+            if _MODEL_DIR:
+                # Check for any bundled model files
+                model_files = [f for f in os.listdir(_MODEL_DIR) if f.endswith('.onnx')]
+                if model_files:
+                    bundled_models_available = True
+                    print(f"Found bundled models: {model_files}")
+
+            # Only show download message if no bundled models found
+            if not bundled_models_available:
+                self._update_progress("📥 Downloading AI model (first time only, 1-2 minutes)...")
+
+            # Try BiRefNet-Portrait first (best quality) with safe providers
+            try:
+                if _onnx_providers:
+                    self.session = new_session('birefnet-portrait', providers=_onnx_providers)
+                else:
+                    # Fallback with CPU-only for safety
+                    self.session = new_session('birefnet-portrait', providers=['CPUExecutionProvider'])
+            except Exception:
+                # Final fallback to default session creation
+                self.session = new_session('birefnet-portrait')
+
+            # Verify model loaded correctly with a tiny test
+            try:
+                test_img = Image.new('RGB', (10, 10), color='white')
+                _ = remove(test_img, session=self.session)
+                self._update_progress("✅ AI model ready!")
+            except Exception as test_error:
+                print(f"Model verification failed: {test_error}")
+                raise  # Re-raise to try fallback models
+
             return True
+
         except Exception as e:
             print(f"BiRefNet failed: {e}")
             try:
-                self._update_progress("🧙‍♀️ Casting transparency spells...")
-                self.session = new_session('u2net')
+                self._update_progress("🧙‍♀️ Trying alternative AI model...")
+                try:
+                    # Try U2Net with safe providers
+                    if _onnx_providers:
+                        self.session = new_session('u2net', providers=_onnx_providers)
+                    else:
+                        self.session = new_session('u2net', providers=['CPUExecutionProvider'])
+                except Exception:
+                    # Fallback to default session creation
+                    self.session = new_session('u2net')
+
+                # Verify U2Net model
+                try:
+                    test_img = Image.new('RGB', (10, 10), color='white')
+                    _ = remove(test_img, session=self.session)
+                    self._update_progress("✅ AI model ready!")
+                except Exception as test_error:
+                    print(f"U2Net verification failed: {test_error}")
+                    raise
+
                 return True
+
             except Exception as e2:
                 print(f"U2Net also failed: {e2}")
                 try:
-                    self.session = new_session('isnet-general-use')
+                    self._update_progress("🔄 Trying final AI model...")
+                    try:
+                        # Try ISNet with safe providers
+                        if _onnx_providers:
+                            self.session = new_session('isnet-general-use', providers=_onnx_providers)
+                        else:
+                            self.session = new_session('isnet-general-use', providers=['CPUExecutionProvider'])
+                    except Exception:
+                        # Fallback to default session creation
+                        self.session = new_session('isnet-general-use')
+
+                    # Verify ISNet model
+                    try:
+                        test_img = Image.new('RGB', (10, 10), color='white')
+                        _ = remove(test_img, session=self.session)
+                        self._update_progress("✅ AI model ready!")
+                    except Exception as test_error:
+                        print(f"ISNet verification failed: {test_error}")
+                        raise
+
                     return True
+
                 except Exception as e3:
                     print(f"All models failed: {e3}")
+                    self._update_progress(f"❌ Failed to initialize AI model. Please restart the application.")
                     return False
 
     def _bulletproof_image_load(self, image_path):
@@ -396,7 +586,15 @@ class BackgroundRemoverV12Bulletproof:
         try:
             # Initialize session
             if not self._bulletproof_session_init():
-                return False, "Failed to initialize AI model"
+                error_msg = (
+                    "Failed to initialize AI model. This is usually due to:\n"
+                    "1. Insufficient disk space\n"
+                    "2. Corrupted model files\n"
+                    "3. System compatibility issues\n\n"
+                    f"Models are stored in: {_MODEL_DIR or 'default location'}\n"
+                    "Please restart the application and try again."
+                )
+                return False, error_msg
 
             # Load and preprocess image
             self._update_progress("✂️ Sharpening digital scissors...")

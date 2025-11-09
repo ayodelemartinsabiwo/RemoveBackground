@@ -1,5 +1,10 @@
 Background Remover Installation Complete!
 
+✅ NO INTERNET REQUIRED - Models are bundled with the installer!
+
+The AI models are already included in your installation.
+You can use the Background Remover completely offline.
+
 IMPORTANT - Windows Defender False Positive Fix:
 If Windows Defender blocks the software or context menu doesn't work:
 1. Open Windows Security -> Virus & threat protection

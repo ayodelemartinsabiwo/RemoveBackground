@@ -35,33 +35,43 @@ VersionInfoProductVersion=1.0
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
+Name: "contextmenu"; Description: "Context Menu (Right Click)"; GroupDescription: "Integration"; Flags: checkedonce
 
 [Files]
-Source: "dist\BackgroundRemover.exe"; DestDir: "{app}"; Flags: ignoreversion
+; Include the entire BackgroundRemover folder structure (exe + _internal folder with models)
+Source: "dist\BackgroundRemover\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "assets\icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "USER_GUIDE.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "fix_windows_defender.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "open_installation_folder.bat"; DestDir: "{app}"; Flags: ignoreversion
-Source: "src\context_menu.py"; DestDir: "{app}"; Flags: ignoreversion
-Source: "install-context-menu.bat"; DestDir: "{app}"; Flags: ignoreversion
-Source: "uninstall-context-menu.bat"; DestDir: "{app}"; Flags: ignoreversion
+; Simple and reliable context menu scripts
+Source: "install-context-menu-simple.bat"; DestDir: "{app}"; Flags: ignoreversion
+Source: "uninstall-context-menu-simple.bat"; DestDir: "{app}"; Flags: ignoreversion
+Source: "test_context_menu_manually.bat"; DestDir: "{app}"; Flags: ignoreversion
+; Remove old context menu files
+;Source: "src\context_menu.py"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "install-context-menu.bat"; DestDir: "{app}"; Flags: ignoreversion
 ;Source: "docs\WINDOWS_DEFENDER_FIX.md"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\Background Remover"; Filename: "{app}\BackgroundRemover.exe"; IconFilename: "{app}\icon.ico"
 Name: "{group}\User Guide"; Filename: "{app}\USER_GUIDE.txt"
-Name: "{group}\Fix Windows Defender"; Filename: "{app}\fix_windows_defender.bat"; IconFilename: "{sys}\shell32.dll"; IconIndex: 78
+Name: "{group}\Fix Windows Defender"; Filename: "{app}\fix_windows_defender.bat"; IconFilename: "{sys}\shell32.dll"; IconIndex: 1
 Name: "{group}\Open Installation Folder"; Filename: "{app}"; IconFilename: "{sys}\shell32.dll"; IconIndex: 3
+Name: "{group}\Install Context Menu"; Filename: "{app}\install-context-menu-simple.bat"; IconFilename: "{sys}\shell32.dll"; IconIndex: 1
+Name: "{group}\Test Context Menu"; Filename: "{app}\test_context_menu_manually.bat"; IconFilename: "{sys}\shell32.dll"; IconIndex: 1
 Name: "{group}\{cm:UninstallProgram,Background Remover}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\Background Remover"; Filename: "{app}\BackgroundRemover.exe"; IconFilename: "{app}\icon.ico"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\install-context-menu.bat"; Parameters: """{app}\BackgroundRemover.exe"""; Flags: runhidden
+; Install context menu only if user selected the option
+Filename: "{app}\install-context-menu-simple.bat"; Parameters: "silent"; WorkingDir: "{app}"; Flags: runhidden waituntilterminated; Tasks: contextmenu
 Filename: "{app}\BackgroundRemover.exe"; Description: "{cm:LaunchProgram,Background Remover}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
-Filename: "{app}\uninstall-context-menu.bat"; Flags: runhidden
+; Remove context menu during uninstall
+Filename: "{app}\uninstall-context-menu.bat"; Parameters: "silent"; Flags: runhidden waituntilterminated
 
 [Code]
 var
@@ -125,3 +135,52 @@ function InitializeSetup(): Boolean;
 begin
   Result := True;
 end;
+
+// Custom page to show context menu installation status
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  ResultCode: Integer;
+  StatusMsg: string;
+  RetryCount: Integer;
+begin
+  if CurStep = ssPostInstall then
+  begin
+    // Check if context menu was installed successfully
+    if WizardIsTaskSelected('contextmenu') then
+    begin
+      // Wait a bit and retry verification up to 3 times
+      RetryCount := 0;
+      ResultCode := 1; // Start with failure
+
+      while (RetryCount < 3) and (ResultCode <> 0) do
+      begin
+        Sleep(500); // Wait 500ms
+        if Exec('reg', 'query "HKCU\Software\Classes\*\shell\RemoveBackground"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+        begin
+          if ResultCode = 0 then
+            Break; // Success, exit loop
+        end;
+        RetryCount := RetryCount + 1;
+      end;
+
+      if ResultCode = 0 then
+      begin
+        StatusMsg := 'Context menu installed successfully!' + #13#10 + #13#10 +
+                    'Right-click any image file to see "Remove Background" option.';
+      end else
+      begin
+        StatusMsg := 'Context menu installation may have failed.' + #13#10 + #13#10 +
+                    'You can manually install it later using:' + #13#10 +
+                    'Start Menu -> Background Remover -> Install Context Menu';
+      end;
+
+      // Only show message if not running silently
+      if not WizardSilent then
+        MsgBox(StatusMsg, mbInformation, MB_OK);
+    end;
+  end;
+end;
+
+[UninstallRun]
+; Remove context menu during uninstall
+Filename: "{app}\uninstall-context-menu-simple.bat"; Parameters: "silent"; WorkingDir: "{app}"; Flags: runhidden waituntilterminated

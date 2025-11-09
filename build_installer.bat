@@ -5,17 +5,17 @@ echo Background Remover - Installer Build
 echo ====================================
 echo.
 
-REM Check if executable exists
-if not exist "dist\BackgroundRemover.exe" (
-    echo ERROR: BackgroundRemover.exe not found in dist folder!
-    echo Please build the executable first with: build_fixed.bat
+REM Check if executable exists (one-folder distribution)
+if not exist "dist\BackgroundRemover\BackgroundRemover.exe" (
+    echo ERROR: BackgroundRemover.exe not found in dist\BackgroundRemover folder!
+    echo Please build the executable first with: build_onnx_safe.bat
     pause
     exit /b 1
 )
 
 echo Checking executable...
-echo   File: dist\BackgroundRemover.exe
-for %%F in ("dist\BackgroundRemover.exe") do echo   Size: %%~zF bytes
+echo   File: dist\BackgroundRemover\BackgroundRemover.exe
+for %%F in ("dist\BackgroundRemover\BackgroundRemover.exe") do echo   Size: %%~zF bytes
 echo   Status: OK
 echo.
 

@@ -54,12 +54,17 @@ python src/main_optimized.py "path/to/test/image.jpg"
 ### 3. Build Executable
 
 ```bash
-# Build optimized version
+# IMPORTANT: Download AI models first (one-time, ~200MB)
+python download_models.py
+
+# Build optimized version (models will be bundled - NO INTERNET NEEDED!)
 python -m PyInstaller build_optimized.spec --clean --noconfirm
 
 # Create installer (requires Inno Setup 6)
 iscc installer_config.iss
 ```
+
+**Note:** By downloading models first and bundling them, users won't need internet connection!
 
 ## Build Artifacts
 
@@ -200,9 +205,26 @@ pyinstaller --clean build.spec
 - Run installer as Administrator
 - Check Windows registry for entries
 
+**"Failed to initialize AI model" Error:**
+This error occurs if models aren't found. Solutions:
+
+**For Developers Building the App:**
+1. **Download models first:** Run `python download_models.py` before building
+2. **Bundle models:** Models in `/models` directory are bundled automatically
+3. **Rebuild:** `python -m PyInstaller build_optimized.spec --clean`
+
+**For End Users:**
+- If models were bundled correctly: **No internet required!** App works offline
+- If models weren't bundled: App will try to download on first use
+  1. Ensure internet connection available
+  2. Check firewall settings aren't blocking downloads
+  3. Verify disk space (500MB+ free)
+  4. Models download to: `%LOCALAPPDATA%\BackgroundRemover\models\`
+
 **Slow first-time processing:**
-- AI models download automatically on first use
-- Subsequent runs are much faster
+- If models are bundled: Fast processing (~5-15 seconds per image)
+- If models need download: First run takes 1-2 minutes for 150-200MB download
+- Subsequent runs are always fast (models cached locally)
 
 **Memory errors with large images:**
 - Ensure sufficient RAM (4GB+ recommended)
