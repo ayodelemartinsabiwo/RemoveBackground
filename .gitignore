@@ -6,6 +6,16 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.exe
+*.msi
+
+# AI Models (too large for git - over 100MB each)
+models/
+models_small/
+models_compressed/
+*.onnx
+*.onnx.gz
+*.onnx.xz
 
 # Virtual environment
 .venv/
@@ -28,6 +38,11 @@ desktop.ini
 *.tmp
 *.temp
 *.log
+
+# Large data files
+*.zip
+*.tar.gz
+*.7z
 
 # PyInstaller specific
 *.spec.bak
