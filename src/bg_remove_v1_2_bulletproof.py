@@ -18,6 +18,8 @@ from PIL import Image, ImageFilter, ImageEnhance
 import time
 import gc
 import cv2
+import gzip
+import shutil
 
 def _setup_safe_onnx_environment():
     """
@@ -54,66 +56,30 @@ _onnx_providers = _setup_safe_onnx_environment()
 # Configure model download location for cross-machine compatibility
 def _setup_model_directory():
     """
-    Setup model directory with priority:
-    1. Check for bundled models (in executable directory) - NO INTERNET NEEDED
-    2. Use writable AppData location for downloaded models
+    Setup centralized model directory - NEVER pollute user directories.
+    Always use AppData for consistency and cleanliness.
     """
     try:
-        if getattr(sys, 'frozen', False):
-            # Running as compiled executable
+        # ALWAYS use centralized location in AppData - this prevents model pollution
+        model_dir = os.path.join(
+            os.environ.get('LOCALAPPDATA', os.path.expanduser('~')),
+            'BackgroundRemover',
+            'models'
+        )
+        os.makedirs(model_dir, exist_ok=True)
 
-            # First, check if models are bundled with the executable (PREFERRED!)
-            exe_dir = os.path.dirname(sys.executable)
+        # Set environment variable for rembg to use centralized location
+        os.environ['U2NET_HOME'] = model_dir
 
-            # Try multiple possible locations for bundled models
-            possible_locations = [
-                os.path.join(exe_dir, '_internal', 'models'),  # PyInstaller onedir
-                os.path.join(exe_dir, 'models'),               # Direct bundling
-                os.path.join(exe_dir, '..', 'models'),         # Parent directory
-            ]
-
-            for bundled_models_dir in possible_locations:
-                if os.path.exists(bundled_models_dir) and os.path.isdir(bundled_models_dir):
-                    # Check if there are actual model files
-                    model_files = [f for f in os.listdir(bundled_models_dir) if f.endswith('.onnx')]
-                    if model_files:
-                        print(f"✓ Using bundled models (no internet required): {bundled_models_dir}")
-                        os.environ['U2NET_HOME'] = bundled_models_dir
-                        return bundled_models_dir
-
-            # Fallback: Use AppData for model downloads (requires internet first time)
-            model_dir = os.path.join(
-                os.environ.get('LOCALAPPDATA', os.path.expanduser('~')),
-                'BackgroundRemover',
-                'models'
-            )
-            os.makedirs(model_dir, exist_ok=True)
-            os.environ['U2NET_HOME'] = model_dir
-            return model_dir
-
-        else:
-            # Running as script - check for pre-downloaded models first
-            script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            bundled_models_dir = os.path.join(script_dir, 'models')
-
-            if os.path.exists(bundled_models_dir) and os.path.isdir(bundled_models_dir):
-                model_files = [f for f in os.listdir(bundled_models_dir) if f.endswith('.onnx')]
-                if model_files:
-                    print(f"✓ Using pre-downloaded models: {bundled_models_dir}")
-                    os.environ['U2NET_HOME'] = bundled_models_dir
-                    return bundled_models_dir
-
-            # Fallback: Use standard location for downloads
-            model_dir = os.path.join(os.path.expanduser('~'), '.u2net')
-            os.makedirs(model_dir, exist_ok=True)
-            os.environ['U2NET_HOME'] = model_dir
-            return model_dir
+        print(f"✓ Using centralized model directory: {model_dir}")
+        return model_dir
 
     except Exception as e:
         print(f"Model directory setup warning: {e}")
-        return None
-
-# Initialize model directory on module load
+        # Fallback to default location
+        fallback_dir = os.path.join(os.path.expanduser('~'), '.u2net')
+        os.makedirs(fallback_dir, exist_ok=True)
+        return fallback_dir# Initialize model directory on module load
 _MODEL_DIR = _setup_model_directory()
 
 # Configure onnxruntime to use CPU only (more stable for PyInstaller)
@@ -130,6 +96,10 @@ except Exception as e:
     print(f"Warning: Could not configure onnxruntime: {e}")
 
 class BackgroundRemoverV12Bulletproof:
+    # Class-level session cache for MASSIVE performance improvement
+    _cached_session = None
+    _cached_model_name = None
+
     def __init__(self):
         self.session = None
         self.start_time = None
@@ -174,102 +144,67 @@ class BackgroundRemoverV12Bulletproof:
             self.progress_callback(message)
 
     def _bulletproof_session_init(self):
-        """Initialize session with complete error handling and model verification"""
-        if self.session is not None:
-            return True
-
+        """Initialize ONNX session FAST - no model verification to avoid slowdown"""
         try:
-            self._update_progress("🤗 Hugging the edges...")
+            self._update_progress(self._get_next_witty_message())
 
-            # Check if we have bundled models (no download needed)
-            bundled_models_available = False
-            if _MODEL_DIR:
-                # Check for any bundled model files
-                model_files = [f for f in os.listdir(_MODEL_DIR) if f.endswith('.onnx')]
-                if model_files:
-                    bundled_models_available = True
-                    print(f"Found bundled models: {model_files}")
+            # Use centralized model directory
+            from model_utils import ensure_models_ready
+            models_available = ensure_models_ready()
+            if not models_available:
+                self._update_progress("❌ Something's missing. Please restart.")
+                return False
 
-            # Only show download message if no bundled models found
-            if not bundled_models_available:
-                self._update_progress("📥 Downloading AI model (first time only, 1-2 minutes)...")
-
-            # Try BiRefNet-Portrait first (best quality) with safe providers
+            # PERFORMANCE: Optimize ONNX Runtime CPU execution
             try:
-                if _onnx_providers:
-                    self.session = new_session('birefnet-portrait', providers=_onnx_providers)
-                else:
-                    # Fallback with CPU-only for safety
-                    self.session = new_session('birefnet-portrait', providers=['CPUExecutionProvider'])
-            except Exception:
-                # Final fallback to default session creation
-                self.session = new_session('birefnet-portrait')
+                import onnxruntime as ort
+                # Configure CPU provider for maximum performance
+                cpu_options = {
+                    'arena_extend_strategy': 'kSameAsRequested',
+                    'enable_cpu_mem_arena': '1',
+                    'memory_pattern': '1',
+                    'enable_mem_reuse': '1'
+                }
+                _onnx_providers = [('CPUExecutionProvider', cpu_options)]
+            except:
+                # Fallback to basic CPU provider
+                _onnx_providers = ['CPUExecutionProvider']
 
-            # Verify model loaded correctly with a tiny test
-            try:
-                test_img = Image.new('RGB', (10, 10), color='white')
-                _ = remove(test_img, session=self.session)
-                self._update_progress("✅ AI model ready!")
-            except Exception as test_error:
-                print(f"Model verification failed: {test_error}")
-                raise  # Re-raise to try fallback models
+            # PERFORMANCE OPTIMIZATION: Use cached session if available
+            model_priority = ['birefnet-portrait', 'u2net', 'isnet-general-use']
 
-            return True
-
-        except Exception as e:
-            print(f"BiRefNet failed: {e}")
-            try:
-                self._update_progress("🧙‍♀️ Trying alternative AI model...")
+            for model_name in model_priority:
                 try:
-                    # Try U2Net with safe providers
-                    if _onnx_providers:
-                        self.session = new_session('u2net', providers=_onnx_providers)
-                    else:
-                        self.session = new_session('u2net', providers=['CPUExecutionProvider'])
-                except Exception:
-                    # Fallback to default session creation
-                    self.session = new_session('u2net')
+                    # Check if we have a cached session for this model
+                    if (BackgroundRemoverV12Bulletproof._cached_session is not None and
+                        BackgroundRemoverV12Bulletproof._cached_model_name == model_name):
+                        self._update_progress(self._get_next_witty_message())
+                        self.session = BackgroundRemoverV12Bulletproof._cached_session
+                        return True
 
-                # Verify U2Net model
-                try:
-                    test_img = Image.new('RGB', (10, 10), color='white')
-                    _ = remove(test_img, session=self.session)
-                    self._update_progress("✅ AI model ready!")
-                except Exception as test_error:
-                    print(f"U2Net verification failed: {test_error}")
-                    raise
+                    # Create new session with witty message instead of technical model name
+                    self._update_progress(self._get_next_witty_message())
+                    self.session = new_session(model_name, providers=_onnx_providers)
 
-                return True
+                    # Cache the session for future use
+                    BackgroundRemoverV12Bulletproof._cached_session = self.session
+                    BackgroundRemoverV12Bulletproof._cached_model_name = model_name
 
-            except Exception as e2:
-                print(f"U2Net also failed: {e2}")
-                try:
-                    self._update_progress("🔄 Trying final AI model...")
-                    try:
-                        # Try ISNet with safe providers
-                        if _onnx_providers:
-                            self.session = new_session('isnet-general-use', providers=_onnx_providers)
-                        else:
-                            self.session = new_session('isnet-general-use', providers=['CPUExecutionProvider'])
-                    except Exception:
-                        # Fallback to default session creation
-                        self.session = new_session('isnet-general-use')
-
-                    # Verify ISNet model
-                    try:
-                        test_img = Image.new('RGB', (10, 10), color='white')
-                        _ = remove(test_img, session=self.session)
-                        self._update_progress("✅ AI model ready!")
-                    except Exception as test_error:
-                        print(f"ISNet verification failed: {test_error}")
-                        raise
-
+                    self._update_progress(self._get_next_witty_message())
                     return True
 
-                except Exception as e3:
-                    print(f"All models failed: {e3}")
-                    self._update_progress(f"❌ Failed to initialize AI model. Please restart the application.")
-                    return False
+                except Exception as e:
+                    print(f"Model initialization attempt failed: {e}")
+                    continue
+
+            # If all models failed
+            self._update_progress("❌ Something went wrong. Please restart the application.")
+            return False
+
+        except Exception as e:
+            print(f"Session initialization failed: {e}")
+            self._update_progress("❌ Oops! Please try again.")
+            return False
 
     def _bulletproof_image_load(self, image_path):
         """Load image with complete error handling and EXIF orientation correction"""
@@ -308,17 +243,21 @@ class BackgroundRemoverV12Bulletproof:
             fallback = Image.new('RGB', (512, 512), (128, 128, 128))
             return fallback, (512, 512), 0.1
 
-    def _bulletproof_resize(self, image, max_size=1200):
-        """Resize image with complete error handling"""
+    def _bulletproof_resize(self, image, max_size=1024):
+        """Resize image with complete error handling - PERFORMANCE OPTIMIZED"""
         try:
             original_size = image.size
+
+            # PERFORMANCE: Reduce max size to prevent memory issues and speed up processing
+            # Most modern AI models work better with smaller, consistent sizes anyway
             if max(original_size) > max_size:
                 ratio = max_size / max(original_size)
                 new_width = max(int(original_size[0] * ratio), 32)
                 new_height = max(int(original_size[1] * ratio), 32)
                 new_size = (new_width, new_height)
 
-                resized = image.resize(new_size, Image.Resampling.LANCZOS)
+                # Use faster resampling for speed
+                resized = image.resize(new_size, Image.Resampling.BILINEAR)
                 return resized, original_size
             else:
                 return image, original_size
@@ -399,61 +338,22 @@ class BackgroundRemoverV12Bulletproof:
             return arr1_safe, arr2_safe
 
     def _bulletproof_hair_enhancement(self, mask_array, rgb_array):
-        """Enhance hair regions with complete error handling"""
+        """FAST hair enhancement - minimal processing for speed"""
         try:
-            self._update_progress("🔥 Melting backgrounds away...")
+            self._update_progress("🔥 Final touches...")
 
-            # Ensure arrays are properly shaped and typed
-            mask_array, rgb_array = self._bulletproof_shape_matching(mask_array, rgb_array)
-
-            # Safe conversion to float
+            # PERFORMANCE OPTIMIZATION: Skip complex hair detection for speed
+            # Just do simple mask normalization - the AI model already handles hair well
             mask_float = mask_array.astype(np.float32) / 255.0
 
-            # Safe grayscale conversion
-            if len(rgb_array.shape) == 3 and rgb_array.shape[2] >= 3:
-                gray = cv2.cvtColor(rgb_array.astype(np.uint8), cv2.COLOR_RGB2GRAY)
-            else:
-                gray = rgb_array.astype(np.uint8)
-                if len(gray.shape) > 2:
-                    gray = gray[:, :, 0]
+            # Simple enhancement: slightly boost mid-range values (hair regions)
+            enhanced_mask = np.where(
+                (mask_float > 0.1) & (mask_float < 0.9),
+                np.minimum(mask_float * 1.1, 1.0),  # Small boost
+                mask_float  # Keep original values for clear fg/bg
+            )
 
-            gray_norm = gray.astype(np.float32) / 255.0
-
-            self._update_progress("🎵 Teaching pixels to dance...")
-
-            # Simple but effective hair detection
-            try:
-                # Edge detection for hair strands
-                grad_x = cv2.Sobel(gray, cv2.CV_32F, 1, 0, ksize=3)
-                grad_y = cv2.Sobel(gray, cv2.CV_32F, 0, 1, ksize=3)
-                gradient_mag = np.sqrt(np.power(grad_x, 2) + np.power(grad_y, 2))
-
-                # Normalize safely
-                max_grad = np.max(gradient_mag)
-                if max_grad > 0:
-                    gradient_mag = gradient_mag / max_grad
-                else:
-                    gradient_mag = np.zeros_like(mask_float)
-
-                # Hair candidates: edge regions with medium confidence
-                hair_candidates = (
-                    (gradient_mag > 0.1) &
-                    (mask_float > 0.1) &
-                    (mask_float < 0.8)
-                )
-
-                # Enhance hair regions
-                enhanced_mask = mask_float.copy()
-                enhanced_mask[hair_candidates] = np.minimum(
-                    enhanced_mask[hair_candidates] * 1.3,
-                    1.0
-                )
-
-                return enhanced_mask
-
-            except Exception as e:
-                print(f"Hair detection failed: {e}")
-                return mask_float
+            return enhanced_mask
 
         except Exception as e:
             print(f"Hair enhancement failed: {e}")
@@ -464,38 +364,25 @@ class BackgroundRemoverV12Bulletproof:
                 return np.ones((64, 64), dtype=np.float32) * 0.5
 
     def _bulletproof_artifact_cleanup(self, enhanced_mask, rgb_array):
-        """Clean artifacts with complete error handling"""
+        """FAST artifact cleanup - minimal processing for speed"""
         try:
-            self._update_progress("🏆 Achieving pixel perfection...")
+            self._update_progress("✨ Adding finishing touches...")
 
-            # Simple connected component cleanup
-            binary_mask = (enhanced_mask > 0.1).astype(np.uint8)
+            # PERFORMANCE OPTIMIZATION: Skip complex component analysis
+            # Modern AI models produce clean masks, minimal cleanup needed
 
-            # Find connected components safely
+            # Simple morphological opening to remove tiny noise
             try:
-                num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(
-                    binary_mask, connectivity=8
-                )
+                binary_mask = (enhanced_mask > 0.1).astype(np.uint8)
+                kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+                cleaned_binary = cv2.morphologyEx(binary_mask, cv2.MORPH_OPEN, kernel)
 
-                # Clean small artifacts
-                cleaned_mask = np.zeros_like(enhanced_mask)
-
-                for i in range(1, min(num_labels, 100)):  # Limit for safety
-                    component_mask = (labels == i)
-                    area = stats[i, cv2.CC_STAT_AREA]
-
-                    # Keep components that are large enough or have high confidence
-                    if area > 20:  # Remove tiny artifacts
-                        component_values = enhanced_mask[component_mask]
-                        avg_confidence = np.mean(component_values)
-
-                        if avg_confidence > 0.2 or area > 200:
-                            cleaned_mask[component_mask] = enhanced_mask[component_mask]
-
+                # Convert back to float mask
+                cleaned_mask = cleaned_binary.astype(np.float32) * enhanced_mask
                 return cleaned_mask
 
             except Exception as e:
-                print(f"Component analysis failed: {e}")
+                print(f"Simple cleanup failed: {e}")
                 return enhanced_mask
 
         except Exception as e:
@@ -597,10 +484,11 @@ class BackgroundRemoverV12Bulletproof:
                 return False, error_msg
 
             # Load and preprocess image
-            self._update_progress("✂️ Sharpening digital scissors...")
+            self._update_progress("📸 Analyzing your masterpiece...")
             image, original_size, input_size_mb = self._bulletproof_image_load(image_path)
 
             # Resize if needed
+            self._update_progress("🔍 Finding the perfect perspective...")
             processed_image, original_size = self._bulletproof_resize(image)
 
             # Generate output path with date format in same directory as input
@@ -619,6 +507,9 @@ class BackgroundRemoverV12Bulletproof:
             # AI background removal
             result_rgba = self._bulletproof_ai_removal(processed_image)
 
+            # PERFORMANCE: Brief pause to prevent system freezing
+            time.sleep(0.01)  # 10ms pause to yield CPU
+
             # Extract channels
             self._update_progress("🎨 Mixing invisible paint...")
             result_array = self._bulletproof_array_conversion(result_rgba)
@@ -632,15 +523,23 @@ class BackgroundRemoverV12Bulletproof:
                 rgb_channels = processed_array[:, :, :3] if len(processed_array.shape) > 2 else processed_array
                 alpha_channel = np.full(rgb_channels.shape[:2], 128, dtype=np.uint8)
 
-            # Hair enhancement
-            self._update_progress("🧠 Training pixels to behave...")
-            enhanced_alpha = self._bulletproof_hair_enhancement(alpha_channel, rgb_channels)
+            # PERFORMANCE OPTIMIZATION: Skip complex post-processing for simple images
+            # Modern AI models produce excellent results, minimal enhancement needed
+            self._update_progress("⚡ Final optimizations...")
 
-            # Artifact cleanup
-            self._update_progress("⚡ Charging magic wand...")
-            cleaned_alpha = self._bulletproof_artifact_cleanup(enhanced_alpha, rgb_channels)
+            # Quick alpha normalization instead of complex hair enhancement
+            if len(alpha_channel.shape) == 2:
+                alpha_float = alpha_channel.astype(np.float32) / 255.0
+            else:
+                alpha_float = alpha_channel.astype(np.float32) / 255.0
+                if len(alpha_float.shape) > 2:
+                    alpha_float = alpha_float[:, :, 0]
 
-            # Final assembly
+            # Simple cleanup - just threshold to remove noise
+            cleaned_alpha = np.where(alpha_float > 0.05, alpha_float, 0.0)
+
+            # PERFORMANCE: Garbage collection to prevent memory buildup
+            gc.collect()            # Final assembly
             final_image = self._bulletproof_final_assembly(rgb_channels, cleaned_alpha, original_size)
 
             # Save result

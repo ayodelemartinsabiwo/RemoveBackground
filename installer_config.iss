@@ -48,7 +48,6 @@ Source: "open_installation_folder.bat"; DestDir: "{app}"; Flags: ignoreversion
 ; Simple and reliable context menu scripts
 Source: "install-context-menu-simple.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "uninstall-context-menu-simple.bat"; DestDir: "{app}"; Flags: ignoreversion
-Source: "test_context_menu_manually.bat"; DestDir: "{app}"; Flags: ignoreversion
 ; Remove old context menu files
 ;Source: "src\context_menu.py"; DestDir: "{app}"; Flags: ignoreversion
 ;Source: "install-context-menu.bat"; DestDir: "{app}"; Flags: ignoreversion
@@ -60,7 +59,6 @@ Name: "{group}\User Guide"; Filename: "{app}\USER_GUIDE.txt"
 Name: "{group}\Fix Windows Defender"; Filename: "{app}\fix_windows_defender.bat"; IconFilename: "{sys}\shell32.dll"; IconIndex: 1
 Name: "{group}\Open Installation Folder"; Filename: "{app}"; IconFilename: "{sys}\shell32.dll"; IconIndex: 3
 Name: "{group}\Install Context Menu"; Filename: "{app}\install-context-menu-simple.bat"; IconFilename: "{sys}\shell32.dll"; IconIndex: 1
-Name: "{group}\Test Context Menu"; Filename: "{app}\test_context_menu_manually.bat"; IconFilename: "{sys}\shell32.dll"; IconIndex: 1
 Name: "{group}\{cm:UninstallProgram,Background Remover}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\Background Remover"; Filename: "{app}\BackgroundRemover.exe"; IconFilename: "{app}\icon.ico"; Tasks: desktopicon
 
@@ -77,6 +75,7 @@ Filename: "{app}\uninstall-context-menu.bat"; Parameters: "silent"; Flags: runhi
 var
   RedBullButton: TNewButton;
   ContactButton: TNewButton;
+  ButtonsCreated: Boolean;
 
 procedure RedBullButtonOnClick(Sender: TObject);
 var
@@ -103,32 +102,119 @@ begin
                 'Message: Hi Palmer Enterprises team!' + #13#10 + #13#10 +
                 'You can copy this email address and contact us directly.';
 
-  // Try to open default email client, but show contact info if it fails
   if not ShellExec('open', 'mailto:palmarenterprise@gmail.com?subject=Background%20Remover%20Contact&body=Hi%20Palmer%20Enterprises%20team!', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode) then
     MsgBox(ContactMsg, mbInformation, MB_OK);
 end;
 
-procedure InitializeWizard();
+procedure UpdateButtonPositions;
 begin
-  // Create Red Bull Support Button - 72 pixels below Next/Cancel buttons
-  RedBullButton := TNewButton.Create(WizardForm);
-  RedBullButton.Parent := WizardForm;
-  RedBullButton.Left := 20;
-  RedBullButton.Top := WizardForm.NextButton.Top + 72;  // 72 pixels below
-  RedBullButton.Width := 130;
-  RedBullButton.Height := WizardForm.NextButton.Height;  // Same height as Next button
-  RedBullButton.Caption := 'Buy us a Red Bull';
-  RedBullButton.OnClick := @RedBullButtonOnClick;
+  if not ButtonsCreated then
+    Exit;
 
-  // Create Contact Button - 72 pixels below Next/Cancel buttons
-  ContactButton := TNewButton.Create(WizardForm);
-  ContactButton.Parent := WizardForm;
-  ContactButton.Left := 160;
-  ContactButton.Top := WizardForm.NextButton.Top + 72;  // 72 pixels below
-  ContactButton.Width := 110;
-  ContactButton.Height := WizardForm.NextButton.Height;  // Same height as Next button
-  ContactButton.Caption := '@ Contact Us';
-  ContactButton.OnClick := @ContactButtonOnClick;
+  try
+    // Position buttons at the same level as standard buttons, but on the left side
+    if Assigned(RedBullButton) then
+    begin
+      RedBullButton.Left := 8;
+      RedBullButton.Top := WizardForm.CancelButton.Top;
+      RedBullButton.Visible := True;
+      RedBullButton.BringToFront;
+    end;
+
+    if Assigned(ContactButton) then
+    begin
+      ContactButton.Left := RedBullButton.Left + RedBullButton.Width + 8;
+      ContactButton.Top := WizardForm.CancelButton.Top;
+      ContactButton.Visible := True;
+      ContactButton.BringToFront;
+    end;
+  except
+    // Ignore positioning errors
+  end;
+end;
+
+procedure CreateCustomButtons;
+begin
+  if ButtonsCreated then
+    Exit;
+
+  try
+    // Create Red Bull Support Button
+    RedBullButton := TNewButton.Create(WizardForm);
+    RedBullButton.Parent := WizardForm;
+    RedBullButton.Caption := 'Buy us a Red Bull';
+    RedBullButton.Width := 130;
+    RedBullButton.Height := 25;
+    RedBullButton.OnClick := @RedBullButtonOnClick;
+    RedBullButton.Visible := True;
+    RedBullButton.Enabled := True;
+
+    // Create Contact Button
+    ContactButton := TNewButton.Create(WizardForm);
+    ContactButton.Parent := WizardForm;
+    ContactButton.Caption := 'Contact Us';
+    ContactButton.Width := 100;
+    ContactButton.Height := 25;
+    ContactButton.OnClick := @ContactButtonOnClick;
+    ContactButton.Visible := True;
+    ContactButton.Enabled := True;
+
+    ButtonsCreated := True;
+
+    // Position buttons immediately after creation
+    UpdateButtonPositions;
+
+  except
+    // If button creation fails, continue without buttons
+    ButtonsCreated := False;
+  end;
+end;
+
+procedure CurPageChanged(CurPageID: Integer);
+begin
+  // Create buttons if not already created
+  if not ButtonsCreated then
+    CreateCustomButtons;
+
+  // Always ensure buttons are visible and positioned on every page
+  if ButtonsCreated then
+  begin
+    UpdateButtonPositions;
+
+    // Force visibility and bring to front
+    if Assigned(RedBullButton) then
+    begin
+      RedBullButton.Visible := True;
+      RedBullButton.Enabled := True;
+      RedBullButton.BringToFront;
+    end;
+    if Assigned(ContactButton) then
+    begin
+      ContactButton.Visible := True;
+      ContactButton.Enabled := True;
+      ContactButton.BringToFront;
+    end;
+  end;
+end;
+
+// Handle window resize events
+procedure MainFormOnResize(Sender: TObject);
+begin
+  if ButtonsCreated then
+    UpdateButtonPositions;
+end;
+
+
+
+
+
+procedure InitializeWizard;
+begin
+  ButtonsCreated := False;
+  CreateCustomButtons;
+
+  // Hook resize event
+  WizardForm.OnResize := @MainFormOnResize;
 end;
 
 function InitializeSetup(): Boolean;
@@ -180,7 +266,3 @@ begin
     end;
   end;
 end;
-
-[UninstallRun]
-; Remove context menu during uninstall
-Filename: "{app}\uninstall-context-menu-simple.bat"; Parameters: "silent"; WorkingDir: "{app}"; Flags: runhidden waituntilterminated

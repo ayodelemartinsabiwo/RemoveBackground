@@ -161,7 +161,7 @@ def get_content_frame_style():
     """Returns the content frame stylesheet"""
     return f"""
         QFrame {{
-            background-color: transparent;
+            background-color: {COLORS['WHITE']};
             border: none;
             border-bottom-left-radius: {DIMENSIONS['BORDER_RADIUS']}px;
             border-bottom-right-radius: {DIMENSIONS['BORDER_RADIUS']}px;

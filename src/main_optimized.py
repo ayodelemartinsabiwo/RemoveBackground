@@ -5,20 +5,16 @@ Uses the speed-optimized version targeting 40 seconds maximum
 
 import os
 import sys
-import tkinter as tk
 import time
-from tkinter import messagebox
 
 # Use the proven working bulletproof version - NO speed optimizations for stability
-
-import sys
-import os
 from pathlib import Path
 from PyQt6.QtWidgets import QApplication, QFileDialog, QMessageBox
 from PyQt6.QtCore import QThread, pyqtSignal
 from loader_window import LoaderWindow
 from bg_remove_v1_2_bulletproof import BackgroundRemoverV12Bulletproof
 from context_menu import ContextMenuManager
+from model_utils import ensure_models_ready
 
 class BackgroundRemovalThread(QThread):
     """Thread for background removal processing"""
@@ -36,22 +32,29 @@ class BackgroundRemovalThread(QThread):
         try:
             def progress_callback(message):
                 self.progress.emit(message)
+                # PERFORMANCE OPTIMIZATION: Yield CPU to prevent system freezing
+                self.msleep(10)  # Small delay to allow UI updates and prevent freezing
 
             # Emit initial progress immediately with witty message
             progress_callback("🤗 Hugging the edges...")
 
+            # Ensure models are ready (decompress if needed) - this should be FAST now
+            if not ensure_models_ready():
+                self.finished.emit(False, "Oops! Something went wrong.")
+                return
+
+            progress_callback("⚡ Getting ready...")
+
             # Use the proven working bulletproof version
             remover = BackgroundRemoverV12Bulletproof()
+
+            progress_callback("🎯 Processing image...")
 
             # Pass progress callback to remove_background
             success, output_path = remover.remove_background(
                 self.input_path,
                 progress_callback=progress_callback
             )
-
-                        # Model is already loaded during processing - no preloading needed
-            if success:
-                pass  # Ultra-clean version doesn't need separate preloading
 
             if success:
                 self.progress.emit("Background removed successfully!")
@@ -122,9 +125,47 @@ def setup_background_removal(loader, image_path):
 
     return thread
 
+def show_help():
+    """Show help information"""
+    help_text = """
+Background Remover - AI-powered background removal tool
+
+Usage:
+  BackgroundRemover.exe [image_file]
+  BackgroundRemover.exe --help
+  BackgroundRemover.exe --version
+
+Arguments:
+  image_file          Path to the image file to process
+
+Options:
+  --help, -h          Show this help message
+  --version, -v       Show version information
+
+If no image file is specified, a file dialog will open.
+
+Supported formats: JPG, JPEG, PNG, BMP, TIFF, WEBP
+"""
+    print(help_text)
+
+def show_version():
+    """Show version information"""
+    print("Background Remover v1.2")
+    print("AI-powered background removal tool")
+
 def main():
     """Main application entry point"""
-    # Handle context menu commands first
+    # Handle help and version arguments first
+    if len(sys.argv) >= 2:
+        arg = sys.argv[1].lower()
+        if arg in ['--help', '-h', '/help', '/?']:
+            show_help()
+            return
+        elif arg in ['--version', '-v']:
+            show_version()
+            return
+
+    # Handle context menu commands
     if handle_context_menu_args():
         return
 

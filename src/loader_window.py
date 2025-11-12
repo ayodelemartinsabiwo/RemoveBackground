@@ -9,7 +9,8 @@ from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QUrl
 from PyQt6.QtGui import QFont, QCloseEvent, QDesktopServices
 from gui_styles import (COLORS, DIMENSIONS, get_main_frame_style, get_header_frame_style,
                         get_close_button_style, get_title_style, get_status_label_style,
-                        get_progress_bar_style, get_success_frame_style, get_primary_button_style)
+                        get_progress_bar_style, get_success_frame_style, get_primary_button_style,
+                        get_content_frame_style)
 from support_dialog import ThemedSupportDialog
 from window_utils import center_window_on_screen, load_application_icon
 
@@ -47,6 +48,17 @@ class LoaderWindow(QWidget):
         # Make window background transparent to fix black corners with rounded border
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
 
+        # Set window stylesheet to ensure proper rendering and transparent corners
+        self.setStyleSheet(f"""
+            LoaderWindow {{
+                background-color: transparent;
+                border-radius: {DIMENSIONS['BORDER_RADIUS']}px;
+            }}
+            QWidget {{
+                background-color: transparent;
+            }}
+        """)
+
         # Main layout with no margins for clean look
         layout = QVBoxLayout()
         layout.setSpacing(0)
@@ -71,7 +83,16 @@ class LoaderWindow(QWidget):
     def _create_main_frame(self):
         """Create and return the main frame with all content"""
         main_frame = QFrame()
-        main_frame.setStyleSheet(get_main_frame_style())
+        # Enhanced main frame style with proper border radius coverage
+        main_frame.setStyleSheet(f"""
+            QFrame {{
+                background-color: {COLORS['WHITE']};
+                border-radius: {DIMENSIONS['BORDER_RADIUS']}px;
+                border: none;
+                margin: 0px;
+                padding: 0px;
+            }}
+        """)
 
         frame_layout = QVBoxLayout(main_frame)
         frame_layout.setSpacing(0)
@@ -87,7 +108,9 @@ class LoaderWindow(QWidget):
     def _create_content(self):
         """Create and return the content frame"""
         content_frame = QFrame()
-        content_frame.setStyleSheet("QFrame { background-color: transparent; border: none; }")
+        # Import the content frame style for proper bottom border radius
+        from gui_styles import get_content_frame_style
+        content_frame.setStyleSheet(get_content_frame_style())
 
         content_layout = QVBoxLayout(content_frame)
         content_layout.setSpacing(8)  # Increased spacing for better visual separation
