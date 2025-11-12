@@ -66,16 +66,17 @@ Professional marketing website for the Background Remover Windows desktop applic
 
 1. **Push to GitHub**
    ```bash
-   git add website/
+   git add docs/
    git commit -m "Add website for Background Remover"
    git push origin main
    ```
 
 2. **Enable GitHub Pages**
    - Go to repository Settings > Pages
-   - Source: Deploy from branch `main`
-   - Folder: Select `/website` or move files to root
-   - Save and wait for deployment
+   - Source: Deploy from branch (select your branch)
+   - Folder: Select `/docs` (GitHub Pages supports root or /docs folder)
+   - Click Save and wait for deployment (usually 1-2 minutes)
+   - Your site will be available at: `https://USERNAME.github.io/REPOSITORY/`
 
 3. **Custom Domain (Optional)**
    - Add `CNAME` file with your domain
@@ -85,7 +86,7 @@ Professional marketing website for the Background Remover Windows desktop applic
 
 1. **Drag & Drop Deploy**
    - Go to [netlify.com](https://netlify.com)
-   - Drag the `website/` folder to Netlify Drop
+   - Drag the `docs/` folder to Netlify Drop
    - Get instant URL
 
 2. **Continuous Deployment**
@@ -94,7 +95,7 @@ Professional marketing website for the Background Remover Windows desktop applic
    npm install -g netlify-cli
 
    # Deploy
-   cd website/
+   cd docs/
    netlify deploy --prod
    ```
 
@@ -105,14 +106,14 @@ Professional marketing website for the Background Remover Windows desktop applic
 npm install -g vercel
 
 # Deploy
-cd website/
+cd docs/
 vercel --prod
 ```
 
 #### Traditional Web Hosting
 
 1. **FTP Upload**
-   - Upload all files in `website/` folder
+   - Upload all files in `docs/` folder
    - Ensure `index.html` is in root directory
    - Set file permissions if needed
 
@@ -220,7 +221,7 @@ Add to `<head>` section:
 
 ### File Structure
 ```
-website/
+docs/
 ├── index.html      # Main HTML file
 ├── style.css       # All styles
 ├── script.js       # All JavaScript
