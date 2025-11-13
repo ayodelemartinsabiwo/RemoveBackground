@@ -244,6 +244,7 @@ body {
     align-items: center;
     min-height: 600px;
     padding: 2rem 0;
+    margin-top: 3rem;
 }
 
 .demo-card-enhanced {
@@ -837,7 +838,7 @@ body {
 }
 
 .menu-item.highlighted {
-    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+    background: linear-gradient(85deg, var(--text-light) 0%, var(--gradient-end) 80%);
     color: white;
     font-weight: 600;
 }
