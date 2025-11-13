@@ -67,7 +67,7 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--text-dark);
 }
@@ -112,22 +112,32 @@ body {
 }
 
 /* ==================== */
-/* Hero Section */
+/* Enhanced Hero Section */
 /* ==================== */
 
-.hero {
-    padding: 6rem 0;
+.hero-enhanced {
+    padding: 8rem 0 4rem;
     background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+}
+
+.hero-enhanced .container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4rem;
 }
 
 .hero-content {
-    max-width: 700px;
+    max-width: 650px;
+    z-index: 10;
 }
 
 .hero-title {
-    font-size: 3.5rem;
+    font-size: 3.75rem;
     font-weight: 800;
-    line-height: 1.2;
+    line-height: 1.15;
     margin-bottom: 1.5rem;
     color: var(--text-dark);
 }
@@ -150,6 +160,7 @@ body {
     display: flex;
     gap: 1rem;
     margin-bottom: 3rem;
+    flex-wrap: wrap;
 }
 
 .btn {
@@ -206,6 +217,7 @@ body {
     gap: 3rem;
     padding-top: 2rem;
     border-top: 1px solid var(--border-color);
+    flex-wrap: wrap;
 }
 
 .stat {
@@ -224,25 +236,60 @@ body {
     color: var(--text-muted);
 }
 
-.hero-image {
+/* Hero Showcase with 3 Floating Cards */
+.hero-showcase {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 3rem;
+    min-height: 600px;
+    padding: 2rem 0;
 }
 
-.demo-card {
+.demo-card-enhanced {
+    position: absolute;
     background: white;
-    padding: 2rem;
-    border-radius: 16px;
+    padding: 1.5rem;
+    border-radius: 20px;
     box-shadow: var(--shadow-xl);
-    display: flex;
-    align-items: center;
-    gap: 2rem;
+    transition: transform 0.3s ease;
 }
 
-.demo-before, .demo-after {
-    text-align: center;
+/* Left Demo Card */
+.demo-left {
+    left: 0;
+    top: 10%;
+    z-index: 1;
+    animation: float 6s ease-in-out infinite;
+}
+
+/* Center Demo Card - Larger and overlapping */
+.demo-center {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    padding: 2rem;
+    animation: floatCenter 5s ease-in-out infinite;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Right Demo Card */
+.demo-right {
+    right: 0;
+    top: 30%;
+    z-index: 2;
+    animation: float 7s ease-in-out infinite;
+    animation-delay: 1s;
+}
+
+.demo-card-enhanced:hover {
+    transform: scale(1.05) translateY(-10px);
+    z-index: 10;
+}
+
+.demo-center:hover {
+    transform: translate(-50%, -50%) scale(1.05);
 }
 
 .demo-label {
@@ -250,30 +297,193 @@ body {
     font-size: 0.875rem;
     font-weight: 600;
     color: var(--text-muted);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    text-align: center;
 }
 
 .demo-img-placeholder {
-    width: 150px;
-    height: 150px;
+    width: 180px;
+    height: 180px;
     background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--text-muted);
+    margin-bottom: 0.75rem;
+}
+
+.demo-center .demo-img-placeholder {
+    width: 220px;
+    height: 220px;
+}
+
+.demo-left .demo-img-placeholder,
+.demo-right .demo-img-placeholder {
+    width: 150px;
+    height: 150px;
 }
 
 .demo-img-placeholder.transparent {
-    background:
-        repeating-conic-gradient(#e2e8f0 0% 25%, transparent 0% 50%)
-        50% / 20px 20px;
+    background: repeating-conic-gradient(#e2e8f0 0% 25%, transparent 0% 50%) 50% / 20px 20px;
 }
 
-.demo-arrow {
+.demo-img-placeholder.with-bg {
+    background: linear-gradient(135deg, #ffd6cc 0%, #ffe4d9 100%);
+}
+
+.demo-comparison {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.demo-arrow-vertical {
     font-size: 2rem;
     color: var(--primary-color);
     font-weight: bold;
+}
+
+.result-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.result-badge.premium {
+    background: linear-gradient(135deg, #ff6b35 0%, #ffd700 100%);
+}
+
+/* Floating Animations */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes floatCenter {
+    0%, 100% {
+        transform: translate(-50%, -50%) translateY(0px);
+    }
+    50% {
+        transform: translate(-50%, -50%) translateY(-15px);
+    }
+}
+
+/* ==================== */
+/* Why Choose Us Section */
+/* ==================== */
+
+.why-choose-us {
+    padding: 6rem 0;
+    background: linear-gradient(135deg, #fff5f2 0%, #ffffff 100%);
+}
+
+.unique-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2.5rem;
+    margin-top: 3rem;
+}
+
+.unique-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 16px;
+    border: 2px solid var(--border-color);
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.unique-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
+}
+
+.unique-card:hover::before {
+    transform: scaleX(1);
+}
+
+.unique-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--primary-light);
+}
+
+.unique-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    color: white;
+}
+
+.unique-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text-dark);
+}
+
+.unique-description {
+    color: var(--text-light);
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+    font-size: 1.05rem;
+}
+
+.unique-description strong {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.unique-example {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.example-tag {
+    padding: 0.5rem 1rem;
+    background: var(--bg-light);
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    border: 1px solid var(--border-color);
+}
+
+.example-tag.highlight {
+    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+    color: white;
+    border: none;
+}
+
+.example-divider {
+    color: var(--text-muted);
+    font-weight: 300;
 }
 
 /* ==================== */
@@ -347,12 +557,104 @@ body {
 }
 
 /* ==================== */
+/* Pro Tips Section with Flip Cards */
+/* ==================== */
+
+.pro-tips {
+    padding: 6rem 0;
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+}
+
+.tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    perspective: 1000px;
+}
+
+.tip-card {
+    height: 300px;
+    perspective: 1000px;
+    cursor: pointer;
+}
+
+.tip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.tip-card.flipped .tip-card-inner {
+    transform: rotateY(180deg);
+}
+
+.tip-card-front,
+.tip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.tip-card-front {
+    background: white;
+    border: 2px solid var(--border-color);
+}
+
+.tip-card-back {
+    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+    color: white;
+    transform: rotateY(180deg);
+}
+
+.tip-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.tip-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-dark);
+}
+
+.tip-hint {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.tip-title-back {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.tip-content {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+/* ==================== */
 /* How It Works Section */
 /* ==================== */
 
 .how-it-works {
     padding: 6rem 0;
-    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    background-color: var(--bg-white);
 }
 
 .steps {
@@ -730,6 +1032,20 @@ body {
 /* Responsive Design */
 /* ==================== */
 
+@media (max-width: 1024px) {
+    .hero-showcase {
+        min-height: 500px;
+    }
+
+    .demo-left {
+        left: 5%;
+    }
+
+    .demo-right {
+        right: 5%;
+    }
+}
+
 @media (max-width: 768px) {
     .nav-links {
         display: none;
@@ -737,6 +1053,11 @@ body {
 
     .mobile-menu-toggle {
         display: flex;
+    }
+
+    .hero-enhanced {
+        padding: 4rem 0 2rem;
+        min-height: auto;
     }
 
     .hero-title {
@@ -756,13 +1077,29 @@ body {
         gap: 1.5rem;
     }
 
-    .demo-card {
-        flex-direction: column;
-        gap: 1rem;
+    .hero-showcase {
+        min-height: 400px;
+        margin-top: 3rem;
     }
 
-    .demo-arrow {
-        transform: rotate(90deg);
+    .demo-card-enhanced {
+        position: relative;
+    }
+
+    .demo-left,
+    .demo-right {
+        display: none;
+    }
+
+    .demo-center {
+        position: relative;
+        left: auto;
+        top: auto;
+        transform: none;
+    }
+
+    .demo-center:hover {
+        transform: scale(1.05);
     }
 
     .download-card {
@@ -785,10 +1122,18 @@ body {
     .step-number {
         margin: 0 auto;
     }
+
+    .unique-features {
+        grid-template-columns: 1fr;
+    }
+
+    .tips-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 480px) {
-    .hero {
+    .hero-enhanced {
         padding: 3rem 0;
     }
 
@@ -807,6 +1152,10 @@ body {
 
     .download-title {
         font-size: 2rem;
+    }
+
+    .logo-text {
+        font-size: 0.9rem;
     }
 }
 
@@ -827,7 +1176,8 @@ body {
 
 .feature-card,
 .step,
-.doc-card {
+.doc-card,
+.unique-card {
     animation: fadeIn 0.6s ease forwards;
 }
 

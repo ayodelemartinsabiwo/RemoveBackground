@@ -13,6 +13,18 @@ if (mobileMenuToggle) {
 }
 
 // ==================== //
+// Flip Card Functionality for Pro Tips
+// ==================== //
+
+const tipCards = document.querySelectorAll('.tip-card');
+
+tipCards.forEach(card => {
+    card.addEventListener('click', () => {
+        card.classList.toggle('flipped');
+    });
+});
+
+// ==================== //
 // FAQ Accordion
 // ==================== //
 
@@ -66,9 +78,11 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             });
 
             // Close mobile menu if open
-            if (navLinks.classList.contains('active')) {
+            if (navLinks && navLinks.classList.contains('active')) {
                 navLinks.classList.remove('active');
-                mobileMenuToggle.classList.remove('active');
+                if (mobileMenuToggle) {
+                    mobileMenuToggle.classList.remove('active');
+                }
             }
         }
     });
@@ -112,7 +126,7 @@ const observer = new IntersectionObserver((entries) => {
 }, observerOptions);
 
 // Observe elements that should animate on scroll
-document.querySelectorAll('.feature-card, .step, .doc-card').forEach(el => {
+document.querySelectorAll('.feature-card, .step, .doc-card, .unique-card').forEach(el => {
     el.style.opacity = '0';
     el.style.transform = 'translateY(20px)';
     el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
@@ -132,6 +146,19 @@ function handleDownload() {
 }
 
 // ==================== //
+// Hero Demo Cards - Enhanced Hover Effect
+// ==================== //
+
+const demoCards = document.querySelectorAll('.demo-card-enhanced');
+
+demoCards.forEach(card => {
+    card.addEventListener('mouseenter', () => {
+        // Add a subtle scale animation
+        card.style.transition = 'all 0.3s ease';
+    });
+});
+
+// ==================== //
 // Stats Counter Animation
 // ==================== //
 
@@ -146,33 +173,6 @@ function animateValue(element, start, end, duration) {
         }
     };
     window.requestAnimationFrame(step);
-}
-
-// ==================== //
-// Hero Demo Animation
-// ==================== //
-
-const demoCard = document.querySelector('.demo-card');
-if (demoCard) {
-    // Add a subtle pulse animation to the arrow
-    const arrow = document.querySelector('.demo-arrow');
-    if (arrow) {
-        setInterval(() => {
-            arrow.style.transform = 'scale(1.2)';
-            setTimeout(() => {
-                arrow.style.transform = 'scale(1)';
-            }, 300);
-        }, 2000);
-    }
-}
-
-// ==================== //
-// Form Validation (if needed)
-// ==================== //
-
-function validateEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
 }
 
 // ==================== //
@@ -193,7 +193,7 @@ function copyToClipboard(text) {
 // ==================== //
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Background Remover Website Loaded');
+    console.log('Palmar Tech Background Remover Website Loaded');
 
     // Add any initialization code here
 
@@ -205,6 +205,13 @@ document.addEventListener('DOMContentLoaded', () => {
             page_path: window.location.pathname
         });
     }
+
+    // Add visual feedback for tip cards
+    const tipCardsLoad = document.querySelectorAll('.tip-card');
+    tipCardsLoad.forEach((card, index) => {
+        // Stagger the appearance of tip cards
+        card.style.animationDelay = `${index * 0.1}s`;
+    });
 });
 
 // ==================== //
@@ -243,7 +250,7 @@ if (logoIcon) {
     logoIcon.addEventListener('click', () => {
         clickCount++;
         if (clickCount === 5) {
-            alert('🎨 Made with love for Windows users! Thanks for exploring!');
+            alert('🎨 Made with precision by Palmar Tech! Thanks for exploring!');
             clickCount = 0;
         }
     });
@@ -258,6 +265,11 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         faqItems.forEach(item => {
             item.classList.remove('active');
+        });
+
+        // Unflip all tip cards
+        tipCards.forEach(card => {
+            card.classList.remove('flipped');
         });
     }
 });
@@ -287,7 +299,7 @@ window.addEventListener('afterprint', () => {
 function shareWebsite() {
     if (navigator.share) {
         navigator.share({
-            title: 'Background Remover - AI-Powered Background Removal',
+            title: 'Palmar Tech Background Remover - AI-Powered Background Removal',
             text: 'Check out this awesome background remover for Windows!',
             url: window.location.href
         }).then(() => {
@@ -319,4 +331,33 @@ function toggleTheme() {
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme) {
     document.body.setAttribute('data-theme', savedTheme);
+}
+
+// ==================== //
+// Unique Card Animations
+// ==================== //
+
+// Add progressive reveal for unique feature cards
+const uniqueCards = document.querySelectorAll('.unique-card');
+uniqueCards.forEach((card, index) => {
+    card.style.animationDelay = `${index * 0.15}s`;
+});
+
+// ==================== //
+// Mobile Detection
+// ==================== //
+
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+if (isMobile) {
+    // Add mobile-specific enhancements
+    document.body.classList.add('mobile-device');
+
+    // On mobile, tap to flip cards
+    tipCards.forEach(card => {
+        card.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            card.classList.toggle('flipped');
+        });
+    });
 }
