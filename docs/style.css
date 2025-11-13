@@ -303,8 +303,8 @@ body {
 }
 
 .demo-img-placeholder {
-    width: 250px;
-    height: 250px;
+    width: 200px;
+    height: 200px;
     background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
     border-radius: 16px;
     display: flex;
@@ -315,14 +315,14 @@ body {
 }
 
 .demo-center .demo-img-placeholder {
-    width: 300px;
-    height: 300px;
+    width: 240px;
+    height: 240px;
 }
 
 .demo-left .demo-img-placeholder,
 .demo-right .demo-img-placeholder {
-    width: 220px;
-    height: 220px;
+    width: 180px;
+    height: 180px;
 }
 
 .demo-img-placeholder.transparent {
@@ -1111,13 +1111,13 @@ body {
     }
 
     .demo-img-placeholder {
-        width: 200px;
-        height: 200px;
+        width: 160px;
+        height: 160px;
     }
 
     .demo-center .demo-img-placeholder {
-        width: 240px;
-        height: 240px;
+        width: 200px;
+        height: 200px;
     }
 
     .demo-label {
