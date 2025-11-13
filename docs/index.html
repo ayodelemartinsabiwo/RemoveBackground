@@ -17,7 +17,8 @@
         <div class="container">
             <div class="nav-wrapper">
                 <div class="logo">
-                    <span class="logo-icon">🎨</span>
+                    <!--Replace the art icon with actual icon.ico from docs/images/-->
+                    <span class="logo-icon"><img src="images/icon.ico" alt="Logo" height="35"></span>
                     <span class="logo-text">Background Remover</span>
                 </div>
                 <ul class="nav-links">
@@ -79,21 +80,23 @@
                     <div class="demo-before">
                         <span class="demo-label">Before</span>
                         <div class="demo-img-placeholder">
-                            <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <img src="images/before.jpg" alt="before-img" height="160" style="border-radius: 10%;">
+                            <!-- <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                                 <circle cx="8.5" cy="8.5" r="1.5"></circle>
                                 <polyline points="21 15 16 10 5 21"></polyline>
-                            </svg>
+                            </svg> -->
                         </div>
                     </div>
                     <div class="demo-arrow">→</div>
                     <div class="demo-after">
                         <span class="demo-label">After</span>
                         <div class="demo-img-placeholder transparent">
-                            <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <img src="images/after.png" alt="after-img" height="180">
+                            <!-- <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
+                            </svg> -->
                         </div>
                     </div>
                 </div>
@@ -128,7 +131,7 @@
                         </svg>
                     </div>
                     <h3 class="feature-title">AI-Powered Processing</h3>
-                    <p class="feature-description">Advanced AI models handle complex images including hair, clothing, products, and buildings with precision.</p>
+                    <p class="feature-description">Advanced AI models handle complex images including hair, edges, clothing, products, and buildings with precision.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
@@ -196,15 +199,15 @@
                 <div class="step">
                     <div class="step-number">2</div>
                     <div class="step-content">
-                        <h3 class="step-title">Right-Click Any Image</h3>
-                        <p class="step-description">Navigate to any image file in Windows Explorer, right-click, and select "Remove Background" from the context menu.</p>
+                        <h3 class="step-title">Right-Click Any Image </h3>
+                        <p class="step-description">Navigate to any image file in Windows Explorer, right-click, and select "Remove Background" from the context menu. Or pin application on taskbar and select prefered image to process.</p>
                     </div>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
                     <div class="step-content">
                         <h3 class="step-title">Get Your Result</h3>
-                        <p class="step-description">The processed image with transparent background is automatically saved in the same folder with "_bg_removed" suffix.</p>
+                        <p class="step-description">The processed image with transparent background is automatically saved in the same folder with "_no_bg_current-date" suffix.</p>
                     </div>
                 </div>
             </div>
@@ -220,12 +223,21 @@
                     <p class="download-description">Download Background Remover for Windows and start removing backgrounds with AI power today.</p>
                     <ul class="download-features">
                         <li>✓ Windows 10/11 compatible</li>
-                        <li>✓ Free and open source</li>
+                        <!-- <li>✓ Free and open source</li> -->
                         <li>✓ No subscription required</li>
                         <li>✓ Works offline after setup</li>
                     </ul>
                     <div class="download-buttons">
-                        <button class="btn btn-primary btn-large" onclick="alert('Download link will be available after building the installer. Run: pyinstaller build_optimized.spec && iscc installer_config.iss')">
+                        <!-- <button class="btn btn-primary btn-large" onclick="alert('Download link will be available after building the installer. Run: pyinstaller build_optimized.spec && iscc installer_config.iss')">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Download for Windows
+                            <span class="version">Latest Version</span>
+                        </button> -->
+                        <button class="btn btn-primary btn-large" onclick="window.location.href='https://github.com/ayodelemartinsabiwo/RemoveBackground/releases/download/v1.0.0/BackgroundRemover_Setup.exe'">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                 <polyline points="7 10 12 15 17 10"></polyline>
@@ -242,8 +254,8 @@
                         </a>
                     </div>
                     <div class="download-info">
-                        <p><strong>System Requirements:</strong> Windows 10/11, 4GB RAM (recommended), 500MB disk space</p>
-                        <p><strong>File Size:</strong> ~98 MB installer</p>
+                        <p><strong>System Requirements:</strong> Windows 10/11, 4GB RAM (recommended), 3GB disk space</p>
+                        <p><strong>File Size:</strong> ~1 GB installer</p>
                     </div>
                 </div>
                 <div class="download-preview">
@@ -258,7 +270,7 @@
                                 <div class="menu-item">Open</div>
                                 <div class="menu-item">Edit</div>
                                 <div class="menu-item highlighted">
-                                    <span class="menu-icon">🎨</span>
+                                    <span class="menu-icon"><img src="images/icon.ico" alt="Logo" height="25"></span>
                                     Remove Background
                                 </div>
                                 <div class="menu-divider"></div>

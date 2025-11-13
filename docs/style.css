@@ -229,6 +229,7 @@ body {
     justify-content: center;
     align-items: center;
     margin-top: 3rem;
+
 }
 
 .demo-card {
@@ -239,6 +240,7 @@ body {
     display: flex;
     align-items: center;
     gap: 2rem;
+
 }
 
 .demo-before, .demo-after {
@@ -535,7 +537,7 @@ body {
 }
 
 .menu-item.highlighted {
-    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+    background: linear-gradient(85deg, var(--text-light) 0%, var(--gradient-end) 80%);
     color: white;
     font-weight: 600;
 }
