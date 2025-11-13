@@ -125,13 +125,12 @@ body {
 
 .hero-enhanced .container {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 4rem;
-    align-items: center;
 }
 
 .hero-content {
-    max-width: 100%;
+    max-width: 650px;
     z-index: 10;
 }
 
@@ -243,16 +242,16 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 850px;
-    padding: 3rem 0;
-    width: 100%;
+    min-height: 650px;
+    padding: 2rem 0;
+    margin-top: 3rem;
 }
 
 .demo-card-enhanced {
     position: absolute;
     background: white;
-    padding: 2.5rem;
-    border-radius: 24px;
+    padding: 2rem;
+    border-radius: 20px;
     box-shadow: var(--shadow-xl);
     transition: transform 0.3s ease;
 }
@@ -271,7 +270,7 @@ body {
     top: 50%;
     transform: translate(-50%, -50%);
     z-index: 3;
-    padding: 3rem;
+    padding: 2.5rem;
     animation: floatCenter 5s ease-in-out infinite;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
@@ -304,8 +303,8 @@ body {
 }
 
 .demo-img-placeholder {
-    width: 400px;
-    height: 400px;
+    width: 250px;
+    height: 250px;
     background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
     border-radius: 16px;
     display: flex;
@@ -316,14 +315,14 @@ body {
 }
 
 .demo-center .demo-img-placeholder {
-    width: 480px;
-    height: 480px;
+    width: 300px;
+    height: 300px;
 }
 
 .demo-left .demo-img-placeholder,
 .demo-right .demo-img-placeholder {
-    width: 350px;
-    height: 350px;
+    width: 220px;
+    height: 220px;
 }
 
 .demo-img-placeholder.transparent {
@@ -342,7 +341,7 @@ body {
 }
 
 .demo-arrow-vertical {
-    font-size: 3rem;
+    font-size: 2rem;
     color: var(--primary-color);
     font-weight: bold;
 }
@@ -1112,13 +1111,13 @@ body {
     }
 
     .demo-img-placeholder {
-        width: 280px;
-        height: 280px;
+        width: 200px;
+        height: 200px;
     }
 
     .demo-center .demo-img-placeholder {
-        width: 320px;
-        height: 320px;
+        width: 240px;
+        height: 240px;
     }
 
     .demo-label {
