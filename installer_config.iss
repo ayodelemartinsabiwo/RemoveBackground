@@ -48,6 +48,7 @@ Source: "open_installation_folder.bat"; DestDir: "{app}"; Flags: ignoreversion
 ; Simple and reliable context menu scripts
 Source: "install-context-menu-simple.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "uninstall-context-menu-simple.bat"; DestDir: "{app}"; Flags: ignoreversion
+Source: "cleanup_after_uninstall.bat"; DestDir: "{app}"; Flags: ignoreversion
 ; Remove old context menu files
 ;Source: "src\context_menu.py"; DestDir: "{app}"; Flags: ignoreversion
 ;Source: "install-context-menu.bat"; DestDir: "{app}"; Flags: ignoreversion
@@ -69,7 +70,16 @@ Filename: "{app}\BackgroundRemover.exe"; Description: "{cm:LaunchProgram,Backgro
 
 [UninstallRun]
 ; Remove context menu during uninstall
-Filename: "{app}\uninstall-context-menu.bat"; Parameters: "silent"; Flags: runhidden waituntilterminated
+Filename: "{app}\uninstall-context-menu-simple.bat"; Parameters: "silent"; Flags: runhidden waituntilterminated
+
+[UninstallDelete]
+; Force removal of dynamically created files and folders
+Type: filesandordirs; Name: "{app}\models"
+Type: filesandordirs; Name: "{app}\_internal\models_compressed"
+Type: files; Name: "{app}\*.log"
+Type: files; Name: "{app}\*.tmp"
+; Remove any leftover configuration or cache files
+Type: filesandordirs; Name: "{localappdata}\BackgroundRemover"
 
 [Code]
 var
@@ -220,6 +230,41 @@ end;
 function InitializeSetup(): Boolean;
 begin
   Result := True;
+end;
+
+// Custom uninstall cleanup
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+  ResultCode: Integer;
+  AppDir: string;
+begin
+  if CurUninstallStep = usPostUninstall then
+  begin
+    AppDir := ExpandConstant('{app}');
+
+    // Force removal of any remaining directories that might have been missed
+    try
+      // Remove models directory if it still exists
+      if DirExists(AppDir + '\models') then
+        DelTree(AppDir + '\models', True, True, True);
+
+      // Remove any remaining _internal subdirectories
+      if DirExists(AppDir + '\_internal') then
+        DelTree(AppDir + '\_internal', True, True, True);
+
+      // Try to remove the main app directory if it's empty
+      RemoveDir(AppDir);
+    except
+      // Ignore errors - some files might be in use
+    end;
+
+    // Ensure context menu is completely removed
+    Exec('reg', 'delete "HKCU\Software\Classes\*\shell\RemoveBackground" /f', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+    Exec('reg', 'delete "HKLM\SOFTWARE\Classes\*\shell\RemoveBackground" /f', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+
+    // Launch final cleanup script with a delay to run after uninstaller closes
+    Exec('cmd', '/c start /min "" cmd /c "timeout /t 5 >nul 2>&1 && "' + AppDir + '\cleanup_after_uninstall.bat" "' + AppDir + '""', '', SW_HIDE, ewNoWait, ResultCode);
+  end;
 end;
 
 // Custom page to show context menu installation status
