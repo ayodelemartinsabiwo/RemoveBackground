@@ -130,16 +130,21 @@ body {
 }
 
 .hero-content {
-    max-width: 650px;
+    max-width: 100%;
     z-index: 10;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
 }
 
 .hero-title {
     font-size: 3.75rem;
     font-weight: 800;
     line-height: 1.15;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0;
     color: var(--text-dark);
+    grid-column: 1;
 }
 
 .gradient-text {
@@ -152,8 +157,9 @@ body {
 .hero-subtitle {
     font-size: 1.25rem;
     color: var(--text-light);
-    margin-bottom: 2rem;
+    margin-bottom: 0;
     line-height: 1.8;
+    grid-column: 2;
 }
 
 .hero-buttons {
@@ -161,6 +167,8 @@ body {
     gap: 1rem;
     margin-bottom: 3rem;
     flex-wrap: wrap;
+    grid-column: 1 / -1;
+    margin-top: 2rem;
 }
 
 .btn {
@@ -218,6 +226,7 @@ body {
     padding-top: 2rem;
     border-top: 1px solid var(--border-color);
     flex-wrap: wrap;
+    grid-column: 1 / -1;
 }
 
 .stat {
@@ -258,7 +267,7 @@ body {
 
 /* Left Demo Card */
 .demo-left {
-    left: 0;
+    left: 5%;
     top: 10%;
     z-index: 1;
     animation: float 6s ease-in-out infinite;
@@ -277,7 +286,7 @@ body {
 
 /* Right Demo Card */
 .demo-right {
-    right: 0;
+    right: 5%;
     top: 30%;
     z-index: 2;
     animation: float 7s ease-in-out infinite;
@@ -1066,12 +1075,21 @@ body {
         min-height: auto;
     }
 
+    .hero-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
     .hero-title {
         font-size: 2.5rem;
+        grid-column: 1;
+        margin-bottom: 1rem;
     }
 
     .hero-subtitle {
         font-size: 1rem;
+        grid-column: 1;
+        margin-bottom: 1rem;
     }
 
     .hero-buttons {
@@ -1084,26 +1102,40 @@ body {
     }
 
     .hero-showcase {
-        min-height: 500px;
+        min-height: auto;
         margin-top: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        padding: 1rem;
     }
 
     .demo-card-enhanced {
         position: relative;
         padding: 1.5rem;
+        animation: none !important;
     }
 
     .demo-left,
-    .demo-right {
-        display: none;
-    }
-
+    .demo-right,
     .demo-center {
         position: relative;
         left: auto;
+        right: auto;
         top: auto;
         transform: none;
+        padding: 1.5rem;
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    .demo-center {
         padding: 2rem;
+    }
+
+    .demo-card-enhanced:hover {
+        transform: scale(1.05);
     }
 
     .demo-center:hover {
