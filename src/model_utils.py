@@ -1,6 +1,8 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-Model Management Utilities
-Handles compressed model decompression and management for the Background Remover application.
+Model utilities for Background Remover
+Handles compressed model files and ensures models are ready for use
 """
 
 import os
@@ -8,131 +10,109 @@ import sys
 import gzip
 import shutil
 from pathlib import Path
+from typing import cast
 
-def decompress_models():
-    """
-    Decompress models from compressed format to the executable's directory.
-    Returns True if models are ready, False if there's an issue.
-    """
+def get_models_directory():
+    """Get the models directory path"""
+    # Check if we're in a PyInstaller bundle
+    if hasattr(sys, '_MEIPASS'):
+        # We're in a PyInstaller bundle - compressed models are in _internal
+        base_dir = os.path.dirname(sys.executable)
+        models_compressed_dir = os.path.join(base_dir, '_internal', 'models_compressed')
+
+        # Use user's AppData for decompressed models (writable without admin rights)
+        user_data_dir = os.path.join(os.environ.get('LOCALAPPDATA', os.path.expanduser('~')), 'BackgroundRemover', 'models')
+        models_dir = user_data_dir
+    else:
+        # We're running from source
+        base_dir = Path(__file__).parent.parent
+        models_compressed_dir = base_dir / 'models_compressed'
+        models_dir = base_dir / 'models'
+
+    print(f"DEBUG - PyInstaller bundle detected: {hasattr(sys, '_MEIPASS')}")
+    if hasattr(sys, '_MEIPASS'):
+        print(f"DEBUG - sys._MEIPASS: {getattr(sys, '_MEIPASS', 'Not found')}")
+        print(f"DEBUG - sys.executable: {sys.executable}")
+        print(f"DEBUG - models_compressed_dir: {models_compressed_dir}")
+        print(f"DEBUG - models_dir: {models_dir}")
+
+    return str(models_dir), str(models_compressed_dir)
+
+def decompress_model(compressed_path, output_path):
+    """Decompress a gzip-compressed model file"""
     try:
-        # Use models directory next to the executable (for PyInstaller bundle)
-        # or next to the script (for development)
-
-        # Check if we're running from PyInstaller bundle
-        meipass = getattr(sys, '_MEIPASS', None)
-        if meipass:
-            # Running from PyInstaller - models should be next to the executable
-            executable_dir = Path(sys.executable).parent
-            models_dir = executable_dir / 'models'
-            print(f"DEBUG: PyInstaller mode - executable: {sys.executable}")
-            print(f"DEBUG: PyInstaller mode - models dir: {models_dir}")
-        else:
-            # Development mode - use models directory in project root
-            models_dir = Path(__file__).parent.parent / 'models'
-            print(f"DEBUG: Development mode - models dir: {models_dir}")
-
-        # Try to create models directory
-        try:
-            models_dir.mkdir(parents=True, exist_ok=True)
-            print(f"DEBUG: Successfully created/verified models directory: {models_dir}")
-        except Exception as e:
-            print(f"ERROR: Failed to create models directory {models_dir}: {e}")
-            return False
-
-        # Set U2NET_HOME to models directory next to executable
-        os.environ['U2NET_HOME'] = str(models_dir)
-
-        # Check if models already exist
-        if any(models_dir.glob('*.onnx')):
-            print(f"DEBUG: Using existing models: {models_dir}")
-            return True
-
-        # Check if we're running from PyInstaller bundle and need to decompress
-        if meipass:
-            # Running from PyInstaller - check for compressed models in _internal
-            compressed_models_dir = Path(meipass) / 'models_compressed'
-            print(f"DEBUG: Looking for compressed models in: {compressed_models_dir}")
-
-            if compressed_models_dir.exists():
-                print(f"DEBUG: Found compressed models directory")
-                compressed_files = list(compressed_models_dir.glob('*.onnx.gz'))
-                print(f"DEBUG: Found {len(compressed_files)} compressed model files: {[f.name for f in compressed_files]}")
-
-                if not compressed_files:
-                    print(f"ERROR: No compressed model files found in {compressed_models_dir}")
-                    return False
-
-                print(f"DEBUG: Decompressing models to: {models_dir}")
-
-                for compressed_file in compressed_files:
-                    model_name = compressed_file.stem  # Remove .gz extension
-                    output_path = models_dir / model_name
-
-                    # Skip if already exists and is newer than compressed
-                    if output_path.exists() and output_path.stat().st_mtime > compressed_file.stat().st_mtime:
-                        print(f"DEBUG: Skipping {model_name} - already exists and is newer")
-                        continue
-
-                    print(f"DEBUG: Decompressing {model_name}...")
-                    try:
-                        with gzip.open(compressed_file, 'rb') as f_in:
-                            with open(output_path, 'wb') as f_out:
-                                shutil.copyfileobj(f_in, f_out)
-                        print(f"DEBUG: Successfully decompressed {model_name}")
-                    except Exception as e:
-                        print(f"ERROR: Failed to decompress {model_name}: {e}")
-                        return False
-
-                print("DEBUG: Model decompression completed")
-                return True
-            else:
-                print(f"ERROR: Compressed models directory not found: {compressed_models_dir}")
-                return False
-
-        # Development mode - models should already exist in local models directory
-        if models_dir.exists() and any(models_dir.glob('*.onnx')):
-            print(f"DEBUG: Using existing models: {models_dir}")
-            return True
-
-        # Models will be downloaded on first use by rembg
-        print(f"DEBUG: Models will be downloaded to: {models_dir}")
+        with gzip.open(compressed_path, 'rb') as f_in:
+            with open(output_path, 'wb') as f_out:
+                # Copy in chunks to handle large files efficiently
+                while True:
+                    chunk = cast(bytes, f_in.read(8192))
+                    if not chunk:
+                        break
+                    f_out.write(chunk)
         return True
-
     except Exception as e:
-        print(f"ERROR: Model setup failed: {e}")
+        print(f"Error decompressing {compressed_path}: {e}")
         return False
 
 def ensure_models_ready():
-    """
-    Ensure models are ready for use.
-    This function should be called before starting background removal.
-    PERFORMANCE OPTIMIZED: Skip if models already exist
-    """
-    # Get models directory (next to executable or in development)
-    meipass = getattr(sys, '_MEIPASS', None)
-    if meipass:
-        # Running from PyInstaller bundle
-        executable_dir = Path(sys.executable).parent
-        models_dir = executable_dir / 'models'
+    """Ensure all required models are decompressed and ready for use"""
+    models_dir, models_compressed_dir = get_models_directory()
+
+    # Create models directory if it doesn't exist
+    os.makedirs(models_dir, exist_ok=True)
+
+    # Required models mapping: compressed_name -> decompressed_name
+    required_models = {
+        'birefnet-portrait.onnx.gz': 'birefnet-portrait.onnx',
+        'u2net.onnx.gz': 'u2net.onnx'
+    }
+
+    all_ready = True
+
+    for compressed_name, decompressed_name in required_models.items():
+        compressed_path = os.path.join(models_compressed_dir, compressed_name)
+        decompressed_path = os.path.join(models_dir, decompressed_name)
+
+        # Check if decompressed model already exists and is valid
+        if os.path.exists(decompressed_path) and os.path.getsize(decompressed_path) > 0:
+            continue
+
+        # Check if compressed model exists
+        if not os.path.exists(compressed_path):
+            print(f"Missing compressed model: {compressed_path}")
+            all_ready = False
+            continue
+
+        # Decompress the model
+        print(f"Decompressing {compressed_name}...")
+        if decompress_model(compressed_path, decompressed_path):
+            print(f"Successfully decompressed {decompressed_name}")
+        else:
+            print(f"Failed to decompress {compressed_name}")
+            all_ready = False
+
+    return all_ready
+
+def get_model_path(model_name):
+    """Get the full path to a specific model"""
+    models_dir, _ = get_models_directory()
+    return os.path.join(models_dir, model_name)
+
+def cleanup_models():
+    """Clean up decompressed models (useful for testing)"""
+    models_dir, _ = get_models_directory()
+    if os.path.exists(models_dir):
+        shutil.rmtree(models_dir)
+        print(f"Cleaned up models directory: {models_dir}")
+
+if __name__ == '__main__':
+    # Test the model utilities
+    print("Testing model utilities...")
+    models_dir, compressed_dir = get_models_directory()
+    print(f"Models directory: {models_dir}")
+    print(f"Compressed models directory: {compressed_dir}")
+
+    if ensure_models_ready():
+        print("All models are ready!")
     else:
-        # Development mode
-        models_dir = Path(__file__).parent.parent / 'models'
-
-    # PERFORMANCE OPTIMIZATION: Quick check if models already exist
-    if models_dir.exists():
-        required_models = ['birefnet-portrait.onnx', 'u2net.onnx', 'isnet-general-use.onnx']
-        existing_models = [model for model in required_models if (models_dir / model).exists()]
-
-        if len(existing_models) >= 1:  # At least one model exists
-            print(f"✓ Using existing models: {models_dir}")
-            return True
-
-    # If no models exist, decompress them
-    print(f"DEBUG: Models not found, decompressing...")
-    return decompress_models()
-
-if __name__ == "__main__":
-    # Test the decompression function
-    import sys
-    result = decompress_models()
-    print(f"Model preparation result: {result}")
+        print("Some models are missing or failed to decompress.")

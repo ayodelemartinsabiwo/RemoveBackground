@@ -48,7 +48,6 @@ Source: "open_installation_folder.bat"; DestDir: "{app}"; Flags: ignoreversion
 ; Simple and reliable context menu scripts
 Source: "install-context-menu-simple.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "uninstall-context-menu-simple.bat"; DestDir: "{app}"; Flags: ignoreversion
-Source: "cleanup_after_uninstall.bat"; DestDir: "{app}"; Flags: ignoreversion
 ; Remove old context menu files
 ;Source: "src\context_menu.py"; DestDir: "{app}"; Flags: ignoreversion
 ;Source: "install-context-menu.bat"; DestDir: "{app}"; Flags: ignoreversion
@@ -262,8 +261,9 @@ begin
     Exec('reg', 'delete "HKCU\Software\Classes\*\shell\RemoveBackground" /f', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
     Exec('reg', 'delete "HKLM\SOFTWARE\Classes\*\shell\RemoveBackground" /f', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 
-    // Launch final cleanup script with a delay to run after uninstaller closes
-    Exec('cmd', '/c start /min "" cmd /c "timeout /t 5 >nul 2>&1 && "' + AppDir + '\cleanup_after_uninstall.bat" "' + AppDir + '""', '', SW_HIDE, ewNoWait, ResultCode);
+    // Final registry cleanup without dangerous scripts
+    Exec('reg', 'delete "HKCU\Software\Classes\*\shell\RemoveBackground" /f', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+    Exec('reg', 'delete "HKLM\SOFTWARE\Classes\*\shell\RemoveBackground" /f', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   end;
 end;
 

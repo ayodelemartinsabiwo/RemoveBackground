@@ -96,6 +96,8 @@ hidden_imports = [
     'typing_extensions',
     'packaging',
     'pydoc',
+    # Our custom modules
+    'model_utils',
 ]
 
 # Enhanced binaries and data collection with aggressive size optimization

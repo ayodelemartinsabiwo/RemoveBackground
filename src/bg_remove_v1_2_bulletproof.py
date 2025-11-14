@@ -53,33 +53,53 @@ def _setup_safe_onnx_environment():
 # Setup ONNX environment at module import
 _onnx_providers = _setup_safe_onnx_environment()
 
-# Configure model download location for cross-machine compatibility
+# Configure model location to use our bundled decompressed models
 def _setup_model_directory():
     """
-    Setup centralized model directory - NEVER pollute user directories.
-    Always use AppData for consistency and cleanliness.
+    Setup model directory using user's AppData for decompressed models.
+    This maintains the original Program Files installation but stores
+    decompressed models in a user-writable location.
     """
     try:
-        # ALWAYS use centralized location in AppData - this prevents model pollution
-        model_dir = os.path.join(
-            os.environ.get('LOCALAPPDATA', os.path.expanduser('~')),
-            'BackgroundRemover',
-            'models'
-        )
+        # Import model_utils to use the same directory logic
+        from model_utils import get_models_directory, ensure_models_ready
+        model_dir, models_compressed_dir = get_models_directory()
+
+        print(f"Model setup - Compressed dir: {models_compressed_dir}")
+        print(f"Model setup - Target dir: {model_dir}")
+
+        # Create the directory if it doesn't exist (uses user's AppData, no admin rights needed)
         os.makedirs(model_dir, exist_ok=True)
 
-        # Set environment variable for rembg to use centralized location
-        os.environ['U2NET_HOME'] = model_dir
+        # Ensure models are decompressed and ready
+        print("Ensuring models are ready...")
+        ensure_models_ready()
 
-        print(f"✓ Using centralized model directory: {model_dir}")
+        # Set environment variable for rembg to use our local models
+        os.environ['U2NET_HOME'] = model_dir
+        # Also set the cache directory to prevent downloads
+        os.environ['REMBG_HOME'] = model_dir
+
+        print(f"✓ Using local model directory: {model_dir}")
         return model_dir
 
     except Exception as e:
-        print(f"Model directory setup warning: {e}")
-        # Fallback to default location
-        fallback_dir = os.path.join(os.path.expanduser('~'), '.u2net')
-        os.makedirs(fallback_dir, exist_ok=True)
-        return fallback_dir# Initialize model directory on module load
+        print(f"Model directory setup error: {e}")
+        import traceback
+        traceback.print_exc()
+        # Fallback to user's temp directory (always writable)
+        import tempfile
+        fallback_dir = os.path.join(tempfile.gettempdir(), 'BackgroundRemover', 'models')
+        try:
+            os.makedirs(fallback_dir, exist_ok=True)
+            print(f"✓ Using fallback model directory: {fallback_dir}")
+            return fallback_dir
+        except Exception as fallback_error:
+            print(f"Critical error: Cannot create any model directory: {fallback_error}")
+            # Last resort - use current user's home directory
+            home_fallback = os.path.join(os.path.expanduser('~'), 'BackgroundRemover', 'models')
+            os.makedirs(home_fallback, exist_ok=True)
+            return home_fallback# Initialize model directory on module load
 _MODEL_DIR = _setup_model_directory()
 
 # Configure onnxruntime to use CPU only (more stable for PyInstaller)
@@ -148,12 +168,18 @@ class BackgroundRemoverV12Bulletproof:
         try:
             self._update_progress(self._get_next_witty_message())
 
-            # Use centralized model directory
-            from model_utils import ensure_models_ready
+            # Ensure our bundled models are decompressed and ready
+            from model_utils import ensure_models_ready, get_models_directory
             models_available = ensure_models_ready()
             if not models_available:
-                self._update_progress("❌ Something's missing. Please restart.")
+                self._update_progress("❌ Models not ready. Please reinstall.")
                 return False
+
+            # Make sure rembg uses our local models directory
+            models_dir, _ = get_models_directory()
+            os.environ['U2NET_HOME'] = models_dir
+            os.environ['REMBG_HOME'] = models_dir
+            print(f"✓ Rembg will use models from: {models_dir}")
 
             # PERFORMANCE: Optimize ONNX Runtime CPU execution
             try:
@@ -171,7 +197,7 @@ class BackgroundRemoverV12Bulletproof:
                 _onnx_providers = ['CPUExecutionProvider']
 
             # PERFORMANCE OPTIMIZATION: Use cached session if available
-            model_priority = ['birefnet-portrait', 'u2net', 'isnet-general-use']
+            model_priority = ['birefnet-portrait', 'u2net']
 
             for model_name in model_priority:
                 try:
@@ -181,6 +207,15 @@ class BackgroundRemoverV12Bulletproof:
                         self._update_progress(self._get_next_witty_message())
                         self.session = BackgroundRemoverV12Bulletproof._cached_session
                         return True
+
+                    # Verify the model file exists locally before trying to create session
+                    from model_utils import get_model_path
+                    model_file_path = get_model_path(f"{model_name}.onnx")
+                    if not os.path.exists(model_file_path):
+                        print(f"Model file not found: {model_file_path}")
+                        continue
+
+                    print(f"✓ Found model file: {model_file_path}")
 
                     # Create new session with witty message instead of technical model name
                     self._update_progress(self._get_next_witty_message())
@@ -194,7 +229,10 @@ class BackgroundRemoverV12Bulletproof:
                     return True
 
                 except Exception as e:
-                    print(f"Model initialization attempt failed: {e}")
+                    print(f"Model '{model_name}' initialization failed: {e}")
+                    # Print more detailed error information
+                    import traceback
+                    traceback.print_exc()
                     continue
 
             # If all models failed

@@ -48,9 +48,8 @@ echo Performing final context menu cleanup...
 reg delete "HKCU\Software\Classes\*\shell\RemoveBackground" /f >nul 2>&1
 reg delete "HKLM\SOFTWARE\Classes\*\shell\RemoveBackground" /f >nul 2>&1
 
-REM Restart explorer to refresh context menus
-taskkill /f /im explorer.exe >nul 2>&1
-start "" explorer.exe
+REM Refresh context menus safely without killing Explorer
+REM Registry changes take effect without requiring Explorer restart
 
 echo.
 echo Cleanup completed!

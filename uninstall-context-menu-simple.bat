@@ -13,12 +13,9 @@ reg delete "HKCU\Software\Classes\*\shell\RemoveBackground" /f >nul 2>&1
 REM Also try to remove from HKLM in case it was installed there
 reg delete "HKLM\SOFTWARE\Classes\*\shell\RemoveBackground" /f >nul 2>&1
 
-REM Force refresh of File Explorer
-taskkill /f /im explorer.exe >nul 2>&1
-start explorer.exe >nul 2>&1
-
-REM Wait a moment for explorer to restart
-timeout /t 2 >nul 2>&1
+REM Refresh File Explorer safely without killing it
+REM Using SHChangeNotify to refresh shell instead of dangerous explorer restart
+powershell -Command "$null = [System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms'); [System.Windows.Forms.SendKeys]::SendWait('{F5}')" >nul 2>&1
 
 REM Check if removal was successful
 reg query "HKCU\Software\Classes\*\shell\RemoveBackground" >nul 2>&1
