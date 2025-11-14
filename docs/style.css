@@ -264,7 +264,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 650px;
+    min-height: 800px;
     padding: 2rem 0;
     margin-top: 3rem;
 }
@@ -338,7 +338,7 @@ body {
 
 .demo-center .demo-img-placeholder {
     width: 280px;
-    height: 280px;
+    height: 400px;
 }
 
 .demo-left .demo-img-placeholder,
@@ -1205,7 +1205,7 @@ body {
 
     .demo-center .demo-img-placeholder {
         width: 200px;
-        height: 200px;
+        height: 280px;
     }
 
     .demo-comparison {
