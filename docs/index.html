@@ -77,21 +77,20 @@
 
             <!-- Enhanced Hero Image Section with 3 Floating Demos -->
             <div class="hero-showcase">
-                <!-- Left Demo -->
+                <!-- Left Demo - Animated Transition -->
                 <div class="demo-card-enhanced demo-left">
                     <div class="demo-card-inner">
-                        <div class="demo-before">
-                            <span class="demo-label">Portrait</span>
-                            <div class="demo-img-placeholder">
-                                <svg width="140" height="140" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="12" cy="7" r="4"></circle>
-                                </svg>
+                        <span class="demo-label">Portrait Precision</span>
+                        <div class="demo-transition-container">
+                            <div class="demo-transition-image demo-image-with-bg">
+                                <img src="images/Background.png" alt="Portrait with background" onerror="this.style.display='none'">
                             </div>
-                            <div class="demo-after">
-                                <span class="result-badge">Perfect Hair Edges</span>
+                            <div class="demo-transition-image demo-image-no-bg">
+                                <img src="images/No_Background.png" alt="Portrait without background" onerror="this.style.display='none'">
                             </div>
+                            <div class="demo-transition-line"></div>
                         </div>
+                        <span class="result-badge">Perfect Hair Edges</span>
                     </div>
                 </div>
 
@@ -109,8 +108,8 @@
                             <div class="demo-arrow-vertical">↓</div>
                             <div class="demo-side">
                                 <span class="demo-label">After</span>
-                                <div class="demo-img-placeholder transparent">
-                                    <img src="images/after.png" alt="After - Background removed" style="width: 100%; height: 100%; object-fit: contain; border-radius: 16px;">
+                                <div class="demo-img-placeholder transparent" style="align-items: flex-end;">
+                                    <img src="images/after.png" alt="After - Background removed" style="width: 100%; height: 100%; object-fit: contain; object-position: bottom; border-radius: 16px;">
                                 </div>
                                 <span class="result-badge premium">Crystal Clear</span>
                             </div>
