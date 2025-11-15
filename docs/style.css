@@ -1426,10 +1426,11 @@ body {
 
     /* Reset left card images for mobile */
     .demo-left .demo-transition-image img {
-        width: 110%;
-        height: 115%;
+        width: 100%;
+        height: 100%;
         margin-top: 0;
-        object-position: center 58%;
+        object-fit: cover;
+        object-position: center top;
     }
 
     /* Increase right card images on mobile */
