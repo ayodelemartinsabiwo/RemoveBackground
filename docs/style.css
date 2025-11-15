@@ -475,7 +475,7 @@ body {
 
 /* Right card with-bg uses custom color */
 .demo-right .demo-image-with-bg {
-    background: #CABBAA;
+    background: #D8CFC4;
 }
 
 .demo-image-no-bg {
@@ -1421,7 +1421,7 @@ body {
 
     /* Override left card height for mobile */
     .demo-left .demo-transition-container {
-        height: 280px;
+        height: 350px;
     }
 
     /* Reset left card images for mobile */
