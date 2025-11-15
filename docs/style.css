@@ -1427,7 +1427,7 @@ body {
     /* Reset left card images for mobile */
     .demo-left .demo-transition-image img {
         width: 110%;
-        height: 150%;
+        height: 135%;
         margin-top: 0;
         object-position: center 55%;
     }
