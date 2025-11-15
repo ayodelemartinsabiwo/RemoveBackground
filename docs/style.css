@@ -475,7 +475,7 @@ body {
 
 /* Right card with-bg uses custom color */
 .demo-right .demo-image-with-bg {
-    background: #D8CFC4;
+    background: #D2CCC0;
 }
 
 .demo-image-no-bg {
@@ -1429,7 +1429,7 @@ body {
         width: 110%;
         height: 150%;
         margin-top: 0;
-        object-position: center;
+        object-position: center 60%;
     }
 
     /* Increase right card images on mobile */
