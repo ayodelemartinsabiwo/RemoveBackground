@@ -282,7 +282,7 @@ body {
 /* Left Demo Card */
 .demo-left {
     left: -40px;
-    top: 10%;
+    top: -5%;
     z-index: 1;
     animation: float 6s ease-in-out infinite;
 }
@@ -1417,6 +1417,26 @@ body {
     .demo-transition-container {
         width: 200px;
         height: 280px;
+    }
+
+    /* Override left card height for mobile */
+    .demo-left .demo-transition-container {
+        height: 280px;
+    }
+
+    /* Reset left card images for mobile */
+    .demo-left .demo-transition-image img {
+        width: 90%;
+        height: 120%;
+        margin-top: 0;
+        object-position: center;
+    }
+
+    /* Increase right card images on mobile */
+    .demo-right .demo-transition-image img {
+        width: 100%;
+        height: 130%;
+        object-position: center;
     }
 
     .demo-comparison {
