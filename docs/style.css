@@ -475,7 +475,7 @@ body {
 
 /* Right card with-bg uses custom color */
 .demo-right .demo-image-with-bg {
-    background: #EADED0;
+    background: #CABBAA;
 }
 
 .demo-image-no-bg {
@@ -1426,16 +1426,16 @@ body {
 
     /* Reset left card images for mobile */
     .demo-left .demo-transition-image img {
-        width: 90%;
-        height: 120%;
+        width: 110%;
+        height: 150%;
         margin-top: 0;
         object-position: center;
     }
 
     /* Increase right card images on mobile */
     .demo-right .demo-transition-image img {
-        width: 100%;
-        height: 130%;
+        width: 115%;
+        height: 160%;
         object-position: center;
     }
 
