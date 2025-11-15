@@ -39,7 +39,7 @@ body {
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 20px;
 }
@@ -280,7 +280,7 @@ body {
 
 /* Left Demo Card */
 .demo-left {
-    left: 0;
+    left: -50px;
     top: 10%;
     z-index: 1;
     animation: float 6s ease-in-out infinite;
@@ -299,7 +299,7 @@ body {
 
 /* Right Demo Card */
 .demo-right {
-    right: 0;
+    right: -50px;
     top: 30%;
     z-index: 2;
     animation: float 7s ease-in-out infinite;
@@ -444,7 +444,7 @@ body {
     width: 100%;
     height: 120%;
     object-fit: cover;
-    object-position: top;
+    object-position: center;
 }
 
 .demo-image-with-bg {
@@ -540,6 +540,26 @@ body {
         opacity: 1;
         transform: scale(1.5);
     }
+}
+
+/* Photo Credit Styling */
+.photo-credit {
+    margin-top: 0.75rem;
+    font-size: 0.625rem;
+    color: #a0aec0;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.photo-credit a {
+    color: #718096;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.photo-credit a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
 }
 
 /* Floating Animations */
