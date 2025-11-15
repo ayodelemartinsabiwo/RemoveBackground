@@ -343,8 +343,8 @@ body {
 
 .demo-left .demo-img-placeholder,
 .demo-right .demo-img-placeholder {
-    width: 200px;
-    height: 200px;
+    width: 280px;
+    height: 400px;
 }
 
 .demo-img-placeholder.transparent {
@@ -421,8 +421,8 @@ body {
 
 .demo-transition-container {
     position: relative;
-    width: 200px;
-    height: 200px;
+    width: 280px;
+    height: 400px;
     border-radius: 16px;
     overflow: hidden;
     margin-bottom: 1rem;
@@ -442,77 +442,103 @@ body {
 
 .demo-transition-image img {
     width: 100%;
-    height: 100%;
-    object-fit: contain;
+    height: 120%;
+    object-fit: cover;
+    object-position: top;
 }
 
 .demo-image-with-bg {
     background: #f5f5f5;
-    animation: fadeOutSlideLeft 6s ease-in-out infinite;
     z-index: 2;
+    clip-path: inset(0 0 0 0);
+    animation: maskReveal 6s ease-in-out infinite;
 }
 
 .demo-image-no-bg {
     background: repeating-conic-gradient(#e2e8f0 0% 25%, transparent 0% 50%) 50% / 20px 20px;
-    animation: fadeInSlideRight 6s ease-in-out infinite;
     z-index: 1;
 }
 
 .demo-transition-line {
     position: absolute;
     top: 0;
-    left: 0;
-    width: 3px;
+    right: 100%;
+    width: 4px;
     height: 100%;
     background: linear-gradient(180deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-    box-shadow: 0 0 10px var(--primary-color);
+    box-shadow: 0 0 20px var(--primary-color), 0 0 40px rgba(255, 107, 53, 0.5);
     z-index: 3;
-    animation: lineSweep 6s ease-in-out infinite;
+    animation: lineSweepMask 6s ease-in-out infinite;
 }
 
-@keyframes fadeOutSlideLeft {
-    0%, 45% {
-        opacity: 1;
-        transform: translateX(0);
+/* Sparkle effects */
+.demo-transition-line::before,
+.demo-transition-line::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 10px white, 0 0 20px var(--primary-color);
+    animation: sparkle 0.6s ease-in-out infinite;
+}
+
+.demo-transition-line::before {
+    top: 20%;
+    left: -4px;
+    animation-delay: 0s;
+}
+
+.demo-transition-line::after {
+    top: 60%;
+    left: -4px;
+    animation-delay: 0.3s;
+}
+
+@keyframes maskReveal {
+    0%, 15% {
+        clip-path: inset(0 0 0 0);
     }
-    50%, 95% {
-        opacity: 0;
-        transform: translateX(-100%);
+    50%, 65% {
+        clip-path: inset(0 0 0 100%);
     }
     100% {
-        opacity: 1;
-        transform: translateX(0);
+        clip-path: inset(0 0 0 0);
     }
 }
 
-@keyframes fadeInSlideRight {
-    0%, 45% {
+@keyframes lineSweepMask {
+    0%, 15% {
+        right: 100%;
         opacity: 0;
     }
-    50%, 95% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-    }
-}
-
-@keyframes lineSweep {
-    0%, 45% {
-        left: 0;
-        opacity: 0;
-    }
-    47% {
-        left: 0;
+    20% {
+        right: 100%;
         opacity: 1;
     }
     50% {
-        left: 100%;
+        right: 0%;
         opacity: 1;
     }
-    52%, 100% {
-        left: 0;
+    55% {
+        right: 0%;
         opacity: 0;
+    }
+    100% {
+        right: 100%;
+        opacity: 0;
+    }
+}
+
+@keyframes sparkle {
+    0%, 100% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.5);
     }
 }
 
@@ -1190,7 +1216,7 @@ body {
 
 @media (max-width: 1024px) {
     .hero-showcase {
-        min-height: 500px;
+        min-height: 900px;
     }
 
     .demo-left {
@@ -1324,11 +1350,22 @@ body {
     }
 
     .demo-img-placeholder {
-        width: 160px;
-        height: 160px;
+        width: 200px;
+        height: 280px;
+    }
+
+    .demo-left .demo-img-placeholder,
+    .demo-right .demo-img-placeholder {
+        width: 200px;
+        height: 280px;
     }
 
     .demo-center .demo-img-placeholder {
+        width: 200px;
+        height: 280px;
+    }
+
+    .demo-transition-container {
         width: 200px;
         height: 280px;
     }
