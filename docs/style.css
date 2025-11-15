@@ -1421,7 +1421,7 @@ body {
 
     /* Override left card height for mobile */
     .demo-left .demo-transition-container {
-        height: 350px;
+        height: 280px;
     }
 
     /* Reset left card images for mobile */
