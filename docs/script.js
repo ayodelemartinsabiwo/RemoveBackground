@@ -7,6 +7,9 @@ let detectedCurrency = 'USD';
 let currentPhase = 1;
 let navigatedBack = false; // Track if user navigated back
 let autoAdvanceEnabled = true; // Control auto-advance behavior
+let phase1CompleteTimer = null; // Debounce timer for phase 1
+let phase2CompleteTimer = null; // Debounce timer for phase 2
+let userInteractedWithDropdown = false; // Track if user is actively using dropdown
 
 // Currency mapping based on country codes
 const currencyMapping = {
@@ -187,7 +190,26 @@ function initializeFormEventListeners() {
     // Phase 1 field listeners
     document.getElementById('name')?.addEventListener('input', checkPhase1Complete);
     document.getElementById('email')?.addEventListener('input', checkPhase1Complete);
-    document.getElementById('ageRange')?.addEventListener('change', checkPhase1Complete);
+
+    // Age dropdown - handle keyboard navigation
+    const ageDropdown = document.getElementById('ageRange');
+    if (ageDropdown) {
+        // Track when user opens the dropdown
+        ageDropdown.addEventListener('focus', () => {
+            userInteractedWithDropdown = true;
+        });
+
+        // Track when user is done with dropdown
+        ageDropdown.addEventListener('blur', () => {
+            setTimeout(() => {
+                userInteractedWithDropdown = false;
+                checkPhase1Complete();
+            }, 300);
+        });
+
+        // Still check on change but with the flag
+        ageDropdown.addEventListener('change', checkPhase1Complete);
+    }
 
     // Phase 2 field listeners
     document.getElementById('profession')?.addEventListener('input', checkPhase2Complete);
@@ -282,11 +304,17 @@ function checkPhase1Complete() {
     const isValid = name && email && ageRange &&
                    document.getElementById('email')?.checkValidity();
 
+    // Clear any existing timer
+    if (phase1CompleteTimer) {
+        clearTimeout(phase1CompleteTimer);
+    }
+
     // Only auto-advance if enabled and user hasn't navigated back
-    if (isValid && autoAdvanceEnabled && !navigatedBack) {
-        setTimeout(() => {
+    if (isValid && autoAdvanceEnabled && !navigatedBack && !userInteractedWithDropdown) {
+        // Add longer delay to allow user to finish interacting with dropdown
+        phase1CompleteTimer = setTimeout(() => {
             goToPhase(2);
-        }, 500);
+        }, 1000); // Increased from 500ms to 1000ms
     }
 
     // Show next button if user navigated back and form is complete
@@ -301,11 +329,17 @@ function checkPhase2Complete() {
 
     const isValid = profession && location;
 
+    // Clear any existing timer
+    if (phase2CompleteTimer) {
+        clearTimeout(phase2CompleteTimer);
+    }
+
     // Only auto-advance if enabled and user hasn't navigated back
     if (isValid && autoAdvanceEnabled && !navigatedBack) {
-        setTimeout(() => {
+        // Add delay to allow user to finish typing
+        phase2CompleteTimer = setTimeout(() => {
             goToPhase(3);
-        }, 500);
+        }, 1200); // Longer delay for typing profession
     }
 
     // Show next button if user navigated back and form is complete
@@ -336,6 +370,12 @@ function resetForm() {
     currentPhase = 1;
     navigatedBack = false;
     autoAdvanceEnabled = true;
+    userInteractedWithDropdown = false;
+
+    // Clear any pending timers
+    if (phase1CompleteTimer) clearTimeout(phase1CompleteTimer);
+    if (phase2CompleteTimer) clearTimeout(phase2CompleteTimer);
+
     goToPhase(1);
     userForm?.reset();
     amountGroup.style.display = 'none';
@@ -523,11 +563,11 @@ async function handleFormSubmit(e) {
     // Reset form
     resetForm();
 
-    // Hide success message after 3 seconds and start download
+    // Hide success message after 5 seconds and start download
     setTimeout(() => {
         successMessage.style.display = 'none';
         initiateDownload();
-    }, 3000);
+    }, 5000);
 }
 
 function storeDataLocally(data) {
