@@ -1091,6 +1091,13 @@ body {
     font-size: 1.25rem;
 }
 
+.menu-icon img {
+    height: 18px;
+    width: auto;
+    max-width: none;
+    vertical-align: middle;
+}
+
 /* ==================== */
 /* Documentation Section */
 /* ==================== */
