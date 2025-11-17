@@ -4,6 +4,7 @@
 
 let userLocation = null;
 let detectedCurrency = 'USD';
+let currentPhase = 1;
 
 // Currency mapping based on country codes
 const currencyMapping = {
@@ -16,6 +17,22 @@ const currencyMapping = {
 
 // Download URL
 const DOWNLOAD_URL = 'https://github.com/ayodelemartinsabiwo/RemoveBackground/releases/download/v1.0.0/BackgroundRemover_Setup.exe';
+
+// Form phase titles and descriptions
+const phaseContent = {
+    1: {
+        title: "Let's Get Started!",
+        description: "Share a few details to help us serve you better"
+    },
+    2: {
+        title: "Tell Us About Yourself",
+        description: "We'd love to know what you do"
+    },
+    3: {
+        title: "Almost Done!",
+        description: "Help us understand your needs"
+    }
+};
 
 // ==================== //
 // Mobile Menu Toggle
@@ -36,7 +53,6 @@ if (mobileMenuToggle) {
 // ==================== //
 
 const modal = document.getElementById('formModal');
-const downloadBtn = document.getElementById('downloadBtn');
 const downloadBtnMain = document.getElementById('downloadBtnMain');
 const closeBtn = document.querySelector('.close');
 const userForm = document.getElementById('userForm');
@@ -48,6 +64,7 @@ const amountRange = document.getElementById('amountRange');
 const rangeValue = document.getElementById('rangeValue');
 const currencySelect = document.getElementById('currency');
 const successMessage = document.getElementById('successMessage');
+const finalSubmitBtn = document.getElementById('finalSubmitBtn');
 
 // ==================== //
 // Initialize on Load
@@ -80,16 +97,11 @@ document.addEventListener('DOMContentLoaded', () => {
 // ==================== //
 
 function initializeFormEventListeners() {
-    // Download buttons open modal
-    if (downloadBtn) {
-        downloadBtn.addEventListener('click', () => {
-            modal.style.display = 'block';
-        });
-    }
-
+    // Download button in download section opens modal
     if (downloadBtnMain) {
         downloadBtnMain.addEventListener('click', () => {
             modal.style.display = 'block';
+            resetForm();
         });
     }
 
@@ -97,6 +109,7 @@ function initializeFormEventListeners() {
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
             modal.style.display = 'none';
+            resetForm();
         });
     }
 
@@ -104,6 +117,7 @@ function initializeFormEventListeners() {
     window.addEventListener('click', (event) => {
         if (event.target === modal) {
             modal.style.display = 'none';
+            resetForm();
         }
     });
 
@@ -123,6 +137,7 @@ function initializeFormEventListeners() {
             const value = e.target.value;
             rangeValue.textContent = value;
             amountInput.value = value;
+            checkPhase3Complete();
         });
     }
 
@@ -132,6 +147,7 @@ function initializeFormEventListeners() {
             const value = Math.min(Math.max(e.target.value, 0), 100);
             amountRange.value = value;
             rangeValue.textContent = value;
+            checkPhase3Complete();
         });
     }
 
@@ -139,6 +155,119 @@ function initializeFormEventListeners() {
     if (userForm) {
         userForm.addEventListener('submit', handleFormSubmit);
     }
+
+    // Back navigation
+    const backLinks = document.querySelectorAll('.back-link');
+    backLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetPhase = parseInt(link.getAttribute('data-back-to'));
+            goToPhase(targetPhase);
+        });
+    });
+
+    // Phase 1 field listeners
+    document.getElementById('name')?.addEventListener('input', checkPhase1Complete);
+    document.getElementById('email')?.addEventListener('input', checkPhase1Complete);
+    document.getElementById('ageRange')?.addEventListener('change', checkPhase1Complete);
+
+    // Phase 2 field listeners
+    document.getElementById('profession')?.addEventListener('input', checkPhase2Complete);
+    document.getElementById('location')?.addEventListener('input', checkPhase2Complete);
+}
+
+// ==================== //
+// Multi-Phase Logic
+// ==================== //
+
+function goToPhase(phaseNumber) {
+    // Hide all phases
+    document.querySelectorAll('.form-phase').forEach(phase => {
+        phase.classList.remove('active');
+    });
+
+    // Show target phase
+    const targetPhase = document.querySelector(`[data-phase="${phaseNumber}"]`);
+    if (targetPhase) {
+        targetPhase.classList.add('active');
+    }
+
+    // Update progress indicator
+    document.querySelectorAll('.progress-step').forEach(step => {
+        const stepNum = parseInt(step.getAttribute('data-step'));
+        step.classList.remove('active', 'completed');
+
+        if (stepNum === phaseNumber) {
+            step.classList.add('active');
+        } else if (stepNum < phaseNumber) {
+            step.classList.add('completed');
+        }
+    });
+
+    // Update title and description
+    const formTitle = document.getElementById('formTitle');
+    const formDescription = document.getElementById('formDescription');
+
+    if (formTitle && formDescription && phaseContent[phaseNumber]) {
+        formTitle.textContent = phaseContent[phaseNumber].title;
+        formDescription.textContent = phaseContent[phaseNumber].description;
+    }
+
+    currentPhase = phaseNumber;
+}
+
+function checkPhase1Complete() {
+    const name = document.getElementById('name')?.value.trim();
+    const email = document.getElementById('email')?.value.trim();
+    const ageRange = document.getElementById('ageRange')?.value;
+
+    const isValid = name && email && ageRange &&
+                   document.getElementById('email')?.checkValidity();
+
+    if (isValid) {
+        setTimeout(() => {
+            goToPhase(2);
+        }, 500);
+    }
+}
+
+function checkPhase2Complete() {
+    const profession = document.getElementById('profession')?.value.trim();
+    const location = document.getElementById('location')?.value.trim();
+
+    const isValid = profession && location;
+
+    if (isValid) {
+        setTimeout(() => {
+            goToPhase(3);
+        }, 500);
+    }
+}
+
+function checkPhase3Complete() {
+    const willingToPay = document.querySelector('input[name="willingToPay"]:checked');
+
+    if (!willingToPay) {
+        finalSubmitBtn.disabled = true;
+        return;
+    }
+
+    // If Yes or Maybe is selected, check if amount is filled
+    if (willingToPay.value === 'Yes' || willingToPay.value === 'Maybe') {
+        const amount = amountInput?.value;
+        finalSubmitBtn.disabled = !amount || parseFloat(amount) <= 0;
+    } else {
+        // If No is selected, enable submit button
+        finalSubmitBtn.disabled = false;
+    }
+}
+
+function resetForm() {
+    currentPhase = 1;
+    goToPhase(1);
+    userForm?.reset();
+    amountGroup.style.display = 'none';
+    finalSubmitBtn.disabled = true;
 }
 
 // ==================== //
@@ -220,6 +349,7 @@ function handleWillingToPayChange(e) {
         amountRange.value = 0;
         rangeValue.textContent = '0';
     }
+    checkPhase3Complete();
 }
 
 // ==================== //
@@ -268,8 +398,7 @@ async function handleFormSubmit(e) {
     successMessage.style.display = 'block';
 
     // Reset form
-    userForm.reset();
-    amountGroup.style.display = 'none';
+    resetForm();
 
     // Hide success message after 3 seconds and start download
     setTimeout(() => {
@@ -461,6 +590,7 @@ document.addEventListener('keydown', (e) => {
         // Close modal
         if (modal && modal.style.display === 'block') {
             modal.style.display = 'none';
+            resetForm();
         }
 
         // Close FAQ items

@@ -21,7 +21,8 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
             animation: fadeIn 0.3s ease;
         }
 
@@ -31,70 +32,186 @@
         }
 
         .modal-content {
-            background-color: #fefefe;
+            background-color: #ffffff;
             margin: 2% auto;
-            padding: 35px 40px;
-            border-radius: 20px;
+            padding: 45px 50px;
+            border-radius: 24px;
             width: 90%;
             max-width: 650px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: slideIn 0.3s ease;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             max-height: 92vh;
             overflow-y: auto;
+            position: relative;
         }
 
         @keyframes slideIn {
             from {
-                transform: translateY(-50px);
+                transform: translateY(-60px) scale(0.95);
                 opacity: 0;
             }
             to {
-                transform: translateY(0);
+                transform: translateY(0) scale(1);
                 opacity: 1;
             }
         }
 
         .close {
             color: #aaa;
-            float: right;
-            font-size: 32px;
-            font-weight: bold;
-            line-height: 1;
+            position: absolute;
+            right: 25px;
+            top: 25px;
+            font-size: 28px;
+            font-weight: 300;
             cursor: pointer;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
         }
 
         .close:hover {
+            background: #f5f5f5;
             color: #ff6b35;
+            transform: rotate(90deg);
+        }
+
+        /* Progress Indicator */
+        .form-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding: 0 20px;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #e9ecef;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .progress-step.active .step-circle {
+            background: linear-gradient(135deg, #ff6b35, #ff8c5a);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+            transform: scale(1.1);
+        }
+
+        .progress-step.completed .step-circle {
+            background: #28a745;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .progress-step.active .step-label {
+            color: #ff6b35;
+            font-weight: 600;
+        }
+
+        .progress-line {
+            flex: 1;
+            height: 3px;
+            background: #e9ecef;
+            margin: 0 10px;
+            position: relative;
+            top: -20px;
         }
 
         .modal-content h2 {
             color: #ff6b35;
-            margin-bottom: 10px;
-            font-size: 2rem;
+            margin-bottom: 8px;
+            font-size: 2.2rem;
+            font-weight: 700;
             clear: both;
         }
 
         .modal-description {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 1rem;
+            color: #6c757d;
+            margin-bottom: 35px;
+            font-size: 1.05rem;
+            font-weight: 400;
+        }
+
+        /* Form Phases */
+        .form-phase {
+            display: none;
+            animation: phaseSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .form-phase.active {
+            display: block;
+        }
+
+        @keyframes phaseSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: #6c757d;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            padding: 5px 10px;
+            border-radius: 6px;
+        }
+
+        .back-link:hover {
+            color: #ff6b35;
+            background: #fff5f2;
+            transform: translateX(-3px);
         }
 
         .form-group {
-            margin-bottom: 22px;
+            margin-bottom: 25px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            color: #333;
+            margin-bottom: 10px;
+            color: #2c3e50;
             font-weight: 600;
             font-size: 0.95rem;
         }
 
         .required {
-            color: #dc3545;
+            color: #ff6b35;
         }
 
         .form-group input[type="text"],
@@ -102,60 +219,101 @@
         .form-group input[type="number"],
         .form-group select {
             width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
+            padding: 14px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
             font-size: 1rem;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s ease;
             font-family: 'Inter', sans-serif;
+            background: #f8f9fa;
         }
 
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
             border-color: #ff6b35;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
         }
 
         .detect-location-btn {
-            margin-top: 8px;
-            background: #ff8c5a;
+            margin-top: 10px;
+            background: linear-gradient(135deg, #ff6b35, #ff8c5a);
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
+            padding: 10px 18px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 0.9rem;
-            transition: background 0.3s ease;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.2);
         }
 
         .detect-location-btn:hover {
-            background: #ff6b35;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
         }
 
-        .radio-group {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
+        /* Enhanced Radio Cards */
+        .radio-group-enhanced {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
         }
 
-        .radio-label {
+        .radio-card {
+            cursor: pointer;
+            position: relative;
+        }
+
+        .radio-card input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .radio-card-content {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            cursor: pointer;
-            font-weight: normal;
+            gap: 10px;
+            padding: 20px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            background: #f8f9fa;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .radio-label input[type="radio"] {
-            margin-right: 8px;
-            cursor: pointer;
-            width: 18px;
-            height: 18px;
-            accent-color: #ff6b35;
+        .radio-card input:checked + .radio-card-content {
+            border-color: #ff6b35;
+            background: linear-gradient(135deg, #fff5f2, #ffffff);
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .radio-icon {
+            font-size: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .radio-card input:checked + .radio-card-content .radio-icon {
+            transform: scale(1.2);
+        }
+
+        .radio-text {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
+
+        .radio-card input:checked + .radio-card-content .radio-text {
+            color: #ff6b35;
         }
 
         .amount-input-group {
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
 
         .amount-input-group select {
@@ -168,48 +326,68 @@
 
         input[type="range"] {
             width: 100%;
-            margin-top: 10px;
+            margin-top: 15px;
+            height: 6px;
             accent-color: #ff6b35;
+            border-radius: 3px;
         }
 
         .range-labels {
             display: flex;
             justify-content: space-between;
-            margin-top: 5px;
+            margin-top: 8px;
             font-size: 0.85rem;
-            color: #666;
+            color: #6c757d;
         }
 
         #rangeValue {
             color: #ff6b35;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 1rem;
         }
 
         .form-actions {
-            margin-top: 30px;
+            margin-top: 35px;
         }
 
         .submit-btn {
             width: 100%;
-            background: #ff6b35;
+            background: linear-gradient(135deg, #ff6b35, #ff8c5a);
             color: white;
             border: none;
-            padding: 15px;
+            padding: 16px 24px;
             font-size: 1.1rem;
             font-weight: 600;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
-        .submit-btn:hover {
-            background: #e55a24;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
         }
 
-        .submit-btn:active {
-            transform: translateY(0);
+        .submit-btn:active:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-arrow {
+            transition: transform 0.3s ease;
+        }
+
+        .submit-btn:hover:not(:disabled) .btn-arrow {
+            transform: translateX(5px);
         }
 
         .success-message {
@@ -218,47 +396,62 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.25);
             text-align: center;
             z-index: 10001;
-            animation: slideIn 0.3s ease;
+            animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .success-icon {
-            width: 80px;
-            height: 80px;
-            background: #28a745;
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #28a745, #20c997);
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
-            margin: 0 auto 20px;
+            font-size: 3.5rem;
+            margin: 0 auto 25px;
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
         }
 
         .success-content h3 {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-            color: #333;
+            font-size: 2rem;
+            margin-bottom: 12px;
+            color: #2c3e50;
+            font-weight: 700;
         }
 
         .success-content p {
-            color: #666;
+            color: #6c757d;
             font-size: 1.1rem;
         }
 
         @media (max-width: 768px) {
             .modal-content {
-                padding: 25px;
+                padding: 30px 25px;
                 margin: 5% auto;
             }
 
-            .radio-group {
-                flex-direction: column;
-                gap: 10px;
+            .form-progress {
+                padding: 0;
+            }
+
+            .step-label {
+                font-size: 0.75rem;
+            }
+
+            .step-circle {
+                width: 38px;
+                height: 38px;
+                font-size: 0.95rem;
+            }
+
+            .radio-group-enhanced {
+                grid-template-columns: 1fr;
             }
 
             .amount-input-group {
@@ -307,14 +500,14 @@
                     Professional Windows desktop application that removes image backgrounds instantly with smooth, precise and refined edges using advanced AI technology. Every edge perfected, every detail preserved.
                 </p>
                 <div class="hero-buttons">
-                    <button class="btn btn-primary" id="downloadBtn">
+                    <a href="#download" class="btn btn-primary">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                             <polyline points="7 10 12 15 17 10"></polyline>
                             <line x1="12" y1="15" x2="12" y2="3"></line>
                         </svg>
                         Download for Windows
-                    </button>
+                    </a>
                     <a href="#why-choose-us" class="btn btn-secondary">
                         See What Makes Us Different
                     </a>
@@ -872,92 +1065,138 @@
     <div id="formModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2>Help Us Improve!</h2>
-            <p class="modal-description">Before downloading, please share some information to help us make Background Remover better for you.</p>
+
+            <!-- Progress Indicator -->
+            <div class="form-progress">
+                <div class="progress-step active" data-step="1">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Personal</div>
+                </div>
+                <div class="progress-line"></div>
+                <div class="progress-step" data-step="2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Professional</div>
+                </div>
+                <div class="progress-line"></div>
+                <div class="progress-step" data-step="3">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Feedback</div>
+                </div>
+            </div>
+
+            <h2 id="formTitle">Let's Get Started!</h2>
+            <p class="modal-description" id="formDescription">Share a few details to help us serve you better</p>
 
             <form id="userForm">
-                <div class="form-group">
-                    <label for="name">Name <span class="required">*</span></label>
-                    <input type="text" id="name" name="name" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="email">Email <span class="required">*</span></label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="ageRange">Age Range <span class="required">*</span></label>
-                    <select id="ageRange" name="ageRange" required>
-                        <option value="">Select your age range</option>
-                        <option value="Under 18">Under 18</option>
-                        <option value="18-24">18-24</option>
-                        <option value="25-34">25-34</option>
-                        <option value="35-44">35-44</option>
-                        <option value="45-54">45-54</option>
-                        <option value="55-64">55-64</option>
-                        <option value="65+">65+</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="location">Location <span class="required">*</span></label>
-                    <input type="text" id="location" name="location" placeholder="City, Country" required>
-                    <button type="button" id="detectLocationBtn" class="detect-location-btn">📍 Auto-detect</button>
-                </div>
-
-                <div class="form-group">
-                    <label for="profession">Profession <span class="required">*</span></label>
-                    <input type="text" id="profession" name="profession" placeholder="e.g., Graphic Designer, Photographer" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="willingToPay">Would you be willing to pay for this product if required? <span class="required">*</span></label>
-                    <div class="radio-group">
-                        <label class="radio-label">
-                            <input type="radio" name="willingToPay" value="Yes" required>
-                            <span>Yes</span>
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="willingToPay" value="No" required>
-                            <span>No</span>
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="willingToPay" value="Maybe" required>
-                            <span>Maybe</span>
-                        </label>
+                <!-- Phase 1: Personal Information -->
+                <div class="form-phase active" data-phase="1">
+                    <div class="form-group">
+                        <label for="name">Full Name <span class="required">*</span></label>
+                        <input type="text" id="name" name="name" placeholder="Enter your full name" required>
                     </div>
-                </div>
 
-                <div class="form-group" id="amountGroup" style="display: none;">
-                    <label for="amount">If willing, how much? <span class="required">*</span></label>
-                    <div class="amount-input-group">
-                        <select id="currency" name="currency">
-                            <option value="USD">$ USD</option>
-                            <option value="EUR">€ EUR</option>
-                            <option value="GBP">£ GBP</option>
-                            <option value="JPY">¥ JPY</option>
-                            <option value="CNY">¥ CNY</option>
-                            <option value="INR">₹ INR</option>
-                            <option value="AUD">$ AUD</option>
-                            <option value="CAD">$ CAD</option>
-                            <option value="NGN">₦ NGN</option>
-                            <option value="ZAR">R ZAR</option>
-                            <option value="KES">KSh KES</option>
-                            <option value="GHS">₵ GHS</option>
+                    <div class="form-group">
+                        <label for="email">Email Address <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" placeholder="you@example.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ageRange">Age Range <span class="required">*</span></label>
+                        <select id="ageRange" name="ageRange" required>
+                            <option value="">Select your age range</option>
+                            <option value="Under 18">Under 18</option>
+                            <option value="18-24">18-24</option>
+                            <option value="25-34">25-34</option>
+                            <option value="35-44">35-44</option>
+                            <option value="45-54">45-54</option>
+                            <option value="55-64">55-64</option>
+                            <option value="65+">65+</option>
                         </select>
-                        <input type="number" id="amount" name="amount" min="0" step="0.01" placeholder="0.00">
-                    </div>
-                    <input type="range" id="amountRange" min="0" max="100" value="0" step="1">
-                    <div class="range-labels">
-                        <span>0</span>
-                        <span id="rangeValue">0</span>
-                        <span>100+</span>
                     </div>
                 </div>
 
-                <div class="form-actions">
-                    <button type="submit" class="submit-btn">Submit & Download</button>
+                <!-- Phase 2: Professional Information -->
+                <div class="form-phase" data-phase="2">
+                    <a href="#" class="back-link" data-back-to="1">← Back</a>
+
+                    <div class="form-group">
+                        <label for="profession">Profession <span class="required">*</span></label>
+                        <input type="text" id="profession" name="profession" placeholder="e.g., Graphic Designer, Photographer" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location">Location <span class="required">*</span></label>
+                        <input type="text" id="location" name="location" placeholder="City, Country" required>
+                        <button type="button" id="detectLocationBtn" class="detect-location-btn">📍 Auto-detect</button>
+                    </div>
+                </div>
+
+                <!-- Phase 3: Pricing Feedback -->
+                <div class="form-phase" data-phase="3">
+                    <a href="#" class="back-link" data-back-to="2">← Back</a>
+
+                    <div class="form-group">
+                        <label>Would you be willing to pay for this product if required? <span class="required">*</span></label>
+                        <div class="radio-group-enhanced">
+                            <label class="radio-card">
+                                <input type="radio" name="willingToPay" value="Yes" required>
+                                <div class="radio-card-content">
+                                    <span class="radio-icon">✓</span>
+                                    <span class="radio-text">Yes, I would</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="willingToPay" value="No" required>
+                                <div class="radio-card-content">
+                                    <span class="radio-icon">✗</span>
+                                    <span class="radio-text">No, thanks</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="willingToPay" value="Maybe" required>
+                                <div class="radio-card-content">
+                                    <span class="radio-icon">?</span>
+                                    <span class="radio-text">Maybe</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="amountGroup" style="display: none;">
+                        <label for="amount">How much would you consider? <span class="required">*</span></label>
+                        <div class="amount-input-group">
+                            <select id="currency" name="currency">
+                                <option value="USD">$ USD</option>
+                                <option value="EUR">€ EUR</option>
+                                <option value="GBP">£ GBP</option>
+                                <option value="JPY">¥ JPY</option>
+                                <option value="CNY">¥ CNY</option>
+                                <option value="INR">₹ INR</option>
+                                <option value="AUD">$ AUD</option>
+                                <option value="CAD">$ CAD</option>
+                                <option value="NGN">₦ NGN</option>
+                                <option value="ZAR">R ZAR</option>
+                                <option value="KES">KSh KES</option>
+                                <option value="GHS">₵ GHS</option>
+                            </select>
+                            <input type="number" id="amount" name="amount" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                        <input type="range" id="amountRange" min="0" max="100" value="0" step="1">
+                        <div class="range-labels">
+                            <span>0</span>
+                            <span id="rangeValue">0</span>
+                            <span>100+</span>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="submit-btn" id="finalSubmitBtn" disabled>
+                            <span class="btn-text">Complete & Download</span>
+                            <svg class="btn-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
