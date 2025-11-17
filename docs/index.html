@@ -1080,18 +1080,23 @@
             }
 
             .categories-grid {
-                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                grid-template-columns: repeat(2, 1fr);
                 gap: 10px;
+                max-width: 100%;
             }
 
             .category-item {
                 padding: 10px 14px;
                 flex-direction: column;
                 text-align: center;
+                min-width: 0;
             }
 
             .category-name {
                 font-size: 0.8rem;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                hyphens: auto;
             }
 
             .app-showcase {

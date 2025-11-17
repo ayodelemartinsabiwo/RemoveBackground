@@ -84,6 +84,12 @@ body {
     font-size: 1.5rem;
 }
 
+.logo-icon img {
+    height: 35px;
+    width: auto;
+    max-width: none;
+}
+
 .nav-links {
     display: flex;
     list-style: none;
