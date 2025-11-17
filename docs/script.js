@@ -5,6 +5,8 @@
 let userLocation = null;
 let detectedCurrency = 'USD';
 let currentPhase = 1;
+let navigatedBack = false; // Track if user navigated back
+let autoAdvanceEnabled = true; // Control auto-advance behavior
 
 // Currency mapping based on country codes
 const currencyMapping = {
@@ -21,7 +23,7 @@ const DOWNLOAD_URL = 'https://github.com/ayodelemartinsabiwo/RemoveBackground/re
 // Form phase titles and descriptions
 const phaseContent = {
     1: {
-        title: "Let's Get Started!",
+        title: "Help us improve!",
         description: "Share a few details to help us serve you better"
     },
     2: {
@@ -102,6 +104,10 @@ function initializeFormEventListeners() {
         downloadBtnMain.addEventListener('click', () => {
             modal.style.display = 'block';
             resetForm();
+            // Ensure location is detected when modal opens
+            if (!userLocation) {
+                tryAutoDetectLocation();
+            }
         });
     }
 
@@ -162,7 +168,7 @@ function initializeFormEventListeners() {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const targetPhase = parseInt(link.getAttribute('data-back-to'));
-            goToPhase(targetPhase);
+            goToPhase(targetPhase, true); // Pass true for back navigation
         });
     });
 
@@ -174,13 +180,28 @@ function initializeFormEventListeners() {
     // Phase 2 field listeners
     document.getElementById('profession')?.addEventListener('input', checkPhase2Complete);
     document.getElementById('location')?.addEventListener('input', checkPhase2Complete);
+
+    // Next button listeners
+    document.getElementById('nextBtn1')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        navigatedBack = false;
+        autoAdvanceEnabled = true;
+        goToPhase(2);
+    });
+
+    document.getElementById('nextBtn2')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        navigatedBack = false;
+        autoAdvanceEnabled = true;
+        goToPhase(3);
+    });
 }
 
 // ==================== //
 // Multi-Phase Logic
 // ==================== //
 
-function goToPhase(phaseNumber) {
+function goToPhase(phaseNumber, isBackNavigation = false) {
     // Hide all phases
     document.querySelectorAll('.form-phase').forEach(phase => {
         phase.classList.remove('active');
@@ -214,6 +235,25 @@ function goToPhase(phaseNumber) {
     }
 
     currentPhase = phaseNumber;
+
+    // Handle back navigation - disable auto-advance and show next buttons
+    if (isBackNavigation) {
+        navigatedBack = true;
+        autoAdvanceEnabled = false;
+        showNextButtonForPhase(phaseNumber);
+    } else {
+        // Hide all next buttons when advancing normally
+        document.querySelectorAll('.next-link').forEach(btn => {
+            btn.style.display = 'none';
+        });
+    }
+}
+
+function showNextButtonForPhase(phaseNumber) {
+    const nextBtn = document.getElementById(`nextBtn${phaseNumber}`);
+    if (nextBtn) {
+        nextBtn.style.display = 'inline-block';
+    }
 }
 
 function checkPhase1Complete() {
@@ -224,10 +264,16 @@ function checkPhase1Complete() {
     const isValid = name && email && ageRange &&
                    document.getElementById('email')?.checkValidity();
 
-    if (isValid) {
+    // Only auto-advance if enabled and user hasn't navigated back
+    if (isValid && autoAdvanceEnabled && !navigatedBack) {
         setTimeout(() => {
             goToPhase(2);
         }, 500);
+    }
+
+    // Show next button if user navigated back and form is complete
+    if (isValid && navigatedBack) {
+        showNextButtonForPhase(1);
     }
 }
 
@@ -237,10 +283,16 @@ function checkPhase2Complete() {
 
     const isValid = profession && location;
 
-    if (isValid) {
+    // Only auto-advance if enabled and user hasn't navigated back
+    if (isValid && autoAdvanceEnabled && !navigatedBack) {
         setTimeout(() => {
             goToPhase(3);
         }, 500);
+    }
+
+    // Show next button if user navigated back and form is complete
+    if (isValid && navigatedBack) {
+        showNextButtonForPhase(2);
     }
 }
 
@@ -264,10 +316,16 @@ function checkPhase3Complete() {
 
 function resetForm() {
     currentPhase = 1;
+    navigatedBack = false;
+    autoAdvanceEnabled = true;
     goToPhase(1);
     userForm?.reset();
     amountGroup.style.display = 'none';
     finalSubmitBtn.disabled = true;
+    // Hide all next buttons
+    document.querySelectorAll('.next-link').forEach(btn => {
+        btn.style.display = 'none';
+    });
 }
 
 // ==================== //
@@ -393,6 +451,17 @@ async function handleFormSubmit(e) {
 
     // Close modal
     modal.style.display = 'none';
+
+    // Extract first name from full name
+    const fullName = formData.name;
+    const firstName = fullName.split(' ')[0];
+
+    // Update success message with user's first name
+    const successMessageElement = document.getElementById('successMessage');
+    const successTitle = successMessageElement.querySelector('h3');
+    if (successTitle) {
+        successTitle.textContent = `Thank You, ${firstName}!`;
+    }
 
     // Show success message
     successMessage.style.display = 'block';

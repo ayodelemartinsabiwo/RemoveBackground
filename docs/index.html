@@ -198,6 +198,28 @@
             transform: translateX(-3px);
         }
 
+        .next-link {
+            display: inline-flex;
+            align-items: center;
+            color: #ff6b35;
+            background: linear-gradient(135deg, #ff6b35, #ff8c61);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.2);
+            float: right;
+        }
+
+        .next-link:hover {
+            transform: translateX(3px);
+            box-shadow: 0 6px 16px rgba(255, 107, 53, 0.3);
+        }
+
         .form-group {
             margin-bottom: 25px;
         }
@@ -390,6 +412,17 @@
             transform: translateX(5px);
         }
 
+        @keyframes softFadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
         .success-message {
             position: fixed;
             top: 50%;
@@ -401,7 +434,7 @@
             box-shadow: 0 15px 50px rgba(0, 0, 0, 0.25);
             text-align: center;
             z-index: 10001;
-            animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: softFadeIn 0.5s ease-out;
         }
 
         .success-icon {
@@ -1084,7 +1117,7 @@
                 </div>
             </div>
 
-            <h2 id="formTitle">Let's Get Started!</h2>
+            <h2 id="formTitle">Help us improve!</h2>
             <p class="modal-description" id="formDescription">Share a few details to help us serve you better</p>
 
             <form id="userForm">
@@ -1113,6 +1146,8 @@
                             <option value="65+">65+</option>
                         </select>
                     </div>
+
+                    <a href="#" class="next-link" id="nextBtn1" style="display: none;">Next →</a>
                 </div>
 
                 <!-- Phase 2: Professional Information -->
@@ -1129,6 +1164,8 @@
                         <input type="text" id="location" name="location" placeholder="City, Country" required>
                         <button type="button" id="detectLocationBtn" class="detect-location-btn">📍 Auto-detect</button>
                     </div>
+
+                    <a href="#" class="next-link" id="nextBtn2" style="display: none;">Next →</a>
                 </div>
 
                 <!-- Phase 3: Pricing Feedback -->
