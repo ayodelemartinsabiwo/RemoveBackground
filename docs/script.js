@@ -563,11 +563,10 @@ async function handleFormSubmit(e) {
     // Reset form
     resetForm();
 
-    // Hide success message after 5 seconds
+    // Hide success message after 5 seconds and start download
     setTimeout(() => {
         successMessage.style.display = 'none';
-        // Note: Uncomment the line below when the installer release is available
-        // initiateDownload();
+        initiateDownload();
     }, 5000);
 }
 
@@ -580,12 +579,18 @@ function storeDataLocally(data) {
 
 function initiateDownload() {
     // Create a temporary link to trigger download
+    // Open in new tab to prevent 404 from navigating away from the main page
     const link = document.createElement('a');
     link.href = DOWNLOAD_URL;
     link.download = 'BackgroundRemover_Setup.exe';
+    link.target = '_blank'; // Open in new tab to avoid navigation issues if URL is invalid
+    link.rel = 'noopener noreferrer'; // Security best practice
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
+    // Log for debugging
+    console.log('Download initiated:', DOWNLOAD_URL);
 }
 
 // ==================== //
