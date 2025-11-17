@@ -76,7 +76,11 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Palmar Tech Background Remover Website Loaded');
 
     initializeFormEventListeners();
-    tryAutoDetectLocation();
+
+    // Try to detect location immediately on page load
+    setTimeout(() => {
+        tryAutoDetectLocation();
+    }, 100); // Small delay to ensure DOM is fully ready
 
     // Add visual feedback for tip cards
     const tipCardsLoad = document.querySelectorAll('.tip-card');
@@ -104,10 +108,13 @@ function initializeFormEventListeners() {
         downloadBtnMain.addEventListener('click', () => {
             modal.style.display = 'block';
             resetForm();
-            // Ensure location is detected when modal opens
-            if (!userLocation) {
-                tryAutoDetectLocation();
-            }
+            // Ensure location is detected when modal opens (retry if not already detected)
+            setTimeout(() => {
+                if (!userLocation || !document.getElementById('location')?.value) {
+                    console.log('Location not yet detected, retrying...');
+                    tryAutoDetectLocation();
+                }
+            }, 100);
         });
     }
 
@@ -184,16 +191,14 @@ function initializeFormEventListeners() {
     // Next button listeners
     document.getElementById('nextBtn1')?.addEventListener('click', (e) => {
         e.preventDefault();
-        navigatedBack = false;
-        autoAdvanceEnabled = true;
-        goToPhase(2);
+        // Keep manual navigation mode active
+        goToPhase(2, false, true); // Pass true as third parameter for manual navigation
     });
 
     document.getElementById('nextBtn2')?.addEventListener('click', (e) => {
         e.preventDefault();
-        navigatedBack = false;
-        autoAdvanceEnabled = true;
-        goToPhase(3);
+        // Keep manual navigation mode active
+        goToPhase(3, false, true); // Pass true as third parameter for manual navigation
     });
 }
 
@@ -201,7 +206,7 @@ function initializeFormEventListeners() {
 // Multi-Phase Logic
 // ==================== //
 
-function goToPhase(phaseNumber, isBackNavigation = false) {
+function goToPhase(phaseNumber, isBackNavigation = false, isManualNext = false) {
     // Hide all phases
     document.querySelectorAll('.form-phase').forEach(phase => {
         phase.classList.remove('active');
@@ -241,8 +246,16 @@ function goToPhase(phaseNumber, isBackNavigation = false) {
         navigatedBack = true;
         autoAdvanceEnabled = false;
         showNextButtonForPhase(phaseNumber);
+    } else if (isManualNext) {
+        // User clicked next button - stay in manual mode and show next button for current phase
+        navigatedBack = true;
+        autoAdvanceEnabled = false;
+        // Show next button for the current phase if it's not phase 3
+        if (phaseNumber < 3) {
+            showNextButtonForPhase(phaseNumber);
+        }
     } else {
-        // Hide all next buttons when advancing normally
+        // Normal auto-advance - hide all next buttons
         document.querySelectorAll('.next-link').forEach(btn => {
             btn.style.display = 'none';
         });
@@ -333,26 +346,51 @@ function resetForm() {
 // ==================== //
 
 function tryAutoDetectLocation() {
+    console.log('Attempting to auto-detect location...');
+
     fetch('https://ipapi.co/json/')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('Location API response:', data);
+
+            if (data.error) {
+                console.warn('Location API error:', data.error, data.reason);
+                return;
+            }
+
             if (data.country_code) {
                 const location = `${data.city || data.region || ''}, ${data.country_name || data.country_code}`;
                 const locationInput = document.getElementById('location');
                 if (locationInput) {
                     locationInput.value = location.trim();
+                    console.log('Location set to:', location.trim());
+                } else {
+                    console.warn('Location input field not found');
                 }
+
                 userLocation = data;
 
                 const currency = currencyMapping[data.country_code] || 'USD';
                 detectedCurrency = currency;
+                const currencySelect = document.getElementById('currency');
                 if (currencySelect) {
                     currencySelect.value = currency;
+                    console.log('Currency set to:', currency);
+                } else {
+                    console.warn('Currency select field not found');
                 }
+            } else {
+                console.warn('No country_code in API response');
             }
         })
         .catch(error => {
-            console.log('Auto-detection failed, user can manually detect or enter location');
+            console.error('Auto-detection failed:', error);
+            console.log('User can manually detect or enter location');
         });
 }
 
