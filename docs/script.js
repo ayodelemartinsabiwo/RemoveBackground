@@ -191,7 +191,7 @@ function initializeFormEventListeners() {
     document.getElementById('name')?.addEventListener('input', checkPhase1Complete);
     document.getElementById('email')?.addEventListener('input', checkPhase1Complete);
 
-    // Age dropdown - handle keyboard navigation
+    // Age dropdown - handle keyboard navigation and mouse selection
     const ageDropdown = document.getElementById('ageRange');
     if (ageDropdown) {
         // Track when user opens the dropdown
@@ -199,16 +199,22 @@ function initializeFormEventListeners() {
             userInteractedWithDropdown = true;
         });
 
-        // Track when user is done with dropdown
+        // When user makes a selection, auto-advance immediately
+        ageDropdown.addEventListener('change', () => {
+            userInteractedWithDropdown = false; // User has made selection
+            // Small delay to allow for smooth transition
+            setTimeout(() => {
+                checkPhase1Complete();
+            }, 400);
+        });
+
+        // Track when user is done with dropdown (backup for blur without change)
         ageDropdown.addEventListener('blur', () => {
             setTimeout(() => {
                 userInteractedWithDropdown = false;
                 checkPhase1Complete();
             }, 300);
         });
-
-        // Still check on change but with the flag
-        ageDropdown.addEventListener('change', checkPhase1Complete);
     }
 
     // Phase 2 field listeners
@@ -336,10 +342,10 @@ function checkPhase2Complete() {
 
     // Only auto-advance if enabled and user hasn't navigated back
     if (isValid && autoAdvanceEnabled && !navigatedBack) {
-        // Add delay to allow user to finish typing
+        // Add delay to allow user to finish typing and review
         phase2CompleteTimer = setTimeout(() => {
             goToPhase(3);
-        }, 1200); // Longer delay for typing profession
+        }, 2500); // Longer delay to let user see what they typed
     }
 
     // Show next button if user navigated back and form is complete
@@ -497,7 +503,7 @@ function handleWillingToPayChange(e) {
 // Form Submission
 // ==================== //
 
-async function handleFormSubmit(e) {
+function handleFormSubmit(e) {
     e.preventDefault();
 
     const formData = {
@@ -514,31 +520,28 @@ async function handleFormSubmit(e) {
         detectedCountryCode: userLocation ? userLocation.country_code : 'N/A'
     };
 
-    // Send data to Google Sheets via Apps Script
-    try {
-        // Check if Google Apps Script URL is configured
-        if (GOOGLE_APPS_SCRIPT_URL && GOOGLE_APPS_SCRIPT_URL !== 'YOUR_DEPLOYMENT_URL_HERE') {
-            console.log('Sending form data to Google Sheets...');
+    // Send data to Google Sheets via Apps Script (non-blocking)
+    // Check if Google Apps Script URL is configured
+    if (GOOGLE_APPS_SCRIPT_URL && GOOGLE_APPS_SCRIPT_URL !== 'YOUR_DEPLOYMENT_URL_HERE') {
+        console.log('Sending form data to Google Sheets...');
 
-            const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors', // Important for Apps Script
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            });
-
-            // Note: With no-cors mode, we can't read the response
-            // But the data will still be sent to the sheet
+        // Fire and forget - don't wait for response
+        fetch(GOOGLE_APPS_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Important for Apps Script
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        }).then(() => {
             console.log('Form data sent to Google Sheets successfully');
-        } else {
-            console.warn('Google Apps Script URL not configured. See GOOGLE_SHEETS_SETUP.md for setup instructions.');
+        }).catch(error => {
+            console.error('Error sending to Google Sheets:', error);
             console.log('Storing data locally as fallback...');
             storeDataLocally(formData);
-        }
-    } catch (error) {
-        console.error('Error sending to Google Sheets:', error);
+        });
+    } else {
+        console.warn('Google Apps Script URL not configured. See GOOGLE_SHEETS_SETUP.md for setup instructions.');
         console.log('Storing data locally as fallback...');
         storeDataLocally(formData);
     }
@@ -579,12 +582,9 @@ function storeDataLocally(data) {
 
 function initiateDownload() {
     // Create a temporary link to trigger download
-    // Open in new tab to prevent 404 from navigating away from the main page
     const link = document.createElement('a');
     link.href = DOWNLOAD_URL;
     link.download = 'BackgroundRemover_Setup.exe';
-    link.target = '_blank'; // Open in new tab to avoid navigation issues if URL is invalid
-    link.rel = 'noopener noreferrer'; // Security best practice
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
