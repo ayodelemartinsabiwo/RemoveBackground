@@ -563,10 +563,11 @@ async function handleFormSubmit(e) {
     // Reset form
     resetForm();
 
-    // Hide success message after 5 seconds and start download
+    // Hide success message after 5 seconds
     setTimeout(() => {
         successMessage.style.display = 'none';
-        initiateDownload();
+        // Note: Uncomment the line below when the installer release is available
+        // initiateDownload();
     }, 5000);
 }
 
