@@ -555,6 +555,7 @@
             width: 100%;
             height: auto;
             display: block;
+            border-radius: 16px;
         }
 
         .showcase-label {
@@ -1028,6 +1029,24 @@
             }
         }
 
+        /* Footer Logo Styles */
+        .footer-logo-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .footer-logo {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .footer-logo-title .footer-title {
+            margin-bottom: 0;
+        }
+
         @media (max-width: 768px) {
             .modal-content {
                 padding: 30px 25px;
@@ -1150,6 +1169,15 @@
             .glitter-particle {
                 width: 8px;
                 height: 8px;
+            }
+
+            .footer-logo {
+                width: 32px;
+                height: 32px;
+            }
+
+            .footer-logo-title {
+                gap: 8px;
             }
         }
     </style>
@@ -1800,7 +1828,10 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h4 class="footer-title">Palmar Tech Background Remover</h4>
+                    <div class="footer-logo-title">
+                        <img src="images/Palmar Logo.png" alt="Palmar Tech Logo" class="footer-logo">
+                        <h4 class="footer-title">Palmar Tech Background Remover</h4>
+                    </div>
                     <p class="footer-description">Professional AI-powered background removal for Windows. Fast, intelligent, and precise.</p>
                 </div>
                 <div class="footer-section">
