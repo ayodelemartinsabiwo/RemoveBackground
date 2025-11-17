@@ -41,10 +41,10 @@ desktop.ini
 # Windows specific
 *.lnk
 
-# Website specific files
-website/node_modules/
-website/package-lock.json
-website/credentials.json
-website/form_submissions.csv
-website/.env
-website/.env.local
+# Website specific files (docs folder for GitHub Pages)
+docs/node_modules/
+docs/package-lock.json
+docs/credentials.json
+docs/form_submissions.csv
+docs/.env
+docs/.env.local

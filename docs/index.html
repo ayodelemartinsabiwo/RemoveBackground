@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Professional Windows desktop application for AI-powered background removal. One-click background removal with transparent PNG output.">
+    <meta name="keywords" content="background remover, AI, Windows, desktop app, image editing, transparent PNG, Palmar Tech">
+    <title>Palmar Tech Background Remover - AI-Powered Background Removal for Windows</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Form Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 2% auto;
+            padding: 35px 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 650px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+            max-height: 92vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 32px;
+            font-weight: bold;
+            line-height: 1;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #ff6b35;
+        }
+
+        .modal-content h2 {
+            color: #ff6b35;
+            margin-bottom: 10px;
+            font-size: 2rem;
+            clear: both;
+        }
+
+        .modal-description {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="number"],
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #ff6b35;
+        }
+
+        .detect-location-btn {
+            margin-top: 8px;
+            background: #ff8c5a;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+
+        .detect-location-btn:hover {
+            background: #ff6b35;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .radio-label input[type="radio"] {
+            margin-right: 8px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: #ff6b35;
+        }
+
+        .amount-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .amount-input-group select {
+            flex: 0 0 140px;
+        }
+
+        .amount-input-group input {
+            flex: 1;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin-top: 10px;
+            accent-color: #ff6b35;
+        }
+
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        #rangeValue {
+            color: #ff6b35;
+            font-weight: 600;
+        }
+
+        .form-actions {
+            margin-top: 30px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: #e55a24;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .success-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            z-index: 10001;
+            animation: slideIn 0.3s ease;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #28a745;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin: 0 auto 20px;
+        }
+
+        .success-content h3 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .success-content p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                padding: 25px;
+                margin: 5% auto;
+            }
+
+            .radio-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .amount-input-group {
+                flex-direction: column;
+            }
+
+            .amount-input-group select {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo">
+                    <span class="logo-icon"><img src="images/icon.ico" alt="Logo" height="35"></span>
+                    <span class="logo-text">Background Remover</span>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#why-choose-us">Why Choose Us</a></li>
+                    <li><a href="#how-it-works">How It Works</a></li>
+                    <li><a href="#apis-plugin">APIs/Plugin <span class="coming-soon-badge">Coming Soon</span></a></li>
+                </ul>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero hero-enhanced">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    Remove Backgrounds with
+                    <span class="gradient-text">Precision & Intelligence</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Professional Windows desktop application that removes image backgrounds instantly with smooth, precise and refined edges using advanced AI technology. Every edge perfected, every detail preserved.
+                </p>
+                <div class="hero-buttons">
+                    <button class="btn btn-primary" id="downloadBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Download for Windows
+                    </button>
+                    <a href="#why-choose-us" class="btn btn-secondary">
+                        See What Makes Us Different
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">AI-Powered</span>
+                        <span class="stat-label">Advanced Technology</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">One-Click</span>
+                        <span class="stat-label">Simple Process</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">Smart Optimization</span>
+                        <span class="stat-label">Quality & Size</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Hero Image Section with 3 Floating Demos -->
+            <div class="hero-showcase">
+                <!-- Left Demo - Animated Transition -->
+                <div class="demo-card-enhanced demo-left">
+                    <div class="demo-card-inner">
+                        <span class="demo-label">Portrait Precision</span>
+                        <div class="demo-transition-container">
+                            <div class="demo-transition-image demo-image-with-bg">
+                                <img src="images/Background.jpg" alt="Portrait with background" onerror="this.style.display='none'">
+                            </div>
+                            <div class="demo-transition-image demo-image-no-bg">
+                                <img src="images/No_Background.png" alt="Portrait without background" onerror="this.style.display='none'">
+                            </div>
+                            <div class="demo-transition-line"></div>
+                        </div>
+                        <span class="result-badge">Perfect Hair Edges</span>
+                    </div>
+                </div>
+
+                <!-- Center Demo (Main/Overlapping) -->
+                <div class="demo-card-enhanced demo-center">
+                    <div class="demo-card-inner">
+                        <div class="demo-comparison">
+                            <div class="demo-side">
+                                <span class="demo-label">Before</span>
+                                <div class="demo-img-placeholder with-bg">
+                                    <img src="images/before.jpg" alt="Before - Image with background" style="width: 100%; height: 100%; object-fit: contain; border-radius: 16px;">
+                                </div>
+                            </div>
+                            <div class="demo-arrow-horizontal">→</div>
+                            <div class="demo-arrow-vertical">↓</div>
+                            <div class="demo-side">
+                                <span class="demo-label">After</span>
+                                <div class="demo-img-placeholder transparent" style="align-items: flex-end;">
+                                    <img src="images/after.png" alt="After - Background removed" style="width: 100%; height: 100%; object-fit: contain; object-position: bottom; border-radius: 16px;">
+                                </div>
+                                <span class="result-badge premium">Crystal Clear</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Demo - Animated Transition -->
+                <div class="demo-card-enhanced demo-right">
+                    <div class="demo-card-inner">
+                        <span class="demo-label">Product Precision</span>
+                        <div class="demo-transition-container">
+                            <div class="demo-transition-image demo-image-with-bg">
+                                <img src="images/right_background.jpg" alt="Product with background" onerror="this.style.display='none'">
+                            </div>
+                            <div class="demo-transition-image demo-image-no-bg">
+                                <img src="images/right_no_background2.png" alt="Product without background" onerror="this.style.display='none'">
+                            </div>
+                            <div class="demo-transition-line"></div>
+                        </div>
+                        <span class="result-badge">Sharp Details</span>
+                        <div class="photo-credit">
+                            Photo by <a href="https://unsplash.com/@ayomikun93?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" target="_blank" rel="noopener">Ayomikun Barry</a> on <a href="https://unsplash.com/photos/a-person-is-holding-a-stylish-brown-purse--WbdCEVIlTM?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" target="_blank" rel="noopener">Unsplash</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Palmar Tech Section -->
+    <section id="why-choose-us" class="why-choose-us">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Why Choose Palmar Tech Background Remover?</h2>
+                <p class="section-subtitle">Intelligence that goes beyond just removing backgrounds</p>
+            </div>
+            <div class="unique-features">
+                <div class="unique-card">
+                    <div class="unique-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            <polyline points="7.5 4.21 12 6.81 16.5 4.21"></polyline>
+                            <polyline points="7.5 19.79 7.5 14.6 3 12"></polyline>
+                            <polyline points="21 12 16.5 14.6 16.5 19.79"></polyline>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                        </svg>
+                    </div>
+                    <h3 class="unique-title">Intelligent File Optimization</h3>
+                    <p class="unique-description">
+                        <strong>Large files?</strong> We compress intelligently. Transform a 9MB image into a crisp 4-5MB output without sacrificing quality.
+                        <strong>Small files?</strong> We enhance them. Low-resolution images are upscaled with AI precision, adding detail while maintaining natural appearance.
+                    </p>
+                    <div class="unique-example">
+                        <span class="example-tag">9MB → 4.5MB</span>
+                        <span class="example-divider">|</span>
+                        <span class="example-tag">500KB → 1.2MB Enhanced</span>
+                    </div>
+                </div>
+
+                <div class="unique-card">
+                    <div class="unique-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24"></path>
+                        </svg>
+                    </div>
+                    <h3 class="unique-title">Automatic Image Enhancement</h3>
+                    <p class="unique-description">
+                        Beyond background removal, our AI detects and corrects image imperfections. Artifacts vanish, gamma levels balance automatically, and subtle retouching ensures your images look professionally polished—all in one click.
+                    </p>
+                    <div class="unique-example">
+                        <span class="example-tag">✓ Artifact Removal</span>
+                        <span class="example-tag">✓ Gamma Correction</span>
+                        <span class="example-tag">✓ Smart Retouch</span>
+                    </div>
+                </div>
+
+                <div class="unique-card">
+                    <div class="unique-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            <path d="M9 12l2 2 4-4"></path>
+                        </svg>
+                    </div>
+                    <h3 class="unique-title">Quality-First Approach</h3>
+                    <p class="unique-description">
+                        While others compromise, we perfect. Every pixel matters. Our advanced AI preserves fine details like hair strands, fabric textures, and complex edges that other tools blur or lose. The result? Studio-quality outputs, every single time.
+                    </p>
+                    <div class="unique-example">
+                        <span class="example-tag highlight">100% Edge Precision</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Powerful Features</h2>
+                <p class="section-subtitle">Everything you need for professional background removal</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">One-Click Context Menu</h3>
+                    <p class="feature-description">Right-click any image and select "Remove Background" directly from Windows Explorer. No need to open any application.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                            <path d="M2 17l10 5 10-5"></path>
+                            <path d="M2 12l10 5 10-5"></path>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">AI-Powered Processing</h3>
+                    <p class="feature-description">Advanced AI models handle complex images including hair, edges, clothing, products, and buildings with precision.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="16 18 22 12 16 6"></polyline>
+                            <polyline points="8 6 2 12 8 18"></polyline>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Transparent PNG Output</h3>
+                    <p class="feature-description">Automatically saves images as transparent PNG files, perfect for graphic design, e-commerce, and web use.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Lightning Fast</h3>
+                    <p class="feature-description">Process images in seconds with optimized AI models running locally on your computer. No internet required after initial setup.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Self-Contained</h3>
+                    <p class="feature-description">No Python installation or dependencies required. Everything is bundled in a single installer for easy deployment.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Multiple Formats</h3>
+                    <p class="feature-description">Supports JPG, JPEG, PNG, BMP, TIFF, and WEBP image formats. Output to transparent PNG or JPG with custom backgrounds.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pro Tips Section with Flip Cards -->
+    <section class="pro-tips">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Pro Tips for Best Results</h2>
+                <p class="section-subtitle">Click each card to discover expert techniques</p>
+            </div>
+            <div class="tips-grid">
+                <div class="tip-card">
+                    <div class="tip-card-inner">
+                        <div class="tip-card-front">
+                            <div class="tip-icon">📸</div>
+                            <h3 class="tip-title">Image Quality</h3>
+                            <p class="tip-hint">Click to learn more</p>
+                        </div>
+                        <div class="tip-card-back">
+                            <h3 class="tip-title-back">Use High-Resolution Images</h3>
+                            <p class="tip-content">For optimal results, use images with at least 1920x1080 resolution. Higher resolution provides more detail for the AI to work with, resulting in cleaner edges and better subject separation.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tip-card">
+                    <div class="tip-card-inner">
+                        <div class="tip-card-front">
+                            <div class="tip-icon">🎯</div>
+                            <h3 class="tip-title">Clean Backgrounds</h3>
+                            <p class="tip-hint">Click to learn more</p>
+                        </div>
+                        <div class="tip-card-back">
+                            <h3 class="tip-title-back">Minimize Background Noise</h3>
+                            <p class="tip-content">Images with less cluttered backgrounds process better. If possible, choose photos with clear subject-background separation. Plain or contrasting backgrounds yield the most precise results.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tip-card">
+                    <div class="tip-card-inner">
+                        <div class="tip-card-front">
+                            <div class="tip-icon">💡</div>
+                            <h3 class="tip-title">Lighting Matters</h3>
+                            <p class="tip-hint">Click to learn more</p>
+                        </div>
+                        <div class="tip-card-back">
+                            <h3 class="tip-title-back">Good Lighting = Better Results</h3>
+                            <p class="tip-content">Well-lit images with even lighting across the subject produce superior results. Avoid heavy shadows or extreme backlighting, as these can confuse edge detection.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tip-card">
+                    <div class="tip-card-inner">
+                        <div class="tip-card-front">
+                            <div class="tip-icon">🔍</div>
+                            <h3 class="tip-title">Subject Focus</h3>
+                            <p class="tip-hint">Click to learn more</p>
+                        </div>
+                        <div class="tip-card-back">
+                            <h3 class="tip-title-back">Sharp Focus on Subject</h3>
+                            <p class="tip-content">Ensure your main subject is in sharp focus. Blurry or out-of-focus images make it harder for the AI to distinguish edges accurately, especially with fine details like hair.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tip-card">
+                    <div class="tip-card-inner">
+                        <div class="tip-card-front">
+                            <div class="tip-icon">🎨</div>
+                            <h3 class="tip-title">Color Contrast</h3>
+                            <p class="tip-hint">Click to learn more</p>
+                        </div>
+                        <div class="tip-card-back">
+                            <h3 class="tip-title-back">Strong Subject-Background Contrast</h3>
+                            <p class="tip-content">Images where the subject's colors differ significantly from the background are easier to process. Avoid subjects wearing colors that blend with the background.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tip-card">
+                    <div class="tip-card-inner">
+                        <div class="tip-card-front">
+                            <div class="tip-icon">⚡</div>
+                            <h3 class="tip-title">File Formats</h3>
+                            <p class="tip-hint">Click to learn more</p>
+                        </div>
+                        <div class="tip-card-back">
+                            <h3 class="tip-title-back">Choose Quality Formats</h3>
+                            <p class="tip-content">Use PNG or high-quality JPG formats for input. Heavily compressed images may have artifacts that affect edge precision. The output is always saved as high-quality transparent PNG.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">How It Works</h2>
+                <p class="section-subtitle">Simple three-step process to remove backgrounds</p>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Install Application</h3>
+                        <p class="step-description">Download and run the installer. The application integrates seamlessly with Windows Explorer context menu.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Right-Click Any Image</h3>
+                        <p class="step-description">Navigate to any image file in Windows Explorer, right-click, and select "Remove Background" from the context menu. Or pin application on taskbar and select prefered image to process.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Get Your Result</h3>
+                        <p class="step-description">The processed image with transparent background is automatically saved in the same folder with "_no_bg_current-date" suffix.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="download">
+        <div class="container">
+            <div class="download-card">
+                <div class="download-content">
+                    <h2 class="download-title">Ready to Get Started?</h2>
+                    <p class="download-description">Download Palmar Tech Background Remover for Windows and experience the difference today.</p>
+                    <ul class="download-features">
+                        <li>✓ Windows 10/11 compatible</li>
+                        <li>✓ No subscription required</li>
+                        <li>✓ Works offline after setup</li>
+                        <li>✓ Smart file optimization included</li>
+                    </ul>
+                    <div class="download-buttons">
+                        <button class="btn btn-primary btn-large" id="downloadBtnMain">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Download for Windows
+                            <span class="version">Latest Version</span>
+                        </button>
+                        <a href="https://github.com/ayodelemartinsabiwo/RemoveBackground" class="btn btn-secondary btn-large" target="_blank">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                            </svg>
+                            View on GitHub
+                        </a>
+                    </div>
+                    <div class="download-info">
+                        <p><strong>System Requirements:</strong> Windows 10/11, 4GB RAM (recommended), 3GB disk space</p>
+                        <p><strong>File Size:</strong> ~1 GB installer</p>
+                    </div>
+                </div>
+                <div class="download-preview">
+                    <div class="preview-window">
+                        <div class="window-header">
+                            <span class="window-dot"></span>
+                            <span class="window-dot"></span>
+                            <span class="window-dot"></span>
+                        </div>
+                        <div class="window-content">
+                            <div class="context-menu-demo">
+                                <div class="menu-item">Open</div>
+                                <div class="menu-item">Edit</div>
+                                <div class="menu-item highlighted">
+                                    <span class="menu-icon"><img src="images/icon.ico" alt="Logo" height="25"></span>
+                                    Remove Background
+                                </div>
+                                <div class="menu-divider"></div>
+                                <div class="menu-item">Properties</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Documentation Section -->
+    <section id="documentation" class="documentation">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Documentation</h2>
+                <p class="section-subtitle">Everything you need to know</p>
+            </div>
+            <div class="docs-grid">
+                <div class="doc-card">
+                    <div class="doc-icon">📦</div>
+                    <h3 class="doc-title">Installation Guide</h3>
+                    <p class="doc-description">Step-by-step instructions for installing and setting up Background Remover on your Windows system.</p>
+                    <a href="#" class="doc-link">Read Guide →</a>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-icon">🔧</div>
+                    <h3 class="doc-title">Troubleshooting</h3>
+                    <p class="doc-description">Common issues and solutions to help you resolve any problems you might encounter.</p>
+                    <a href="#" class="doc-link">Get Help →</a>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-icon">📚</div>
+                    <h3 class="doc-title">User Manual</h3>
+                    <p class="doc-description">Complete guide to all features and settings available in Palmar Tech Background Remover.</p>
+                    <a href="#" class="doc-link">Read Manual →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Frequently Asked Questions</h2>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>How does file size optimization work?</span>
+                        <svg class="faq-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Our intelligent optimization detects your image size and quality. Large files are compressed while maintaining visual quality, and small/low-resolution files are enhanced using AI upscaling to improve detail and clarity.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Does it work offline?</span>
+                        <svg class="faq-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Yes! After the initial setup (which downloads AI models), the application works completely offline. All processing happens on your local computer for maximum privacy and speed.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>What image formats are supported?</span>
+                        <svg class="faq-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Background Remover supports JPG, JPEG, PNG, BMP, TIFF, and WEBP formats as input. Output is saved as transparent PNG by default.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>How accurate is the AI background removal?</span>
+                        <svg class="faq-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p>The application uses state-of-the-art AI models that handle complex scenarios including hair, transparent objects, and intricate details. Results are professional-quality and suitable for commercial use.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>What makes Palmar Tech different from other tools?</span>
+                        <svg class="faq-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Beyond background removal, we offer intelligent file optimization, automatic image enhancement, artifact removal, and gamma correction—all in one click. Every output is optimized for both quality and file size.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4 class="footer-title">Palmar Tech Background Remover</h4>
+                    <p class="footer-description">Professional AI-powered background removal for Windows. Fast, intelligent, and precise.</p>
+                </div>
+                <div class="footer-section">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#why-choose-us">Why Choose Us</a></li>
+                        <li><a href="#download">Download</a></li>
+                        <li><a href="https://github.com/ayodelemartinsabiwo/RemoveBackground" target="_blank">GitHub</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 class="footer-title">Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://github.com/ayodelemartinsabiwo/RemoveBackground/issues" target="_blank">Report Issue</a></li>
+                        <li><a href="#" onclick="alert('Feature requests can be submitted on GitHub Issues'); return false;">Feature Request</a></li>
+                        <li><a href="#faq">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 class="footer-title">Legal</h4>
+                    <ul class="footer-links">
+                        <li><a href="#" onclick="alert('All processing happens locally on your computer. No data is collected or transmitted.'); return false;">Privacy</a></li>
+                        <li><a href="#" onclick="alert('Contact: support@palmartech.com'); return false;">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Background Remover. Built with ❤️ for Windows users (For Now).</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal Form -->
+    <div id="formModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Help Us Improve!</h2>
+            <p class="modal-description">Before downloading, please share some information to help us make Background Remover better for you.</p>
+
+            <form id="userForm">
+                <div class="form-group">
+                    <label for="name">Name <span class="required">*</span></label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email <span class="required">*</span></label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="ageRange">Age Range <span class="required">*</span></label>
+                    <select id="ageRange" name="ageRange" required>
+                        <option value="">Select your age range</option>
+                        <option value="Under 18">Under 18</option>
+                        <option value="18-24">18-24</option>
+                        <option value="25-34">25-34</option>
+                        <option value="35-44">35-44</option>
+                        <option value="45-54">45-54</option>
+                        <option value="55-64">55-64</option>
+                        <option value="65+">65+</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Location <span class="required">*</span></label>
+                    <input type="text" id="location" name="location" placeholder="City, Country" required>
+                    <button type="button" id="detectLocationBtn" class="detect-location-btn">📍 Auto-detect</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="profession">Profession <span class="required">*</span></label>
+                    <input type="text" id="profession" name="profession" placeholder="e.g., Graphic Designer, Photographer" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="willingToPay">Would you be willing to pay for this product if required? <span class="required">*</span></label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="willingToPay" value="Yes" required>
+                            <span>Yes</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="willingToPay" value="No" required>
+                            <span>No</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="willingToPay" value="Maybe" required>
+                            <span>Maybe</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group" id="amountGroup" style="display: none;">
+                    <label for="amount">If willing, how much? <span class="required">*</span></label>
+                    <div class="amount-input-group">
+                        <select id="currency" name="currency">
+                            <option value="USD">$ USD</option>
+                            <option value="EUR">€ EUR</option>
+                            <option value="GBP">£ GBP</option>
+                            <option value="JPY">¥ JPY</option>
+                            <option value="CNY">¥ CNY</option>
+                            <option value="INR">₹ INR</option>
+                            <option value="AUD">$ AUD</option>
+                            <option value="CAD">$ CAD</option>
+                            <option value="NGN">₦ NGN</option>
+                            <option value="ZAR">R ZAR</option>
+                            <option value="KES">KSh KES</option>
+                            <option value="GHS">₵ GHS</option>
+                        </select>
+                        <input type="number" id="amount" name="amount" min="0" step="0.01" placeholder="0.00">
+                    </div>
+                    <input type="range" id="amountRange" min="0" max="100" value="0" step="1">
+                    <div class="range-labels">
+                        <span>0</span>
+                        <span id="rangeValue">0</span>
+                        <span>100+</span>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">Submit & Download</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Message -->
+    <div id="successMessage" class="success-message" style="display: none;">
+        <div class="success-content">
+            <div class="success-icon">✓</div>
+            <h3>Thank You!</h3>
+            <p>Your response has been recorded. Your download will begin shortly.</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
