@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Background Remover - Professional AI Background Removal Tool</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Hero Section -->
+        <header class="hero">
+            <div class="hero-content">
+                <h1>🎨 Background Remover</h1>
+                <p class="tagline">Professional AI-Powered Background Removal for Windows</p>
+                <p class="description">
+                    Remove backgrounds from your images with one click! Our AI-powered desktop application
+                    integrates seamlessly with Windows, providing smooth, refined edges for complex images
+                    including hair, models, objects, and buildings.
+                </p>
+            </div>
+        </header>
+
+        <!-- Features Section -->
+        <section class="features">
+            <h2>Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>One-Click Processing</h3>
+                    <p>Right-click any image in Windows Explorer and select "Remove Background"</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI-Powered</h3>
+                    <p>Advanced AI technology handles complex images with precision</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🖼️</div>
+                    <h3>Transparent PNG Output</h3>
+                    <p>Get professional transparent backgrounds ready for any use</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📦</div>
+                    <h3>Self-Contained</h3>
+                    <p>No Python installation required - everything is bundled</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Refined Edges</h3>
+                    <p>Smooth, professional edges even for complex subjects like hair</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Fast Processing</h3>
+                    <p>Quick background removal with modern loader interface</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="how-it-works">
+            <h2>How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Install</h3>
+                    <p>Download and run the installer to add Background Remover to your Windows system</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Right-Click</h3>
+                    <p>Right-click any image file and select "Remove Background" from the context menu</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Done!</h3>
+                    <p>Your image with transparent background is saved automatically in the same folder</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Supported Formats Section -->
+        <section class="supported-formats">
+            <h2>Supported Image Formats</h2>
+            <div class="formats">
+                <span class="format-badge">JPG</span>
+                <span class="format-badge">JPEG</span>
+                <span class="format-badge">PNG</span>
+                <span class="format-badge">BMP</span>
+                <span class="format-badge">TIFF</span>
+                <span class="format-badge">WEBP</span>
+            </div>
+        </section>
+
+        <!-- Download Section -->
+        <section class="download-section">
+            <h2>Ready to Get Started?</h2>
+            <p>Download Background Remover for Windows and start removing backgrounds today!</p>
+            <button class="download-btn" id="downloadBtn">
+                <span class="btn-icon">💾</span>
+                Download for Windows
+            </button>
+            <p class="system-req">Windows 10 or later • ~100MB Download</p>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2024 Background Remover. All rights reserved.</p>
+            <p class="tech-info">Powered by AI technology • Built with rembg & PyQt6</p>
+        </footer>
+    </div>
+
+    <!-- Modal Form -->
+    <div id="formModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Help Us Improve!</h2>
+            <p class="modal-description">Before downloading, please share some information to help us make Background Remover better for you.</p>
+
+            <form id="userForm">
+                <div class="form-group">
+                    <label for="name">Name <span class="required">*</span></label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email <span class="required">*</span></label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="ageRange">Age Range <span class="required">*</span></label>
+                    <select id="ageRange" name="ageRange" required>
+                        <option value="">Select your age range</option>
+                        <option value="Under 18">Under 18</option>
+                        <option value="18-24">18-24</option>
+                        <option value="25-34">25-34</option>
+                        <option value="35-44">35-44</option>
+                        <option value="45-54">45-54</option>
+                        <option value="55-64">55-64</option>
+                        <option value="65+">65+</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Location <span class="required">*</span></label>
+                    <input type="text" id="location" name="location" placeholder="City, Country" required>
+                    <button type="button" id="detectLocationBtn" class="detect-location-btn">📍 Auto-detect</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="profession">Profession <span class="required">*</span></label>
+                    <input type="text" id="profession" name="profession" placeholder="e.g., Graphic Designer, Photographer" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="willingToPay">Would you be willing to pay for this product if required? <span class="required">*</span></label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="willingToPay" value="Yes" required>
+                            <span>Yes</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="willingToPay" value="No" required>
+                            <span>No</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="willingToPay" value="Maybe" required>
+                            <span>Maybe</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group" id="amountGroup" style="display: none;">
+                    <label for="amount">If willing, how much? <span class="required">*</span></label>
+                    <div class="amount-input-group">
+                        <select id="currency" name="currency">
+                            <option value="USD">$ USD</option>
+                            <option value="EUR">€ EUR</option>
+                            <option value="GBP">£ GBP</option>
+                            <option value="JPY">¥ JPY</option>
+                            <option value="CNY">¥ CNY</option>
+                            <option value="INR">₹ INR</option>
+                            <option value="AUD">$ AUD</option>
+                            <option value="CAD">$ CAD</option>
+                            <option value="NGN">₦ NGN</option>
+                            <option value="ZAR">R ZAR</option>
+                            <option value="KES">KSh KES</option>
+                            <option value="GHS">₵ GHS</option>
+                        </select>
+                        <input type="number" id="amount" name="amount" min="0" step="0.01" placeholder="0.00">
+                    </div>
+                    <input type="range" id="amountRange" min="0" max="100" value="0" step="1">
+                    <div class="range-labels">
+                        <span>0</span>
+                        <span id="rangeValue">0</span>
+                        <span>100+</span>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">Submit & Download</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Message -->
+    <div id="successMessage" class="success-message" style="display: none;">
+        <div class="success-content">
+            <div class="success-icon">✓</div>
+            <h3>Thank You!</h3>
+            <p>Your response has been recorded. Your download will begin shortly.</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
