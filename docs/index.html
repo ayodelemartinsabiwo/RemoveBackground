@@ -469,6 +469,156 @@
             font-size: 1.1rem;
         }
 
+        /* User Categories Styles */
+        .user-categories {
+            margin: 30px 0 10px;
+        }
+
+        .categories-title {
+            font-size: 0.95rem;
+            color: #6c757d;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            max-width: 800px;
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 18px;
+            background: linear-gradient(135deg, #fff5f2, #ffffff);
+            border: 1px solid #ffe8e0;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .category-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.1);
+            border-color: #ff6b35;
+        }
+
+        .category-icon {
+            font-size: 1.5rem;
+        }
+
+        .category-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        /* App Showcase Styles */
+        .app-showcase {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        }
+
+        .showcase-card-full {
+            max-width: 1400px;
+            margin: 40px auto 0;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .showcase-content {
+            padding: 60px;
+        }
+
+        .showcase-image-container {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 40px;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .showcase-before,
+        .showcase-after {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .showcase-before img,
+        .showcase-after img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .showcase-label {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .showcase-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .divider-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #ff6b35, #ff8c61);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 4px 16px rgba(255, 107, 53, 0.3);
+        }
+
+        .showcase-description {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .showcase-description h3 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .showcase-description p {
+            font-size: 1.1rem;
+            color: #6c757d;
+            line-height: 1.6;
+        }
+
+        .placeholder-image {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 1.2rem;
+        }
+
         @media (max-width: 768px) {
             .modal-content {
                 padding: 30px 25px;
@@ -499,6 +649,42 @@
 
             .amount-input-group select {
                 flex: 1;
+            }
+
+            .categories-grid {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 10px;
+            }
+
+            .category-item {
+                padding: 10px 14px;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .category-name {
+                font-size: 0.8rem;
+            }
+
+            .showcase-content {
+                padding: 30px 20px;
+            }
+
+            .showcase-image-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .showcase-divider {
+                transform: rotate(90deg);
+            }
+
+            .showcase-description h3 {
+                font-size: 1.5rem;
+            }
+
+            .showcase-description p {
+                font-size: 1rem;
             }
         }
     </style>
@@ -538,6 +724,30 @@
                 <p class="hero-subtitle">
                     Professional Windows desktop application that removes image backgrounds instantly with smooth, precise and refined edges using advanced AI technology. Every edge perfected, every detail preserved.
                 </p>
+
+                <!-- User Categories -->
+                <div class="user-categories">
+                    <p class="categories-title">Perfect for everyone, no technical expertise required:</p>
+                    <div class="categories-grid">
+                        <div class="category-item">
+                            <span class="category-icon">🎨</span>
+                            <span class="category-name">Creative Professionals</span>
+                        </div>
+                        <div class="category-item">
+                            <span class="category-icon">🛍️</span>
+                            <span class="category-name">E-commerce & Business</span>
+                        </div>
+                        <div class="category-item">
+                            <span class="category-icon">📸</span>
+                            <span class="category-name">Content Creators</span>
+                        </div>
+                        <div class="category-item">
+                            <span class="category-icon">👤</span>
+                            <span class="category-name">Personal Users</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="hero-buttons">
                     <a href="#download" class="btn btn-primary">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -928,12 +1138,14 @@
                             Download for Windows
                             <span class="version">Latest Version</span>
                         </button>
-                        <a href="https://github.com/ayodelemartinsabiwo/RemoveBackground" class="btn btn-secondary btn-large" target="_blank">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        <button class="btn btn-secondary btn-large" disabled style="cursor: not-allowed; opacity: 0.6;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 17l6-6-6-6"/>
+                                <path d="M12 17l6-6-6-6"/>
                             </svg>
-                            View on GitHub
-                        </a>
+                            Download for Mac
+                            <span class="version" style="font-size: 0.75rem;">Coming Soon</span>
+                        </button>
                     </div>
                     <div class="download-info">
                         <p><strong>System Requirements:</strong> Windows 10/11, 4GB RAM (recommended), 3GB disk space</p>
@@ -965,31 +1177,34 @@
         </div>
     </section>
 
-    <!-- Documentation Section -->
-    <section id="documentation" class="documentation">
+    <!-- App Showcase Section -->
+    <section id="app-showcase" class="app-showcase">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Documentation</h2>
-                <p class="section-subtitle">Everything you need to know</p>
+                <h2 class="section-title">See It In Action</h2>
+                <p class="section-subtitle">Professional results with just one click</p>
             </div>
-            <div class="docs-grid">
-                <div class="doc-card">
-                    <div class="doc-icon">📦</div>
-                    <h3 class="doc-title">Installation Guide</h3>
-                    <p class="doc-description">Step-by-step instructions for installing and setting up Background Remover on your Windows system.</p>
-                    <a href="#" class="doc-link">Read Guide →</a>
+        </div>
+
+        <!-- Full-width showcase card -->
+        <div class="showcase-card-full">
+            <div class="showcase-content">
+                <div class="showcase-image-container">
+                    <div class="showcase-before">
+                        <span class="showcase-label">Before</span>
+                        <img src="images/before.jpg" alt="Before background removal" onerror="this.parentElement.innerHTML='<div class=\'placeholder-image\'>Before Image</div>'">
+                    </div>
+                    <div class="showcase-divider">
+                        <div class="divider-icon">→</div>
+                    </div>
+                    <div class="showcase-after">
+                        <span class="showcase-label">After</span>
+                        <img src="images/after.png" alt="After background removal" onerror="this.parentElement.innerHTML='<div class=\'placeholder-image\'>After Image</div>'">
+                    </div>
                 </div>
-                <div class="doc-card">
-                    <div class="doc-icon">🔧</div>
-                    <h3 class="doc-title">Troubleshooting</h3>
-                    <p class="doc-description">Common issues and solutions to help you resolve any problems you might encounter.</p>
-                    <a href="#" class="doc-link">Get Help →</a>
-                </div>
-                <div class="doc-card">
-                    <div class="doc-icon">📚</div>
-                    <h3 class="doc-title">User Manual</h3>
-                    <p class="doc-description">Complete guide to all features and settings available in Palmar Tech Background Remover.</p>
-                    <a href="#" class="doc-link">Read Manual →</a>
+                <div class="showcase-description">
+                    <h3>One-Click Magic</h3>
+                    <p>Right-click any image, select "Remove Background", and watch as our AI technology instantly delivers professional results with perfect edge detection.</p>
                 </div>
             </div>
         </div>
@@ -1075,14 +1290,14 @@
                         <li><a href="#features">Features</a></li>
                         <li><a href="#why-choose-us">Why Choose Us</a></li>
                         <li><a href="#download">Download</a></li>
-                        <li><a href="https://github.com/ayodelemartinsabiwo/RemoveBackground" target="_blank">GitHub</a></li>
+                        <li><a href="#faq">FAQ</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
                     <h4 class="footer-title">Support</h4>
                     <ul class="footer-links">
-                        <li><a href="https://github.com/ayodelemartinsabiwo/RemoveBackground/issues" target="_blank">Report Issue</a></li>
-                        <li><a href="#" onclick="alert('Feature requests can be submitted on GitHub Issues'); return false;">Feature Request</a></li>
+                        <li><a href="#" onclick="alert('Contact support@palmartech.com for issue reporting'); return false;">Report Issue</a></li>
+                        <li><a href="#" onclick="alert('Contact support@palmartech.com for feature requests'); return false;">Feature Request</a></li>
                         <li><a href="#faq">FAQ</a></li>
                     </ul>
                 </div>
