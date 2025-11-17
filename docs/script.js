@@ -20,6 +20,11 @@ const currencyMapping = {
 // Download URL
 const DOWNLOAD_URL = 'https://github.com/ayodelemartinsabiwo/RemoveBackground/releases/download/v1.0.0/BackgroundRemover_Setup.exe';
 
+// Google Apps Script URL for form submissions
+// IMPORTANT: Replace this with your actual deployment URL after setting up Google Apps Script
+// See GOOGLE_SHEETS_SETUP.md for detailed instructions
+const GOOGLE_APPS_SCRIPT_URL = 'YOUR_DEPLOYMENT_URL_HERE';
+
 // Form phase titles and descriptions
 const phaseContent = {
     1: {
@@ -469,21 +474,32 @@ async function handleFormSubmit(e) {
         detectedCountryCode: userLocation ? userLocation.country_code : 'N/A'
     };
 
+    // Send data to Google Sheets via Apps Script
     try {
-        // Send data to backend (if server is running)
-        const response = await fetch('/api/submit-form', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        });
+        // Check if Google Apps Script URL is configured
+        if (GOOGLE_APPS_SCRIPT_URL && GOOGLE_APPS_SCRIPT_URL !== 'YOUR_DEPLOYMENT_URL_HERE') {
+            console.log('Sending form data to Google Sheets...');
 
-        if (response.ok) {
-            console.log('Form data saved successfully');
+            const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Important for Apps Script
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+
+            // Note: With no-cors mode, we can't read the response
+            // But the data will still be sent to the sheet
+            console.log('Form data sent to Google Sheets successfully');
+        } else {
+            console.warn('Google Apps Script URL not configured. See GOOGLE_SHEETS_SETUP.md for setup instructions.');
+            console.log('Storing data locally as fallback...');
+            storeDataLocally(formData);
         }
     } catch (error) {
-        console.log('Backend not available, storing locally');
+        console.error('Error sending to Google Sheets:', error);
+        console.log('Storing data locally as fallback...');
         storeDataLocally(formData);
     }
 

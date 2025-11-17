@@ -2,33 +2,63 @@
 
 A professional landing page for the Background Remover application with an integrated user feedback form that collects data and automatically populates a Google Sheets spreadsheet.
 
+## 🚀 Quick Start
+
+**For GitHub Pages deployment with Google Sheets integration:**
+- See [QUICK_SETUP.md](QUICK_SETUP.md) for 5-minute setup
+- Or [GOOGLE_SHEETS_SETUP.md](GOOGLE_SHEETS_SETUP.md) for detailed instructions
+
 ## Features
 
 - **Professional Landing Page**: Showcases the Background Remover application with features, benefits, and download options
-- **Interactive Form**: Pops up when users click "Download for Windows"
+- **3-Phase Interactive Form**: Smart form with auto-advance through phases
 - **Smart Location Detection**: Automatically detects user location using IP geolocation
 - **Currency Auto-Selection**: Automatically selects currency based on detected location
-- **Data Collection**: Saves form responses to both CSV and Google Sheets
+- **Google Sheets Integration**: Direct integration via Google Apps Script (no server needed!)
 - **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
+- **GitHub Pages Compatible**: 100% static site that works on GitHub Pages
 
 ## Form Fields
 
-The form collects the following information:
+The 3-phase form collects:
+
+**Phase 1 - Personal Information:**
 - Name (required)
 - Email (required)
 - Age Range (required)
-- Location (required, with auto-detect option)
+
+**Phase 2 - Professional Information:**
 - Profession (required)
-- Willing to pay for the product? (required)
-- If willing, how much? (with currency selection and range slider)
+- Location (required, with auto-detect)
 
-## Setup Instructions
+**Phase 3 - Pricing Feedback:**
+- Willing to pay? (required)
+- If yes/maybe, how much? (with currency selection)
 
-### Prerequisites
+## 🎯 Deployment Options
+
+### Option 1: GitHub Pages (Recommended)
+
+**Perfect for static hosting with Google Sheets integration**
+
+1. The site is already configured for GitHub Pages
+2. Follow [QUICK_SETUP.md](QUICK_SETUP.md) to set up Google Sheets
+3. Enable GitHub Pages in repository settings:
+   - Go to Settings → Pages
+   - Source: Deploy from branch
+   - Branch: your-branch-name
+   - Folder: /docs
+4. Your site will be live at: `https://username.github.io/repository-name/`
+
+### Option 2: Local Development/Server Deployment
+
+**For testing or custom server deployment**
+
+#### Prerequisites
 
 - Node.js (v14 or higher)
 - npm (comes with Node.js)
-- A Google Cloud Platform account (for Google Sheets integration)
+- Optional: Google Cloud Platform account (for server-side Sheets integration)
 
 ### Installation
 
