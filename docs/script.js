@@ -23,7 +23,7 @@ const DOWNLOAD_URL = 'https://github.com/ayodelemartinsabiwo/RemoveBackground/re
 // Google Apps Script URL for form submissions
 // IMPORTANT: Replace this with your actual deployment URL after setting up Google Apps Script
 // See GOOGLE_SHEETS_SETUP.md for detailed instructions
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyKIYN3_XwGqzEG_Xyc5LY0QnGTZrsiucJW-rS74pSAywt7fzvO7m1vhSiRUm-l1364Pg/exec';
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyn056eNTDU5ONCP5xZK_Rt4lMfsMP4Hpor4YCHcj2Iv9nqkULjh_D6MUlCjbhvm0irvA/exec';
 
 // Form phase titles and descriptions
 const phaseContent = {
