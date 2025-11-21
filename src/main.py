@@ -127,7 +127,18 @@ def main():
     if handle_context_menu_args():
         return
 
+    # Enable High-DPI support for modern displays (4K, Retina, etc.)
+    from PyQt6.QtCore import Qt
+    QApplication.setHighDpiScaleFactorRoundingPolicy(
+        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+    )
+
     app = QApplication(sys.argv)
+
+    # Enable High-DPI scaling and pixmaps
+    app.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
+    app.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
+
     app.setQuitOnLastWindowClosed(True)
 
     # Get image path from command line or file dialog

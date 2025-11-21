@@ -7,7 +7,8 @@ Separated from main GUI for better organization and smaller file sizes.
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
-from gui_styles import COLORS, DIMENSIONS, get_support_dialog_style, get_support_dialog_main_frame_style
+from gui_styles import COLORS, DIMENSIONS, get_support_dialog_style, get_support_dialog_main_frame_style, scale_font_size, scale_dimension
+from window_utils import calculate_responsive_size
 
 class ThemedSupportDialog(QDialog):
     """Support dialog with consistent theme for Palmer Enterprises"""
@@ -19,7 +20,19 @@ class ThemedSupportDialog(QDialog):
     def init_ui(self):
         """Initialize the support dialog UI"""
         self.setWindowTitle("Support Palmer Enterprises")
-        self.setFixedSize(450, 480)
+
+        # Use responsive sizing based on screen resolution and DPI
+        width, height = calculate_responsive_size(
+            450, 480,
+            min_width=380,
+            min_height=420,
+            max_width=600,
+            max_height=600
+        )
+        self.setMinimumSize(380, 420)
+        self.setMaximumSize(600, 600)
+        self.resize(width, height)
+
         # Remove FramelessWindowHint to make dialog movable and use standard window controls
         self.setWindowFlags(Qt.WindowType.Dialog)
 
@@ -64,8 +77,13 @@ class ThemedSupportDialog(QDialog):
         """)
 
         content_layout = QVBoxLayout(content_frame)
-        content_layout.setSpacing(18)
-        content_layout.setContentsMargins(30, 25, 30, 25)
+        content_layout.setSpacing(scale_dimension(18))
+        content_layout.setContentsMargins(
+            scale_dimension(30),
+            scale_dimension(25),
+            scale_dimension(30),
+            scale_dimension(25)
+        )
 
         # Add title
         title = self._create_title()
@@ -86,23 +104,25 @@ class ThemedSupportDialog(QDialog):
         return content_frame
 
     def _create_title(self):
-        """Create and return the title label"""
+        """Create and return the title label with responsive font"""
         title = QLabel("🍺 Buy us a Red Bull!")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title.setFont(QFont("Segoe UI", 16, QFont.Weight.Bold))
-        title.setStyleSheet(f"color: {COLORS['PRIMARY_ORANGE']}; margin: 10px 0;")
+        scaled_font = scale_font_size(16)
+        title.setFont(QFont("Segoe UI", scaled_font, QFont.Weight.Bold))
+        title.setStyleSheet(f"color: {COLORS['PRIMARY_ORANGE']}; margin: {scale_dimension(10)}px 0;")
         return title
 
     def _create_message(self):
-        """Create and return the message label"""
+        """Create and return the message label with responsive font"""
         message = QLabel("Thank you for using Background Remover!")
         message.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        message.setFont(QFont("Segoe UI", 12, QFont.Weight.Normal))
-        message.setStyleSheet(f"color: {COLORS['TEXT_DARK']}; margin: 10px 0;")
+        scaled_font = scale_font_size(12)
+        message.setFont(QFont("Segoe UI", scaled_font, QFont.Weight.Normal))
+        message.setStyleSheet(f"color: {COLORS['TEXT_DARK']}; margin: {scale_dimension(10)}px 0;")
         return message
 
     def _create_bank_details(self):
-        """Create and return the bank details label"""
+        """Create and return the bank details label with responsive font"""
         bank_details = QLabel(
             "If this free software saved you time,\n"
             "consider buying us a Red Bull!\n\n"
@@ -113,18 +133,24 @@ class ThemedSupportDialog(QDialog):
             "Your support helps keep this software free for everyone! 🙏"
         )
         bank_details.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        bank_details.setFont(QFont("Segoe UI", 11, QFont.Weight.Normal))
-        bank_details.setStyleSheet(f"color: {COLORS['TEXT_BLACK']}; line-height: 1.6; padding: 15px; background-color: transparent;")
+        scaled_font = scale_font_size(11)
+        bank_details.setFont(QFont("Segoe UI", scaled_font, QFont.Weight.Normal))
+        bank_details.setStyleSheet(f"color: {COLORS['TEXT_BLACK']}; line-height: 1.6; padding: {scale_dimension(15)}px; background-color: transparent;")
         bank_details.setWordWrap(True)
         return bank_details
 
     def _create_button_layout(self):
-        """Create and return the button layout with close button"""
+        """Create and return the button layout with responsive close button"""
         button_layout = QHBoxLayout()
-        button_layout.setContentsMargins(20, 15, 20, 10)
+        button_layout.setContentsMargins(
+            scale_dimension(20),
+            scale_dimension(15),
+            scale_dimension(20),
+            scale_dimension(10)
+        )
         button_layout.addStretch()
 
-        # Close button
+        # Close button with responsive sizing
         close_main_btn = QPushButton("Close")
         close_main_btn.setFixedHeight(DIMENSIONS['BUTTON_HEIGHT'])
         close_main_btn.setMinimumWidth(DIMENSIONS['BUTTON_MIN_WIDTH'])
@@ -135,8 +161,8 @@ class ThemedSupportDialog(QDialog):
                 font-weight: bold;
                 border: none;
                 border-radius: {DIMENSIONS['SMALL_RADIUS']}px;
-                padding: 10px 20px;
-                font-size: 12px;
+                padding: {scale_dimension(10)}px {scale_dimension(20)}px;
+                font-size: {scale_font_size(12)}px;
             }}
             QPushButton:hover {{
                 background-color: {COLORS['SECONDARY_ORANGE']};

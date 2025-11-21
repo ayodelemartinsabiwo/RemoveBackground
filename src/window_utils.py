@@ -109,3 +109,56 @@ def create_window_with_settings(window_class, width, height, title="", **kwargs)
     center_window_on_screen(window)
 
     return window
+
+def calculate_responsive_size(base_width, base_height, min_width=300, min_height=200, max_width=650, max_height=450):
+    """
+    Calculate window size based on screen resolution for responsive design.
+
+    Args:
+        base_width: Base width in pixels (reference size)
+        base_height: Base height in pixels (reference size)
+        min_width: Minimum allowed width
+        min_height: Minimum allowed height
+        max_width: Maximum allowed width
+        max_height: Maximum allowed height
+
+    Returns:
+        Tuple of (width, height) adjusted for screen size
+    """
+    screen_width, screen_height = get_screen_dimensions()
+
+    # Use percentage of screen size (24% width, 28% height for good proportions)
+    responsive_width = int(screen_width * 0.24)
+    responsive_height = int(screen_height * 0.28)
+
+    # Ensure we're between min and max, with base size as a floor
+    final_width = max(min_width, min(responsive_width, max_width))
+    final_height = max(min_height, min(responsive_height, max_height))
+
+    # If responsive size is smaller than base, use base
+    final_width = max(final_width, base_width)
+    final_height = max(final_height, base_height)
+
+    # Final clamp to max
+    final_width = min(final_width, max_width)
+    final_height = min(final_height, max_height)
+
+    return final_width, final_height
+
+def elide_file_path(path, max_length=50):
+    """
+    Shorten long file paths with ellipsis for better display.
+
+    Args:
+        path: Full file path
+        max_length: Maximum length before eliding
+
+    Returns:
+        Elided path string
+    """
+    if len(path) <= max_length:
+        return path
+
+    # Show beginning and end of path
+    half_length = max_length // 2
+    return path[:half_length] + "..." + path[-half_length:]

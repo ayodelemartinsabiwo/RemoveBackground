@@ -9,9 +9,10 @@ from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QUrl
 from PyQt6.QtGui import QFont, QCloseEvent, QDesktopServices
 from gui_styles import (COLORS, DIMENSIONS, get_main_frame_style, get_header_frame_style,
                         get_close_button_style, get_title_style, get_status_label_style,
-                        get_progress_bar_style, get_success_frame_style, get_primary_button_style)
+                        get_progress_bar_style, get_success_frame_style, get_primary_button_style,
+                        scale_font_size, scale_dimension)
 from support_dialog import ThemedSupportDialog
-from window_utils import center_window_on_screen, load_application_icon
+from window_utils import center_window_on_screen, load_application_icon, calculate_responsive_size, elide_file_path
 
 class LoaderWindow(QWidget):
     """Main loader window for background removal process"""
@@ -31,7 +32,20 @@ class LoaderWindow(QWidget):
     def init_ui(self):
         """Initialize the user interface"""
         self.setWindowTitle("Background Remover")
-        self.setFixedSize(DIMENSIONS['LOADER_WIDTH'], DIMENSIONS['LOADER_HEIGHT'])
+
+        # Use responsive sizing based on screen resolution and DPI
+        width, height = calculate_responsive_size(
+            DIMENSIONS['LOADER_WIDTH'],
+            DIMENSIONS['LOADER_HEIGHT'],
+            min_width=400,
+            min_height=280,
+            max_width=650,
+            max_height=450
+        )
+        self.setMinimumSize(400, 280)
+        self.setMaximumSize(650, 450)
+        self.resize(width, height)
+
         # Remove FramelessWindowHint to make window movable, keep WindowStaysOnTopHint
         self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint)
 
@@ -76,8 +90,13 @@ class LoaderWindow(QWidget):
         content_frame.setStyleSheet("QFrame { background-color: transparent; border: none; }")
 
         content_layout = QVBoxLayout(content_frame)
-        content_layout.setSpacing(8)  # Increased spacing for better visual separation
-        content_layout.setContentsMargins(30, 30, 30, 30)  # Increased margins for better balance
+        content_layout.setSpacing(scale_dimension(8))  # Increased spacing for better visual separation
+        content_layout.setContentsMargins(
+            scale_dimension(30),
+            scale_dimension(30),
+            scale_dimension(30),
+            scale_dimension(30)
+        )  # Increased margins for better balance
 
         # Add stretch at the top to center content vertically
         content_layout.addStretch(1)
@@ -90,10 +109,10 @@ class LoaderWindow(QWidget):
         self.status_label = QLabel("Initializing...")
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.status_label.setStyleSheet(f"""
-            font-size: 16px;
+            font-size: {scale_font_size(16)}px;
             font-weight: normal;
             color: {COLORS['TEXT_DARK']};
-            padding: 10px 15px;
+            padding: {scale_dimension(10)}px {scale_dimension(15)}px;
             background-color: transparent;
             border: none;
             text-align: center;
@@ -102,9 +121,10 @@ class LoaderWindow(QWidget):
         self.status_label.setWordWrap(True)
         content_layout.addWidget(self.status_label)
 
-        # Progress bar
+        # Progress bar - use responsive height
         self.progress_bar = QProgressBar()
-        self.progress_bar.setFixedHeight(DIMENSIONS['PROGRESS_BAR_HEIGHT'])
+        self.progress_bar.setMinimumHeight(scale_dimension(6))
+        self.progress_bar.setMaximumHeight(scale_dimension(10))
         self.progress_bar.setRange(0, 0)  # Indeterminate progress
         self.progress_bar.setStyleSheet(get_progress_bar_style())
         content_layout.addWidget(self.progress_bar)
@@ -125,10 +145,10 @@ class LoaderWindow(QWidget):
 
         title_layout = QHBoxLayout(title_frame)
         title_layout.setContentsMargins(0, 0, 0, 0)
-        title_layout.setSpacing(8)  # Increased spacing for better visual balance
+        title_layout.setSpacing(scale_dimension(8))  # Increased spacing for better visual balance
         title_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Center the entire title
 
-        # Icon - make it larger
+        # Icon - make it larger with responsive sizing
         icon_label = QLabel()
         icon_pixmap = self._create_bg_icon()  # Use custom BG icon
         if icon_pixmap:
@@ -138,37 +158,40 @@ class LoaderWindow(QWidget):
             icon_label.setText("BG")
             icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             icon_label.setStyleSheet(f"""
-                font-size: 16px;
+                font-size: {scale_font_size(16)}px;
                 font-weight: bold;
                 color: {COLORS['WHITE']};
                 background-color: {COLORS['PRIMARY_ORANGE']};
-                border-radius: 18px;
-                padding: 4px;
+                border-radius: {scale_dimension(18)}px;
+                padding: {scale_dimension(4)}px;
             """)
-        icon_label.setFixedSize(36, 36)  # Increased from 24x24
+        icon_size = scale_dimension(36)
+        icon_label.setFixedSize(icon_size, icon_size)
         title_layout.addWidget(icon_label)
 
-        # Title text - make it larger
+        # Title text - make it larger with responsive font
         title_label = QLabel("Background Remover")
+        scaled_title_font = scale_font_size(22)
         title_label.setStyleSheet(f"""
-            font-size: 22px;
+            font-size: {scaled_title_font}px;
             font-weight: bold;
             color: {COLORS['PRIMARY_ORANGE']};
             padding: 0px;
             margin: 0px;
         """)
-        title_label.setFont(QFont("Segoe UI", 22, QFont.Weight.Bold))  # Increased from 16
+        title_label.setFont(QFont("Segoe UI", scaled_title_font, QFont.Weight.Bold))
         title_layout.addWidget(title_label)
 
         return title_frame
 
     def _create_bg_icon(self):
-        """Create a custom BG icon programmatically"""
+        """Create a custom BG icon programmatically with responsive sizing"""
         try:
             from PyQt6.QtGui import QPixmap, QPainter, QBrush, QPen, QFont, QColor
 
-            # Create a larger 36x36 pixmap
-            pixmap = QPixmap(36, 36)
+            # Create a responsive size pixmap
+            icon_size = scale_dimension(36)
+            pixmap = QPixmap(icon_size, icon_size)
             pixmap.fill(Qt.GlobalColor.transparent)
 
             painter = QPainter(pixmap)
@@ -178,11 +201,14 @@ class LoaderWindow(QWidget):
             orange_color = QColor(COLORS['PRIMARY_ORANGE'])
             painter.setBrush(QBrush(orange_color))
             painter.setPen(QPen(Qt.GlobalColor.transparent))
-            painter.drawEllipse(2, 2, 32, 32)
+            padding = scale_dimension(2)
+            circle_size = icon_size - (padding * 2)
+            painter.drawEllipse(padding, padding, circle_size, circle_size)
 
-            # Draw "BG" text larger
+            # Draw "BG" text with responsive font size
             painter.setPen(QPen(Qt.GlobalColor.white))
-            font = QFont("Segoe UI", 11, QFont.Weight.Bold)  # Increased from 7
+            font_size = scale_font_size(11)
+            font = QFont("Segoe UI", font_size, QFont.Weight.Bold)
             painter.setFont(font)
             painter.drawText(pixmap.rect(), Qt.AlignmentFlag.AlignCenter, "BG")
 
@@ -200,27 +226,30 @@ class LoaderWindow(QWidget):
 
         success_layout = QVBoxLayout(success_frame)
         success_layout.setSpacing(0)  # No spacing between elements
-        success_layout.setContentsMargins(15, 0, 15, 0)  # Remove bottom margin completely
+        success_layout.setContentsMargins(
+            scale_dimension(15), 0,
+            scale_dimension(15), 0
+        )  # Remove bottom margin completely
 
         # Success message removed - will be shown in status label instead
 
-        # File path label with enhanced visibility and minimal padding
+        # File path label with enhanced visibility, minimal padding, and responsive sizing
         self.file_path_label = QLabel()
         self.file_path_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.file_path_label.setStyleSheet(f"""
             color: {COLORS['TEXT_DARK']};
-            font-size: 12px;
+            font-size: {scale_font_size(12)}px;
             font-weight: bold;
-            padding: 5px 10px;
+            padding: {scale_dimension(5)}px {scale_dimension(10)}px;
             background-color: {COLORS['WHITE']};
             border: 1px solid {COLORS['WHITE']};
-            border-radius: 6px;
-            margin: 0px 5px;
+            border-radius: {scale_dimension(6)}px;
+            margin: 0px {scale_dimension(5)}px;
             line-height: 1.2;
         """)
         self.file_path_label.setWordWrap(True)
-        self.file_path_label.setMinimumHeight(45)  # Reduced height
-        self.file_path_label.setMaximumHeight(55)  # Reduced max height
+        self.file_path_label.setMinimumHeight(scale_dimension(45))
+        self.file_path_label.setMaximumHeight(scale_dimension(55))
         success_layout.addWidget(self.file_path_label)
 
         # Remove spacing before button to eliminate all gaps
@@ -231,7 +260,7 @@ class LoaderWindow(QWidget):
         button_frame.setStyleSheet("QFrame { background-color: transparent; border: none; }")
         button_layout = QHBoxLayout(button_frame)
         button_layout.setContentsMargins(0, 0, 0, 0)
-        button_layout.setSpacing(10)  # Spacing between two buttons
+        button_layout.setSpacing(scale_dimension(10))  # Spacing between two buttons
 
         # Red Bull button
         support_btn = QPushButton("🍺 Buy us a Red Bull!")
@@ -286,13 +315,13 @@ class LoaderWindow(QWidget):
         # Remove progress bar from layout completely to free up space
         self.progress_bar.setParent(None)  # Remove from layout
 
-        # Update status to show success message in green
+        # Update status to show success message in green with responsive font
         self.status_label.setText("✅ Background removed successfully!")
         self.status_label.setStyleSheet(f"""
-            font-size: 14px;
+            font-size: {scale_font_size(14)}px;
             font-weight: bold;
             color: #28a745;
-            padding: 5px 10px;
+            padding: {scale_dimension(5)}px {scale_dimension(10)}px;
             background-color: transparent;
             border: none;
             text-align: center;
@@ -303,6 +332,10 @@ class LoaderWindow(QWidget):
         filename = os.path.basename(output_path)
         folder_path = os.path.dirname(output_path)
         self.file_path_label.setText(f"📁 Saved to: {folder_path}\n File: {filename}")
+
+        # Add tooltip with full path for easy copying
+        self.file_path_label.setToolTip(f"Full path: {output_path}\nClick to copy")
+
         self.success_frame.show()
 
     def show_support_dialog(self):

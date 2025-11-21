@@ -4,6 +4,53 @@ Contains all styling constants and functions for the Background Remover applicat
 Separated for better maintainability and reduced file sizes.
 """
 
+from PyQt6.QtWidgets import QApplication
+
+def get_screen_scale_factor():
+    """
+    Calculate scale factor based on screen DPI for responsive design.
+
+    Returns:
+        Float scale factor (1.0 = 96 DPI baseline)
+    """
+    try:
+        screen = QApplication.primaryScreen()
+        if screen:
+            dpi = screen.logicalDotsPerInch()
+            # Base DPI is 96 (Windows standard)
+            scale = dpi / 96.0
+            # Clamp scale factor to reasonable range (0.8 to 2.0)
+            return max(0.8, min(scale, 2.0))
+    except:
+        pass
+    return 1.0
+
+def scale_font_size(base_size):
+    """
+    Scale font size based on screen DPI.
+
+    Args:
+        base_size: Base font size in pixels
+
+    Returns:
+        Scaled font size as integer
+    """
+    scale = get_screen_scale_factor()
+    return max(8, int(base_size * scale))  # Minimum 8px font
+
+def scale_dimension(base_dim):
+    """
+    Scale dimension (width, height, padding, margin) based on screen DPI.
+
+    Args:
+        base_dim: Base dimension in pixels
+
+    Returns:
+        Scaled dimension as integer
+    """
+    scale = get_screen_scale_factor()
+    return max(1, int(base_dim * scale))  # Minimum 1px
+
 # Color constants
 COLORS = {
     'PRIMARY_ORANGE': '#FF6B35',
@@ -22,18 +69,28 @@ COLORS = {
     'PRESSED_GREY': '#D0D0D0'
 }
 
-# Common dimensions
-DIMENSIONS = {
-    'LOADER_WIDTH': 460,  # Reduced from 480
-    'LOADER_HEIGHT': 300,  # Reverted back to 300 as requested
-    'HEADER_HEIGHT': 35,   # Reduced from 40
-    'CLOSE_BUTTON_SIZE': 28, # Reduced from 30
-    'PROGRESS_BAR_HEIGHT': 6,
-    'BUTTON_HEIGHT': 40,   # Reduced from 42
-    'BUTTON_MIN_WIDTH': 120,
-    'BORDER_RADIUS': 12,
-    'SMALL_RADIUS': 8
-}
+def get_responsive_dimensions():
+    """
+    Get dimensions scaled to screen DPI for responsive design.
+
+    Returns:
+        Dictionary of scaled dimensions
+    """
+    return {
+        'LOADER_WIDTH': scale_dimension(460),  # Base width
+        'LOADER_HEIGHT': scale_dimension(300),  # Base height
+        'HEADER_HEIGHT': scale_dimension(35),
+        'CLOSE_BUTTON_SIZE': scale_dimension(28),
+        'PROGRESS_BAR_HEIGHT': scale_dimension(6),
+        'BUTTON_HEIGHT': scale_dimension(40),
+        'BUTTON_MIN_WIDTH': scale_dimension(120),
+        'BORDER_RADIUS': scale_dimension(12),
+        'SMALL_RADIUS': scale_dimension(8)
+    }
+
+# Common dimensions - now responsive to screen DPI
+# This is calculated once when the module is imported
+DIMENSIONS = get_responsive_dimensions()
 
 def get_main_frame_style():
     """Returns the main frame stylesheet"""
