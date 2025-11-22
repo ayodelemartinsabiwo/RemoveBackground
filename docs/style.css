@@ -874,30 +874,6 @@ body {
     font-style: italic;
 }
 
-/* Tap to flip indicator for mobile */
-@media (max-width: 768px) {
-    .tip-card-front::after {
-        content: '👆 Tap to flip';
-        position: absolute;
-        bottom: 1rem;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 0.75rem;
-        color: var(--primary-color);
-        font-weight: 600;
-        background: white;
-        padding: 0.25rem 0.75rem;
-        border-radius: 12px;
-        border: 1px solid var(--primary-color);
-        opacity: 0.9;
-        pointer-events: none;
-    }
-
-    .tip-card.flipped .tip-card-front::after {
-        display: none;
-    }
-}
-
 .tip-title-back {
     font-size: 1.25rem;
     font-weight: 700;
@@ -1507,32 +1483,32 @@ body {
     }
 
     .demo-img-placeholder {
-        width: 160px;
-        height: 220px;
+        width: 200px;
+        height: 280px;
     }
 
     .demo-left .demo-img-placeholder,
     .demo-right .demo-img-placeholder {
-        width: 160px;
-        height: 220px;
+        width: 200px;
+        height: 280px;
     }
 
     .demo-center .demo-img-placeholder {
-        width: 160px;
-        height: 220px;
+        width: 200px;
+        height: 280px;
     }
 
     .demo-transition-container {
-        width: 160px;
-        height: 220px;
+        width: 200px;
+        height: 280px;
     }
 
     .demo-left .demo-transition-container {
-        height: 220px;
+        height: 280px;
     }
 
     .demo-card-enhanced {
-        padding: 1rem; /* More compact padding */
+        padding: 1.25rem;
     }
 
     .demo-left .demo-transition-image img {
@@ -1922,29 +1898,6 @@ body {
     .download,
     .app-showcase {
         padding: 2rem 0; /* Ultra compact for small screens */
-    }
-
-    /* Even smaller demo images for small screens */
-    .demo-img-placeholder,
-    .demo-transition-container {
-        width: 140px;
-        height: 190px;
-    }
-
-    .demo-left .demo-img-placeholder,
-    .demo-right .demo-img-placeholder,
-    .demo-center .demo-img-placeholder {
-        width: 140px;
-        height: 190px;
-    }
-
-    .demo-card-enhanced {
-        padding: 0.75rem;
-    }
-
-    .demo-label {
-        font-size: 0.7rem;
-        padding: 0.3rem 0.6rem;
     }
 
     .section-header {

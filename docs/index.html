@@ -1113,39 +1113,56 @@
             }
 
             .app-showcase {
-                padding: 40px 0;
+                padding: 30px 0;
             }
 
             .showcase-card-full {
-                margin: 20px 10px 0;
+                margin: 12px 8px 0;
                 border-radius: 12px;
             }
 
             .showcase-content {
-                padding: 30px 15px;
+                padding: 20px 12px;
             }
 
             .showcase-image-container {
                 grid-template-columns: 1fr;
-                gap: 20px;
+                gap: 15px;
+            }
+
+            .showcase-before img,
+            .showcase-after img {
+                max-height: 280px;
+                object-fit: contain;
             }
 
             .showcase-divider {
                 transform: rotate(90deg);
             }
 
+            .divider-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+
             .showcase-description h3 {
-                font-size: 1.5rem;
+                font-size: 1.25rem;
             }
 
             .showcase-description p {
-                font-size: 1rem;
+                font-size: 0.875rem;
+            }
+
+            .showcase-label {
+                font-size: 0.75rem;
+                padding: 6px 12px;
             }
 
             .right-click-overlay {
-                bottom: 30px;
-                right: 20px;
-                transform: scale(0.75);
+                bottom: 20px;
+                right: 15px;
+                transform: scale(0.7);
             }
 
             .right-click-menu-fallback {
@@ -1205,6 +1222,47 @@
 
             .footer-logo-title {
                 gap: 8px;
+            }
+        }
+
+        /* Small Mobile - Even more compact showcase */
+        @media (max-width: 480px) {
+            .showcase-content {
+                padding: 15px 10px;
+            }
+
+            .showcase-before img,
+            .showcase-after img {
+                max-height: 220px;
+            }
+
+            .showcase-card-full {
+                margin: 10px 5px 0;
+            }
+
+            .showcase-description h3 {
+                font-size: 1.1rem;
+            }
+
+            .showcase-description p {
+                font-size: 0.8rem;
+            }
+
+            .divider-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+
+            .right-click-overlay {
+                transform: scale(0.6);
+                bottom: 15px;
+                right: 10px;
+            }
+
+            .annotation-label {
+                font-size: 0.65rem;
+                padding: 4px 8px;
             }
         }
     </style>
