@@ -640,29 +640,29 @@
             right: 40px;
             z-index: 10;
             animation: fadeInMenu 0.5s ease 1s both;
-            transform: scale(0.75); /* Make menu smaller to not cover image */
+            transform: scale(0.70) !important; /* Make menu smaller to not cover image */
         }
 
         .right-click-menu-fallback {
             background: white;
-            border-radius: 8px;
-            padding: 6px;
+            border-radius: 6px;
+            padding: 5px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
             border: 1px solid #e0e0e0;
-            min-width: 200px;
+            min-width: 180px; /* Smaller base width */
             position: relative;
         }
 
         .context-menu-item {
-            padding: 8px 14px;
-            font-size: 0.85rem;
+            padding: 7px 12px; /* More compact */
+            font-size: 0.8rem; /* Smaller font */
             color: #333;
             cursor: pointer;
-            border-radius: 4px;
+            border-radius: 3px;
             transition: background 0.2s;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
         }
 
         .context-menu-item.highlighted {
@@ -771,53 +771,53 @@
 
         .annotation-3 {
             bottom: 15%;
-            right: 30%;
+            right: 35%; /* Moved 5% left (0.5 inches) from 30% */
             animation: annotationLoop3 6s ease-in-out 3s infinite;
         }
 
         .annotation-circle {
-            width: 42px; /* Reduced from 50px */
-            height: 42px;
-            border: 2.5px solid #ff6b35; /* Slightly thinner */
+            width: 32px; /* Further reduced for less intrusion */
+            height: 32px;
+            border: 2px solid #ff6b35;
             border-radius: 50%;
             animation: circlePulse 2s ease-in-out infinite;
-            box-shadow: 0 0 12px rgba(255, 107, 53, 0.5);
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.4);
             position: relative;
         }
 
         .annotation-line {
             position: absolute;
-            width: 2px;
-            height: 35px; /* Reduced from 40px */
+            width: 1.5px; /* Thinner line */
+            height: 28px; /* Shorter line */
             background: #ff6b35;
-            top: 42px; /* Adjusted to match smaller circle */
+            top: 32px; /* Adjusted to match smaller circle */
             left: 50%;
             transform: translateX(-50%);
         }
 
         .annotation-line-2,
         .annotation-line-3 {
-            width: 2px;
-            height: 35px; /* Reduced from 40px */
-            top: 42px; /* Adjusted to match smaller circle */
+            width: 1.5px; /* Thinner line */
+            height: 28px; /* Shorter line */
+            top: 32px; /* Adjusted to match smaller circle */
             left: 50%;
             transform: translateX(-50%);
         }
 
         .annotation-label {
             position: absolute;
-            top: 82px; /* Adjusted from 95px to match smaller components */
+            top: 65px; /* Adjusted for smaller components */
             left: 50%;
             transform: translateX(-50%);
             background: white;
-            padding: 6px 12px; /* Reduced from 8px 14px */
-            border-radius: 6px;
-            font-size: 0.8rem; /* Reduced from 0.85rem */
+            padding: 4px 10px; /* More compact */
+            border-radius: 5px;
+            font-size: 0.7rem; /* Smaller font */
             font-weight: 600;
             color: #ff6b35;
             white-space: nowrap;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-            border: 2px solid #ff6b35;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+            border: 1.5px solid #ff6b35;
         }
 
         /* Wipe Line with Glitters */
@@ -1163,7 +1163,7 @@
             .right-click-overlay {
                 bottom: 20px;
                 right: 15px;
-                transform: scale(0.7);
+                transform: scale(0.65) !important; /* Ensure it applies */
             }
 
             .right-click-menu-fallback {
@@ -1183,25 +1183,27 @@
             }
 
             .annotation-label {
-                font-size: 0.65rem;
-                padding: 5px 9px;
-                top: 70px; /* Adjusted for smaller components */
+                font-size: 0.6rem;
+                padding: 3px 8px;
+                top: 58px; /* Adjusted for smaller components */
             }
 
             .annotation-circle {
-                width: 35px;
-                height: 35px;
+                width: 28px;
+                height: 28px;
             }
 
             .annotation-line {
-                height: 28px;
-                top: 35px; /* Adjusted to match smaller circle */
+                height: 24px;
+                top: 28px; /* Adjusted to match smaller circle */
+                width: 1.5px;
             }
 
             .annotation-line-2,
             .annotation-line-3 {
-                height: 28px;
-                top: 35px; /* Adjusted to match smaller circle */
+                height: 24px;
+                top: 28px; /* Adjusted to match smaller circle */
+                width: 1.5px;
             }
 
             .showcase-wipe-line {
@@ -1259,27 +1261,28 @@
             }
 
             .right-click-overlay {
-                transform: scale(0.6);
+                transform: scale(0.55) !important; /* Even smaller on small screens */
                 bottom: 15px;
                 right: 10px;
             }
 
             .annotation-label {
-                font-size: 0.6rem;
-                padding: 4px 7px;
-                top: 62px; /* Further adjusted for very small screens */
+                font-size: 0.55rem;
+                padding: 3px 6px;
+                top: 52px; /* Further adjusted for very small screens */
             }
 
             .annotation-circle {
-                width: 30px;
-                height: 30px;
+                width: 24px;
+                height: 24px;
             }
 
             .annotation-line,
             .annotation-line-2,
             .annotation-line-3 {
-                height: 25px;
-                top: 30px;
+                height: 20px;
+                top: 24px;
+                width: 1.5px;
             }
         }
     </style>
