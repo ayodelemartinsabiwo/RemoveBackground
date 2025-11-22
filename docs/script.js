@@ -599,10 +599,14 @@ function initiateDownload() {
 
 const tipCards = document.querySelectorAll('.tip-card');
 
+// Desktop: use click
 tipCards.forEach(card => {
-    card.addEventListener('click', () => {
-        card.classList.toggle('flipped');
-    });
+    // Track if this is a desktop device (will be overridden for mobile below)
+    if (!(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))) {
+        card.addEventListener('click', () => {
+            card.classList.toggle('flipped');
+        });
+    }
 });
 
 // ==================== //
@@ -791,7 +795,7 @@ window.addEventListener('afterprint', () => {
 });
 
 // ==================== //
-// Mobile Detection
+// Mobile Detection & Improved Touch Handling
 // ==================== //
 
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -799,10 +803,47 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
 if (isMobile) {
     document.body.classList.add('mobile-device');
 
+    // Improved tap detection for flip cards - prevents accidental flips during scrolling
     tipCards.forEach(card => {
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartTime = 0;
+        let isTouching = false;
+
         card.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            card.classList.toggle('flipped');
+            // Don't prevent default - allow scrolling
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
+            isTouching = true;
+        }, { passive: true });
+
+        card.addEventListener('touchmove', (e) => {
+            // If user moves finger more than 10px, it's a scroll, not a tap
+            const touchMoveX = e.touches[0].clientX;
+            const touchMoveY = e.touches[0].clientY;
+            const moveDistance = Math.sqrt(
+                Math.pow(touchMoveX - touchStartX, 2) +
+                Math.pow(touchMoveY - touchStartY, 2)
+            );
+
+            if (moveDistance > 10) {
+                isTouching = false; // Cancel the tap
+            }
+        }, { passive: true });
+
+        card.addEventListener('touchend', (e) => {
+            const touchDuration = Date.now() - touchStartTime;
+
+            // Only flip if:
+            // 1. Touch was brief (< 300ms)
+            // 2. No significant movement occurred (isTouching still true)
+            if (isTouching && touchDuration < 300) {
+                e.preventDefault(); // Prevent ghost click
+                card.classList.toggle('flipped');
+            }
+
+            isTouching = false;
         });
     });
 }

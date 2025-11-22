@@ -874,6 +874,30 @@ body {
     font-style: italic;
 }
 
+/* Tap to flip indicator for mobile */
+@media (max-width: 768px) {
+    .tip-card-front::after {
+        content: '👆 Tap to flip';
+        position: absolute;
+        bottom: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.75rem;
+        color: var(--primary-color);
+        font-weight: 600;
+        background: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        border: 1px solid var(--primary-color);
+        opacity: 0.9;
+        pointer-events: none;
+    }
+
+    .tip-card.flipped .tip-card-front::after {
+        display: none;
+    }
+}
+
 .tip-title-back {
     font-size: 1.25rem;
     font-weight: 700;
@@ -1483,28 +1507,32 @@ body {
     }
 
     .demo-img-placeholder {
-        width: 180px;
-        height: 250px;
+        width: 160px;
+        height: 220px;
     }
 
     .demo-left .demo-img-placeholder,
     .demo-right .demo-img-placeholder {
-        width: 180px;
-        height: 250px;
+        width: 160px;
+        height: 220px;
     }
 
     .demo-center .demo-img-placeholder {
-        width: 180px;
-        height: 250px;
+        width: 160px;
+        height: 220px;
     }
 
     .demo-transition-container {
-        width: 180px;
-        height: 250px;
+        width: 160px;
+        height: 220px;
     }
 
     .demo-left .demo-transition-container {
-        height: 250px;
+        height: 220px;
+    }
+
+    .demo-card-enhanced {
+        padding: 1rem; /* More compact padding */
     }
 
     .demo-left .demo-transition-image img {
@@ -1641,27 +1669,38 @@ body {
     }
 
     .tip-card {
-        height: 220px; /* Smaller height for better viewport fit */
+        height: 190px; /* Much smaller height for better scrolling */
+        max-width: 100%;
     }
 
     .tip-card-front,
     .tip-card-back {
-        padding: 1.25rem; /* More compact padding */
+        padding: 1rem; /* Very compact padding */
     }
 
     .tip-icon {
-        font-size: 2.5rem; /* Smaller icon */
-        margin-bottom: 0.5rem;
+        font-size: 2rem; /* Smaller icon */
+        margin-bottom: 0.4rem;
     }
 
     .tip-title {
-        font-size: 1.15rem; /* Slightly smaller title */
-        line-height: 1.3;
+        font-size: 1rem; /* Smaller title */
+        line-height: 1.2;
+        margin-bottom: 0.25rem;
+    }
+
+    .tip-hint {
+        font-size: 0.7rem; /* Smaller hint */
     }
 
     .tip-content {
-        font-size: 0.85rem; /* Compact text */
-        line-height: 1.5;
+        font-size: 0.8rem; /* Compact text */
+        line-height: 1.4;
+    }
+
+    .tip-title-back {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
     }
 
     /* ===== How It Works - More Compact ===== */
@@ -1720,30 +1759,35 @@ body {
 
     /* ===== App Showcase - More Compact ===== */
     .showcase-card-full {
-        margin: 15px 10px 0;
+        margin: 10px 8px 0; /* Reduced margin */
     }
 
     .showcase-content {
-        padding: 1.5rem 1rem; /* More compact padding */
+        padding: 1.25rem 0.875rem; /* More compact padding */
     }
 
     .showcase-image-container {
-        gap: 1.25rem; /* Tighter gap */
+        gap: 1rem; /* Tighter gap */
     }
 
     .showcase-description {
-        margin-top: 1.25rem;
+        margin-top: 1rem;
     }
 
     .showcase-description h3 {
-        font-size: 1.25rem; /* Smaller heading */
-        margin-bottom: 0.5rem;
-        line-height: 1.3;
+        font-size: 1.15rem; /* Smaller heading */
+        margin-bottom: 0.4rem;
+        line-height: 1.2;
     }
 
     .showcase-description p {
-        font-size: 0.875rem; /* More compact text */
-        line-height: 1.5;
+        font-size: 0.825rem; /* More compact text */
+        line-height: 1.4;
+    }
+
+    /* Make showcase section itself more compact */
+    .app-showcase {
+        padding: 2.5rem 0;
     }
 }
 
@@ -1880,6 +1924,29 @@ body {
         padding: 2rem 0; /* Ultra compact for small screens */
     }
 
+    /* Even smaller demo images for small screens */
+    .demo-img-placeholder,
+    .demo-transition-container {
+        width: 140px;
+        height: 190px;
+    }
+
+    .demo-left .demo-img-placeholder,
+    .demo-right .demo-img-placeholder,
+    .demo-center .demo-img-placeholder {
+        width: 140px;
+        height: 190px;
+    }
+
+    .demo-card-enhanced {
+        padding: 0.75rem;
+    }
+
+    .demo-label {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.6rem;
+    }
+
     .section-header {
         margin-bottom: 1.25rem;
     }
@@ -1892,12 +1959,25 @@ body {
     }
 
     .tip-card {
-        height: 200px; /* Very compact tip cards */
+        height: 170px; /* Ultra compact tip cards for small screens */
     }
 
     .tip-card-front,
     .tip-card-back {
-        padding: 1rem;
+        padding: 0.875rem;
+    }
+
+    .tip-icon {
+        font-size: 1.75rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .tip-title {
+        font-size: 0.95rem;
+    }
+
+    .tip-hint {
+        font-size: 0.65rem;
     }
 
     /* Smaller icons */
