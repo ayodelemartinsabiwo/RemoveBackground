@@ -599,11 +599,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.75rem; /* Larger arrow */
-            font-weight: 900; /* Much thicker */
+            font-size: 2rem; /* Much larger arrow */
+            font-weight: 900; /* Black weight */
             box-shadow: 0 4px 16px rgba(255, 107, 53, 0.3);
-            line-height: 1; /* Better vertical centering */
-            padding-left: 3px; /* Fine-tune horizontal centering */
+            line-height: 0.85; /* Perfect vertical centering */
+            -webkit-text-stroke: 1px white; /* Make arrow thicker with stroke */
+            text-stroke: 1px white;
+            letter-spacing: -2px; /* Tighter for centering */
         }
 
         .showcase-description {
@@ -761,13 +763,13 @@
 
         .annotation-1 {
             top: 8%;
-            right: 28%; /* Moved additional 0.4 inches left (5% from 23%) */
+            right: 31%; /* Moved additional 0.25 inches left (3% from 28%) */
             animation: annotationLoop1 6s ease-in-out 3s infinite;
         }
 
         .annotation-2 {
             top: 50%;
-            left: 43%; /* Moved additional 0.4 inches right (5% from 38%) */
+            left: 43%; /* Kept at 0.4 inches right as requested */
             animation: annotationLoop2 6s ease-in-out 3s infinite;
         }
 
@@ -778,48 +780,48 @@
         }
 
         .annotation-circle {
-            width: 32px; /* Further reduced for less intrusion */
-            height: 32px;
-            border: 2px solid #ff6b35;
+            width: 50px; /* Restored to original desktop size */
+            height: 50px;
+            border: 3px solid #ff6b35;
             border-radius: 50%;
             animation: circlePulse 2s ease-in-out infinite;
-            box-shadow: 0 0 10px rgba(255, 107, 53, 0.4);
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.5);
             position: relative;
         }
 
         .annotation-line {
             position: absolute;
-            width: 1.5px; /* Thinner line */
-            height: 28px; /* Shorter line */
+            width: 2px;
+            height: 40px; /* Restored to original */
             background: #ff6b35;
-            top: 32px; /* Adjusted to match smaller circle */
+            top: 50px;
             left: 50%;
             transform: translateX(-50%);
         }
 
         .annotation-line-2,
         .annotation-line-3 {
-            width: 1.5px; /* Thinner line */
-            height: 28px; /* Shorter line */
-            top: 32px; /* Adjusted to match smaller circle */
+            width: 2px;
+            height: 40px; /* Restored to original */
+            top: 50px;
             left: 50%;
             transform: translateX(-50%);
         }
 
         .annotation-label {
             position: absolute;
-            top: 65px; /* Adjusted for smaller components */
+            top: 95px; /* Restored to original */
             left: 50%;
             transform: translateX(-50%);
             background: white;
-            padding: 4px 10px; /* More compact */
-            border-radius: 5px;
-            font-size: 0.7rem; /* Smaller font */
+            padding: 8px 14px; /* Restored to original */
+            border-radius: 8px;
+            font-size: 0.85rem; /* Restored to original */
             font-weight: 600;
             color: #ff6b35;
             white-space: nowrap;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-            border: 1.5px solid #ff6b35;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: 2px solid #ff6b35;
         }
 
         /* Wipe Line with Glitters */
@@ -1146,9 +1148,11 @@
             .divider-icon {
                 width: 40px;
                 height: 40px;
-                font-size: 1.4rem; /* Larger arrow for mobile */
+                font-size: 1.6rem; /* Much larger for mobile */
                 font-weight: 900;
-                padding-left: 2px; /* Centered */
+                line-height: 0.9;
+                -webkit-text-stroke: 0.8px white;
+                text-stroke: 0.8px white;
             }
 
             .showcase-description h3 {
@@ -1261,9 +1265,11 @@
             .divider-icon {
                 width: 35px;
                 height: 35px;
-                font-size: 1.15rem; /* Larger arrow for small screens */
+                font-size: 1.3rem; /* Larger for small screens */
                 font-weight: 900;
-                padding-left: 2px;
+                line-height: 0.9;
+                -webkit-text-stroke: 0.7px white;
+                text-stroke: 0.7px white;
             }
 
             .right-click-overlay {
