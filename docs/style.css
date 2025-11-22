@@ -1318,11 +1318,13 @@ body {
 
     .hero-title {
         font-size: 3rem;
+        grid-column: 1;
     }
 
     .hero-subtitle {
         font-size: 1.125rem;
         max-width: 100%;
+        grid-column: 1;
     }
 
     /* Scale down demo images proportionally */
@@ -1354,15 +1356,37 @@ body {
         transform: none;
     }
 
+    /* Make demo images fill the cards better */
+    .demo-transition-container {
+        width: 280px;
+        height: 380px;
+    }
+
+    .demo-left .demo-transition-container {
+        height: 420px;
+    }
+
     .demo-transition-image img {
-        max-height: 280px;
-        width: auto;
+        width: 100%;
+        height: 120%;
         object-fit: contain;
+        object-position: center 40%;
+    }
+
+    .demo-left .demo-transition-image img {
+        width: 100%;
+        height: 125%;
+        margin-top: 20px;
+    }
+
+    .demo-right .demo-transition-image img {
+        width: 100%;
+        height: 125%;
     }
 
     .demo-img-placeholder {
-        width: 180px;
-        height: 250px;
+        width: 220px;
+        height: 300px;
     }
 
     .demo-comparison {
