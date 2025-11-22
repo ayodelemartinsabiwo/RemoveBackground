@@ -644,29 +644,29 @@
             right: 40px;
             z-index: 10;
             animation: fadeInMenu 0.5s ease 1s both;
-            transform: scale(0.70) !important; /* Make menu smaller to not cover image */
+            /* No transform on desktop - original size */
         }
 
         .right-click-menu-fallback {
             background: white;
-            border-radius: 6px;
-            padding: 5px;
+            border-radius: 8px;
+            padding: 8px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
             border: 1px solid #e0e0e0;
-            min-width: 180px; /* Smaller base width */
+            min-width: 220px; /* Original desktop width */
             position: relative;
         }
 
         .context-menu-item {
-            padding: 7px 12px; /* More compact */
-            font-size: 0.8rem; /* Smaller font */
+            padding: 10px 16px; /* Original desktop padding */
+            font-size: 0.9rem; /* Original desktop font size */
             color: #333;
             cursor: pointer;
-            border-radius: 3px;
+            border-radius: 4px;
             transition: background 0.2s;
             display: flex;
             align-items: center;
-            gap: 7px;
+            gap: 10px;
         }
 
         .context-menu-item.highlighted {
@@ -762,8 +762,8 @@
         }
 
         .annotation-1 {
-            top: 8%;
-            right: 31%; /* Moved additional 0.25 inches left (3% from 28%) */
+            top: 5.5%; /* Moved upward by 0.23 inches (2.5% from 8%) */
+            right: 31%; /* Kept at previous left position */
             animation: annotationLoop1 6s ease-in-out 3s infinite;
         }
 
@@ -1150,9 +1150,12 @@
                 height: 40px;
                 font-size: 1.6rem; /* Much larger for mobile */
                 font-weight: 900;
-                line-height: 0.9;
+                line-height: 1; /* Better centering for mobile */
                 -webkit-text-stroke: 0.8px white;
                 text-stroke: 0.8px white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
             .showcase-description h3 {
@@ -1267,9 +1270,12 @@
                 height: 35px;
                 font-size: 1.3rem; /* Larger for small screens */
                 font-weight: 900;
-                line-height: 0.9;
+                line-height: 1; /* Better centering for small screens */
                 -webkit-text-stroke: 0.7px white;
                 text-stroke: 0.7px white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
             .right-click-overlay {
