@@ -1,0 +1,355 @@
+// Prisma Schema for Palmar Background Remover Platform
+// Production-ready schema with all enterprise features
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+  binaryTargets   = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== User Management ====================
+
+model User {
+  id                String    @id @default(uuid()) @db.Uuid
+  email             String    @unique @db.VarChar(255)
+  passwordHash      String?   @map("password_hash") @db.VarChar(255)
+  fullName          String?   @map("full_name") @db.VarChar(255)
+  oauthProvider     String?   @map("oauth_provider") @db.VarChar(50) // google, github, microsoft
+  oauthId           String?   @map("oauth_id") @db.VarChar(255)
+  emailVerified     Boolean   @default(false) @map("email_verified")
+  emailVerifiedAt   DateTime? @map("email_verified_at")
+  profileImageUrl   String?   @map("profile_image_url") @db.Text
+  twoFactorEnabled  Boolean   @default(false) @map("two_factor_enabled")
+  twoFactorSecret   String?   @map("two_factor_secret") @db.VarChar(255)
+  isActive          Boolean   @default(true) @map("is_active")
+  isAdmin           Boolean   @default(false) @map("is_admin")
+  lastLoginAt       DateTime? @map("last_login_at")
+  lastLoginIp       String?   @map("last_login_ip") @db.Inet
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  subscriptions     Subscription[]
+  creditTransactions CreditTransaction[]
+  images            Image[]
+  apiKeys           ApiKey[]
+  apiUsage          ApiUsage[]
+  payments          Payment[]
+  activityLogs      ActivityLog[]
+  refreshTokens     RefreshToken[]
+
+  @@index([email])
+  @@index([oauthProvider, oauthId])
+  @@index([createdAt])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  token     String   @unique @db.VarChar(500)
+  userId    String   @map("user_id") @db.Uuid
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  revokedAt DateTime? @map("revoked_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+// ==================== Subscription & Billing ====================
+
+enum PlanType {
+  FREE
+  STARTER_MONTHLY
+  STARTER_LIFETIME
+  PROFESSIONAL_MONTHLY
+  PROFESSIONAL_LIFETIME
+  BUSINESS_MONTHLY
+  BUSINESS_LIFETIME
+  ENTERPRISE_MONTHLY
+  ENTERPRISE_LIFETIME
+  ULTRA_MONTHLY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  PAST_DUE
+  TRIALING
+}
+
+model Subscription {
+  id                   String             @id @default(uuid()) @db.Uuid
+  userId               String             @map("user_id") @db.Uuid
+  planType             PlanType           @map("plan_type")
+  status               SubscriptionStatus @default(ACTIVE)
+  creditsBalance       Int                @default(0) @map("credits_balance")
+  creditsTotal         Int?               @map("credits_total")
+  billingCycle         String?            @map("billing_cycle") @db.VarChar(20) // monthly, lifetime
+  currentPeriodStart   DateTime?          @map("current_period_start")
+  currentPeriodEnd     DateTime?          @map("current_period_end")
+  autoRenew            Boolean            @default(true) @map("auto_renew")
+  stripeSubscriptionId String?            @unique @map("stripe_subscription_id") @db.VarChar(255)
+  stripeCustomerId     String?            @map("stripe_customer_id") @db.VarChar(255)
+  cancelledAt          DateTime?          @map("cancelled_at")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @updatedAt @map("updated_at")
+
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  creditTransactions CreditTransaction[]
+  payments          Payment[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([stripeSubscriptionId])
+  @@map("subscriptions")
+}
+
+enum TransactionType {
+  PURCHASE
+  USAGE
+  REFUND
+  BONUS
+  ROLLOVER
+  ADMIN_ADJUSTMENT
+}
+
+model CreditTransaction {
+  id             String          @id @default(uuid()) @db.Uuid
+  userId         String          @map("user_id") @db.Uuid
+  subscriptionId String?         @map("subscription_id") @db.Uuid
+  type           TransactionType
+  amount         Int // Negative for usage, positive for purchase
+  balanceAfter   Int             @map("balance_after")
+  description    String?         @db.Text
+  relatedImageId String?         @map("related_image_id") @db.Uuid
+  metadata       Json?           @db.JsonB
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  image        Image?        @relation(fields: [relatedImageId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("credit_transactions")
+}
+
+// ==================== Image Processing ====================
+
+enum ProcessingStatus {
+  PENDING
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum BackgroundType {
+  TRANSPARENT
+  SOLID
+  TEXTURE
+  GRADIENT
+  CUSTOM
+}
+
+enum DownloadTier {
+  SMALL
+  HD
+  ULTRA_HD
+}
+
+model Image {
+  id                  String           @id @default(uuid()) @db.Uuid
+  userId              String?          @map("user_id") @db.Uuid
+  originalFilename    String?          @map("original_filename") @db.VarChar(500)
+  originalS3Key       String           @map("original_s3_key") @db.Text
+  processedS3Key      String?          @map("processed_s3_key") @db.Text
+  thumbnailS3Key      String?          @map("thumbnail_s3_key") @db.Text
+  originalFileSize    BigInt?          @map("original_file_size")
+  processedFileSize   BigInt?          @map("processed_file_size")
+  originalWidth       Int?             @map("original_width")
+  originalHeight      Int?             @map("original_height")
+  outputFormat        String?          @db.VarChar(10) // png, jpg, webp
+  backgroundType      BackgroundType?  @map("background_type")
+  backgroundConfig    Json?            @map("background_config") @db.JsonB
+  processingStatus    ProcessingStatus @default(PENDING) @map("processing_status")
+  processingTimeMs    Int?             @map("processing_time_ms")
+  creditsUsed         Int              @default(1) @map("credits_used")
+  downloadTier        DownloadTier?    @map("download_tier")
+  errorMessage        String?          @map("error_message") @db.Text
+  ipAddress           String?          @map("ip_address") @db.Inet
+  userAgent           String?          @map("user_agent") @db.Text
+  downloadCount       Int              @default(0) @map("download_count")
+  lastDownloadedAt    DateTime?        @map("last_downloaded_at")
+  createdAt           DateTime         @default(now()) @map("created_at")
+  processedAt         DateTime?        @map("processed_at")
+  expiresAt           DateTime?        @map("expires_at")
+  isDeleted           Boolean          @default(false) @map("is_deleted")
+
+  user               User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  creditTransactions CreditTransaction[]
+
+  @@index([userId])
+  @@index([processingStatus])
+  @@index([createdAt])
+  @@index([expiresAt])
+  @@map("images")
+}
+
+// ==================== API Keys & Usage ====================
+
+model ApiKey {
+  id                 String    @id @default(uuid()) @db.Uuid
+  userId             String    @map("user_id") @db.Uuid
+  keyHash            String    @unique @map("key_hash") @db.VarChar(255)
+  keyPrefix          String    @map("key_prefix") @db.VarChar(20)
+  name               String?   @db.VarChar(100)
+  scopes             Json?     @db.JsonB // ["image:process", "image:read", "batch:process"]
+  rateLimitPerMinute Int       @default(100) @map("rate_limit_per_minute")
+  isActive           Boolean   @default(true) @map("is_active")
+  lastUsedAt         DateTime? @map("last_used_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  expiresAt          DateTime? @map("expires_at")
+
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  apiUsage ApiUsage[]
+
+  @@index([userId])
+  @@index([keyHash])
+  @@map("api_keys")
+}
+
+model ApiUsage {
+  id             String   @id @default(uuid()) @db.Uuid
+  apiKeyId       String   @map("api_key_id") @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  endpoint       String   @db.VarChar(255)
+  method         String   @db.VarChar(10)
+  statusCode     Int      @map("status_code")
+  responseTimeMs Int      @map("response_time_ms")
+  creditsUsed    Int?     @map("credits_used")
+  ipAddress      String?  @map("ip_address") @db.Inet
+  userAgent      String?  @map("user_agent") @db.Text
+  errorMessage   String?  @map("error_message") @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  apiKey ApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([apiKeyId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("api_usage")
+}
+
+// ==================== Payments ====================
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+model Payment {
+  id                     String        @id @default(uuid()) @db.Uuid
+  userId                 String        @map("user_id") @db.Uuid
+  subscriptionId         String?       @map("subscription_id") @db.Uuid
+  amount                 Decimal       @db.Decimal(10, 2)
+  currency               String        @default("USD") @db.VarChar(3)
+  paymentMethod          String?       @map("payment_method") @db.VarChar(50)
+  stripePaymentIntentId  String?       @unique @map("stripe_payment_intent_id") @db.VarChar(255)
+  stripeChargeId         String?       @map("stripe_charge_id") @db.VarChar(255)
+  status                 PaymentStatus @default(PENDING)
+  description            String?       @db.Text
+  creditsPurchased       Int?          @map("credits_purchased")
+  receiptUrl             String?       @map("receipt_url") @db.Text
+  failureReason          String?       @map("failure_reason") @db.Text
+  metadata               Json?         @db.JsonB
+  createdAt              DateTime      @default(now()) @map("created_at")
+  updatedAt              DateTime      @updatedAt @map("updated_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("payments")
+}
+
+// ==================== Background Templates ====================
+
+enum TemplateCategory {
+  TEXTURE
+  GRADIENT
+  SOLID
+  PATTERN
+}
+
+model BackgroundTemplate {
+  id              String           @id @default(uuid()) @db.Uuid
+  name            String           @db.VarChar(100)
+  category        TemplateCategory
+  textureType     String?          @map("texture_type") @db.VarChar(50)
+  previewImageUrl String?          @map("preview_image_url") @db.Text
+  config          Json             @db.JsonB
+  isPremium       Boolean          @default(false) @map("is_premium")
+  usageCount      Int              @default(0) @map("usage_count")
+  isActive        Boolean          @default(true) @map("is_active")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@index([isPremium])
+  @@map("background_templates")
+}
+
+// ==================== Activity Logs ====================
+
+model ActivityLog {
+  id           BigInt   @id @default(autoincrement())
+  userId       String?  @map("user_id") @db.Uuid
+  action       String   @db.VarChar(100)
+  resourceType String?  @map("resource_type") @db.VarChar(50)
+  resourceId   String?  @map("resource_id") @db.Uuid
+  ipAddress    String?  @map("ip_address") @db.Inet
+  userAgent    String?  @map("user_agent") @db.Text
+  metadata     Json?    @db.JsonB
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+// ==================== System Configuration ====================
+
+model SystemConfig {
+  id        String   @id @default(uuid()) @db.Uuid
+  key       String   @unique @db.VarChar(100)
+  value     Json     @db.JsonB
+  description String? @db.Text
+  isPublic  Boolean  @default(false) @map("is_public")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("system_config")
+}

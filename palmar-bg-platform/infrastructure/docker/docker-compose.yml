@@ -1,0 +1,203 @@
+version: '3.9'
+
+services:
+  # PostgreSQL Database - Production-grade configuration
+  postgres:
+    image: postgres:15-alpine
+    container_name: palmar-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: palmar_bg_dev
+      POSTGRES_USER: palmar_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password_change_in_production}
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=en_US.UTF-8"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U palmar_admin -d palmar_bg_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - palmar-network
+
+  # Redis - For caching and job queues
+  redis:
+    image: redis:7-alpine
+    container_name: palmar-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-dev_redis_password}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - palmar-network
+
+  # Node.js API Server
+  api:
+    build:
+      context: ../../apps/api
+      dockerfile: Dockerfile
+      target: development
+    container_name: palmar-api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgresql://palmar_admin:${POSTGRES_PASSWORD:-dev_password_change_in_production}@postgres:5432/palmar_bg_dev
+      REDIS_URL: redis://:${REDIS_PASSWORD:-dev_redis_password}@redis:6379
+      JWT_SECRET: ${JWT_SECRET:-dev_jwt_secret_change_in_production}
+      CORS_ORIGIN: http://localhost:5173
+    volumes:
+      - ../../apps/api:/app
+      - /app/node_modules
+      - api_uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - palmar-network
+    command: npm run dev
+
+  # Python AI Worker Service
+  worker:
+    build:
+      context: ../../apps/worker
+      dockerfile: Dockerfile
+      target: development
+    container_name: palmar-worker
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      PYTHONUNBUFFERED: 1
+      ENVIRONMENT: development
+      REDIS_URL: redis://:${REDIS_PASSWORD:-dev_redis_password}@redis:6379
+      DATABASE_URL: postgresql://palmar_admin:${POSTGRES_PASSWORD:-dev_password_change_in_production}@postgres:5432/palmar_bg_dev
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME:-palmar-bg-dev}
+    volumes:
+      - ../../apps/worker:/app
+      - worker_cache:/root/.cache
+      - worker_models:/app/models
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - palmar-network
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # React Frontend (Development)
+  web:
+    build:
+      context: ../../apps/web
+      dockerfile: Dockerfile
+      target: development
+    container_name: palmar-web
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:3000
+      VITE_WORKER_URL: http://localhost:8000
+    volumes:
+      - ../../apps/web:/app
+      - /app/node_modules
+    networks:
+      - palmar-network
+    command: npm run dev -- --host
+
+  # MinIO - Local S3-compatible storage for development
+  minio:
+    image: minio/minio:latest
+    container_name: palmar-minio
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin123}
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - palmar-network
+
+  # Adminer - Database management UI
+  adminer:
+    image: adminer:latest
+    container_name: palmar-adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      - postgres
+    networks:
+      - palmar-network
+
+  # Redis Commander - Redis management UI
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: palmar-redis-commander
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      REDIS_HOSTS: local:redis:6379:0:${REDIS_PASSWORD:-dev_redis_password}
+    depends_on:
+      - redis
+    networks:
+      - palmar-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  minio_data:
+    driver: local
+  api_uploads:
+    driver: local
+  worker_cache:
+    driver: local
+  worker_models:
+    driver: local
+
+networks:
+  palmar-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
