@@ -229,24 +229,32 @@ Create a professional, scalable web-based background removal platform that combi
 
 #### 3.1.5 Credit & Payment System
 - **FR-CP-001**: Free tier: 3 credits/month (small downloads)
-- **FR-CP-002**: Monthly subscriptions available (38, 198, 498, 1198, 4998 credits)
-- **FR-CP-003**: Lifetime purchase option available (8, 73, 198, 498 credits)
+- **FR-CP-002**: Monthly subscriptions available (40, 200, 500, 1200, 5000 credits)
+- **FR-CP-003**: Lifetime purchase option available (10, 75, 200, 500 credits)
 - **FR-CP-004**: Small download = 1 credit, HD = 2 credits, Ultra-HD = 4 credits
 - **FR-CP-005**: Unused credits roll over monthly for subscribers
 - **FR-CP-006**: Lifetime credits never expire
 - **FR-CP-007**: Users receive payment confirmation and receipt
 - **FR-CP-008**: System supports refunds within 14 days
 
-**Adjusted Pricing Structure (minus 2 from reference images):**
+**Competitive Pricing Structure (Same credits as competitors, $2 less on price):**
 
-| Tier | Lifetime | Monthly | Credits | Cost per Image |
-|------|----------|---------|---------|----------------|
-| Free | - | - | 3/month | Free (small only) |
-| Starter | $1.87 | $3.99 | 8 / 38 | $0.23 / $0.11 |
-| Professional | $43.99 | $23.99 | 73 / 198 | $0.60 / $0.12 |
-| Business | $93.99 | $61.99 | 198 / 498 | $0.47 / $0.12 |
-| Enterprise | $187.99 | $118.90 | 498 / 1198 | $0.38 / $0.10 |
-| Ultra | - | $357.90 | 4998 | $0.07 |
+| Tier | Lifetime Price | Monthly Price | Credits (Lifetime/Monthly) | Cost per Image | Value Proposition |
+|------|----------------|---------------|----------------------------|----------------|-------------------|
+| Free | - | - | 3/month | Free (small only) | Try before you buy |
+| Starter | $1.89 - $2 = **FREE** | $5.99 - $2 = **$3.99** | 10 / 40 | $0.00 / $0.10 | **Best for beginners** |
+| Professional | $45.99 - $2 = **$43.99** | $25.99 - $2 = **$23.99** | 75 / 200 | $0.59 / $0.12 | **Most popular** |
+| Business | $95.99 - $2 = **$93.99** | $63.99 - $2 = **$61.99** | 200 / 500 | $0.47 / $0.12 | Power users |
+| Enterprise | $189.99 - $2 = **$187.99** | $120.90 - $2 = **$118.90** | 500 / 1200 | $0.38 / $0.10 | Agencies & teams |
+| Ultra | - | $359.90 - $2 = **$357.90** | 5000 | $0.07 | Enterprise scale |
+
+**Competitive Advantage:**
+- ✅ **Same credits** as removal.ai
+- ✅ **$2 cheaper** on every tier
+- ✅ **Superior AI technology** (BiRefNet-portrait, hair strand preservation)
+- ✅ **Intelligent optimization** (automatic file compression/enhancement)
+- ✅ **Better edge precision** with artifact removal
+- ✅ **No watermarks** even on free tier
 
 #### 3.1.6 API Features
 - **FR-API-001**: REST API with JSON request/response
@@ -2105,15 +2113,22 @@ Q4 2025 (Weeks 40-52)
 |---------|-------------|------------|-----------|
 | Processing Time | < 10s | < 3s | < 5s |
 | Max File Size | 25MB | 12MB | 50MB |
+| Edge Precision (Hair) | ✓✓ Superior | ✓ Good | ✓ Good |
 | HD Download | ✓ Paid | ✓ Paid | ✓ Paid |
 | API Access | ✓ | ✓ | ✓ |
 | Batch Processing | ✓ 500 images | ✓ 1000 images | ✓ 1000 images |
 | Figma Plugin | ✓ | ✗ | ✓ |
-| Background Editor | ✓ | ✓ | ✓ |
-| Intelligent Optimization | ✓ | ✗ | Limited |
+| Background Editor | ✓ Advanced | ✓ Basic | ✓ Basic |
+| Gradient Backgrounds | ✓ With angle control | ✗ | ✗ |
+| Intelligent Optimization | ✓ Automatic | ✗ | Limited |
 | Desktop App | ✓ Windows | ✗ | ✗ |
 | Free Tier Credits | 3/month | Preview only | 1/month |
-| Starting Price | $1.87 | Higher | $9/month |
+| **Starter Monthly** | **40 credits @ $3.99** | 40 credits @ $5.99 | - |
+| **Professional Monthly** | **200 credits @ $23.99** | 200 credits @ $25.99 | 40 @ $9/mo |
+| **Business Monthly** | **500 credits @ $61.99** | 500 credits @ $63.99 | 400 @ $79/mo |
+| **Lifetime Starter** | **10 credits @ FREE** | 10 credits @ $1.89 | ✗ No lifetime |
+| **Lifetime Professional** | **75 credits @ $43.99** | 75 credits @ $45.99 | ✗ No lifetime |
+| **Value Proposition** | **Same credits, $2 less** | Industry standard | Premium pricing |
 
 ### Appendix C: Glossary
 
