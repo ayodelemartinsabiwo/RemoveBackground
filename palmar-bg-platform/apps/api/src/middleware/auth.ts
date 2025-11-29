@@ -6,7 +6,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { Role } from '@prisma/client';
-import { verifyAccessToken, DecodedToken } from '../utils/jwt';
+import { verifyAccessToken } from '../utils/jwt';
 import { AppError, HttpStatus } from './errorHandler';
 import { getUserById } from '../services/auth.service';
 
@@ -32,7 +32,7 @@ declare global {
  */
 export async function authenticate(
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<void> {
   try {
@@ -55,7 +55,7 @@ export async function authenticate(
     // Verify token
     const decoded = verifyAccessToken(token);
 
-    if (!decoded) {
+    if (!decoded || !decoded.userId) {
       throw new AppError('Invalid or expired token', HttpStatus.UNAUTHORIZED);
     }
 
@@ -85,7 +85,7 @@ export async function authenticate(
  * Usage: app.get('/admin', authenticate, requireRole('ADMIN'), controller)
  */
 export function requireRole(...roles: Role[]) {
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return (req: Request, _res: Response, next: NextFunction): void => {
     if (!req.user) {
       throw new AppError('Authentication required', HttpStatus.UNAUTHORIZED);
     }
@@ -106,7 +106,7 @@ export function requireRole(...roles: Role[]) {
  */
 export async function optionalAuth(
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<void> {
   try {
@@ -125,7 +125,7 @@ export async function optionalAuth(
     const token = parts[1];
     const decoded = verifyAccessToken(token);
 
-    if (!decoded) {
+    if (!decoded || !decoded.userId) {
       return next();
     }
 

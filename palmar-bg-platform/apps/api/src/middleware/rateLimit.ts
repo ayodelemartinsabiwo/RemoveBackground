@@ -25,13 +25,13 @@ export const globalRateLimiter = rateLimit({
     client: redisClient,
     prefix: 'rl:global:',
   }),
-  handler: (req, res) => {
+  handler: (_req, _res) => {
     throw new AppError(
       'Too many requests. Please try again later.',
       HttpStatus.TOO_MANY_REQUESTS
     );
   },
-  skip: (req) => {
+  skip: (_req) => {
     // Skip rate limiting in test environment
     return env.NODE_ENV === 'test';
   },
@@ -52,17 +52,17 @@ export const authRateLimiter = rateLimit({
     client: redisClient,
     prefix: 'rl:auth:',
   }),
-  handler: (req, res) => {
+  handler: (_req, _res) => {
     throw new AppError(
       'Too many authentication attempts. Please try again in 15 minutes.',
       HttpStatus.TOO_MANY_REQUESTS
     );
   },
-  skip: (req) => env.NODE_ENV === 'test',
+  skip: (_req) => env.NODE_ENV === 'test',
   keyGenerator: (req) => {
     // Rate limit by IP and email combination for auth endpoints
     const email = req.body.email || 'unknown';
-    return `${req.ip}-${email}`;
+    return `${req.ip ?? 'unknown'}-${email}`;
   },
 });
 
@@ -81,16 +81,16 @@ export const uploadRateLimiter = rateLimit({
     client: redisClient,
     prefix: 'rl:upload:',
   }),
-  handler: (req, res) => {
+  handler: (_req, _res) => {
     throw new AppError(
       'Upload limit reached. Please try again later.',
       HttpStatus.TOO_MANY_REQUESTS
     );
   },
-  skip: (req) => env.NODE_ENV === 'test',
+  skip: (_req) => env.NODE_ENV === 'test',
   keyGenerator: (req) => {
     // Rate limit by user ID if authenticated, otherwise by IP
-    return req.user?.id ?? req.ip;
+    return (req.user?.id ?? req.ip) as string;
   },
 });
 
@@ -109,14 +109,14 @@ export const downloadRateLimiter = rateLimit({
     client: redisClient,
     prefix: 'rl:download:',
   }),
-  handler: (req, res) => {
+  handler: (_req, _res) => {
     throw new AppError(
       'Download limit reached. Please try again later.',
       HttpStatus.TOO_MANY_REQUESTS
     );
   },
-  skip: (req) => env.NODE_ENV === 'test',
+  skip: (_req) => env.NODE_ENV === 'test',
   keyGenerator: (req) => {
-    return req.user?.id ?? req.ip;
+    return (req.user?.id ?? req.ip) as string;
   },
 });

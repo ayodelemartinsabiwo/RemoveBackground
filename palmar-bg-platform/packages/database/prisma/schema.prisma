@@ -14,11 +14,20 @@ datasource db {
 
 // ==================== User Management ====================
 
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
 model User {
   id                String    @id @default(uuid()) @db.Uuid
   email             String    @unique @db.VarChar(255)
   passwordHash      String?   @map("password_hash") @db.VarChar(255)
   fullName          String?   @map("full_name") @db.VarChar(255)
+  firstName         String?   @map("first_name") @db.VarChar(100)
+  lastName          String?   @map("last_name") @db.VarChar(100)
+  role              Role      @default(USER)
   oauthProvider     String?   @map("oauth_provider") @db.VarChar(50) // google, github, microsoft
   oauthId           String?   @map("oauth_id") @db.VarChar(255)
   emailVerified     Boolean   @default(false) @map("email_verified")
@@ -117,23 +126,32 @@ model Subscription {
 enum TransactionType {
   PURCHASE
   USAGE
+  DEDUCTION
   REFUND
   BONUS
   ROLLOVER
   ADMIN_ADJUSTMENT
 }
 
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
 model CreditTransaction {
-  id             String          @id @default(uuid()) @db.Uuid
-  userId         String          @map("user_id") @db.Uuid
-  subscriptionId String?         @map("subscription_id") @db.Uuid
+  id             String            @id @default(uuid()) @db.Uuid
+  userId         String            @map("user_id") @db.Uuid
+  subscriptionId String?           @map("subscription_id") @db.Uuid
   type           TransactionType
+  status         TransactionStatus @default(COMPLETED)
   amount         Int // Negative for usage, positive for purchase
-  balanceAfter   Int             @map("balance_after")
-  description    String?         @db.Text
-  relatedImageId String?         @map("related_image_id") @db.Uuid
-  metadata       Json?           @db.JsonB
-  createdAt      DateTime        @default(now()) @map("created_at")
+  balanceAfter   Int?              @map("balance_after")
+  description    String?           @db.Text
+  relatedImageId String?           @map("related_image_id") @db.Uuid
+  metadata       Json?             @db.JsonB
+  createdAt      DateTime          @default(now()) @map("created_at")
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   subscription Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
@@ -176,12 +194,17 @@ model Image {
   originalFilename    String?          @map("original_filename") @db.VarChar(500)
   originalS3Key       String           @map("original_s3_key") @db.Text
   processedS3Key      String?          @map("processed_s3_key") @db.Text
+  processedSmallUrl   String?          @map("processed_small_url") @db.Text
+  processedHdUrl      String?          @map("processed_hd_url") @db.Text
+  processedUltraHdUrl String?          @map("processed_ultra_hd_url") @db.Text
   thumbnailS3Key      String?          @map("thumbnail_s3_key") @db.Text
   originalFileSize    BigInt?          @map("original_file_size")
   processedFileSize   BigInt?          @map("processed_file_size")
   originalWidth       Int?             @map("original_width")
   originalHeight      Int?             @map("original_height")
   outputFormat        String?          @db.VarChar(10) // png, jpg, webp
+  mimeType            String?          @map("mime_type") @db.VarChar(100)
+  fileSize            BigInt?          @map("file_size")
   backgroundType      BackgroundType?  @map("background_type")
   backgroundConfig    Json?            @map("background_config") @db.JsonB
   processingStatus    ProcessingStatus @default(PENDING) @map("processing_status")

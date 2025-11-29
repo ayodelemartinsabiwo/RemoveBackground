@@ -27,6 +27,7 @@ export const PLAN_CREDITS: Record<PlanType, number> = {
   PROFESSIONAL_MONTHLY: 200,
   BUSINESS_MONTHLY: 500,
   ENTERPRISE_MONTHLY: 1200,
+  ULTRA_MONTHLY: 5000,
   STARTER_LIFETIME: 10,
   PROFESSIONAL_LIFETIME: 75,
   BUSINESS_LIFETIME: 200,
@@ -46,7 +47,7 @@ export async function hasCredits(
   const subscription = await prisma.subscription.findFirst({
     where: {
       userId,
-      isActive: true,
+      status: 'ACTIVE',
     },
     orderBy: {
       createdAt: 'desc',
@@ -69,7 +70,7 @@ export async function getActiveSubscription(userId: string) {
   const subscription = await prisma.subscription.findFirst({
     where: {
       userId,
-      isActive: true,
+      status: 'ACTIVE',
     },
     orderBy: {
       createdAt: 'desc',
@@ -107,7 +108,7 @@ export async function deductCredits(
     const subscription = await tx.subscription.findFirst({
       where: {
         userId,
-        isActive: true,
+        status: 'ACTIVE',
       },
       orderBy: {
         createdAt: 'desc',
@@ -128,7 +129,6 @@ export async function deductCredits(
       where: { id: subscription.id },
       data: {
         creditsBalance: subscription.creditsBalance - credits,
-        creditsUsed: subscription.creditsUsed + credits,
       },
     });
 
@@ -141,7 +141,7 @@ export async function deductCredits(
         type: TransactionType.DEDUCTION,
         status: TransactionStatus.COMPLETED,
         description,
-        metadata: metadata ?? {},
+        metadata: metadata as any ?? {},
       },
     });
 
@@ -177,7 +177,7 @@ export async function addCredits(
     const subscription = await tx.subscription.findFirst({
       where: {
         userId,
-        isActive: true,
+        status: 'ACTIVE',
       },
       orderBy: {
         createdAt: 'desc',
@@ -205,7 +205,7 @@ export async function addCredits(
         type: TransactionType.PURCHASE,
         status: TransactionStatus.COMPLETED,
         description,
-        metadata: metadata ?? {},
+        metadata: metadata as any ?? {},
       },
     });
 

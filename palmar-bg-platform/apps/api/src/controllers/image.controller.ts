@@ -95,7 +95,7 @@ export const downloadImage = asyncHandler(async (req: Request, res: Response) =>
     throw new AppError('User not authenticated', HttpStatus.UNAUTHORIZED);
   }
 
-  const { id } = req.params;
+  const id = req.params.id!;
   const { tier } = req.query as { tier: DownloadTier };
 
   const downloadUrl = await downloadProcessedImage(id, req.user.id, tier);
@@ -117,8 +117,8 @@ export const listImages = asyncHandler(async (req: Request, res: Response) => {
     throw new AppError('User not authenticated', HttpStatus.UNAUTHORIZED);
   }
 
-  const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 50;
-  const offset = req.query.offset ? parseInt(req.query.offset as string, 10) : 0;
+  const limit = req.query.limit! ? parseInt(req.query.limit! as string, 10) : 50;
+  const offset = req.query.offset! ? parseInt(req.query.offset! as string, 10) : 0;
 
   const result = await getUserImages(req.user.id, limit, offset);
 
@@ -138,7 +138,7 @@ export const getImage = asyncHandler(async (req: Request, res: Response) => {
     throw new AppError('User not authenticated', HttpStatus.UNAUTHORIZED);
   }
 
-  const { id } = req.params;
+  const id = req.params.id!;
 
   const image = await getImageDetails(id, req.user.id);
 
@@ -158,7 +158,7 @@ export const removeImage = asyncHandler(async (req: Request, res: Response) => {
     throw new AppError('User not authenticated', HttpStatus.UNAUTHORIZED);
   }
 
-  const { id } = req.params;
+  const id = req.params.id!;
 
   await deleteImage(id, req.user.id);
 

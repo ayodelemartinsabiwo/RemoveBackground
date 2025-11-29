@@ -74,7 +74,7 @@ export async function uploadAndProcessImage(input: UploadImageInput) {
   const image = await prisma.image.create({
     data: {
       userId,
-      originalFileName: file.originalname,
+      originalFilename: file.originalname,
       originalS3Key: s3Key,
       fileSize: file.size,
       mimeType: file.mimetype,

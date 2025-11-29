@@ -17,7 +17,7 @@ import env from '../config/env';
  * GET /health
  * Returns 200 if service is running
  */
-export const healthCheck = asyncHandler(async (req: Request, res: Response) => {
+export const healthCheck = asyncHandler(async (_req: Request, res: Response) => {
   res.status(HttpStatus.OK).json({
     success: true,
     message: 'Service is healthy',
@@ -31,7 +31,7 @@ export const healthCheck = asyncHandler(async (req: Request, res: Response) => {
  * Returns 200 if service and all dependencies are ready
  * Used by Kubernetes to determine if pod can receive traffic
  */
-export const readinessCheck = asyncHandler(async (req: Request, res: Response) => {
+export const readinessCheck = asyncHandler(async (_req: Request, res: Response) => {
   const checks = await Promise.all([
     isDatabaseHealthy().then((healthy) => ({ database: healthy })),
     isRedisHealthy().then((healthy) => ({ redis: healthy })),
@@ -64,7 +64,7 @@ export const readinessCheck = asyncHandler(async (req: Request, res: Response) =
  * Returns 200 if service is alive
  * Used by Kubernetes to determine if pod should be restarted
  */
-export const livenessCheck = asyncHandler(async (req: Request, res: Response) => {
+export const livenessCheck = asyncHandler(async (_req: Request, res: Response) => {
   // Simple check - if we can respond, we're alive
   res.status(HttpStatus.OK).json({
     success: true,
@@ -79,7 +79,7 @@ export const livenessCheck = asyncHandler(async (req: Request, res: Response) =>
  * Returns detailed service metrics
  * Should be protected in production
  */
-export const statusCheck = asyncHandler(async (req: Request, res: Response) => {
+export const statusCheck = asyncHandler(async (_req: Request, res: Response) => {
   const [dbHealthy, redisHealthy, s3Healthy, queueStats] = await Promise.all([
     isDatabaseHealthy(),
     isRedisHealthy(),

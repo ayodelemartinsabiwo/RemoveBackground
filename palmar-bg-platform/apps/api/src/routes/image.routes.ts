@@ -10,7 +10,6 @@ import {
   listImages,
   getImage,
   removeImage,
-  uploadImageSchema,
   downloadImageSchema,
   listImagesSchema,
   imageIdSchema,

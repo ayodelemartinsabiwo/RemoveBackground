@@ -5,6 +5,7 @@
  */
 
 import multer from 'multer';
+import { NextFunction } from 'express';
 import { AppError, HttpStatus } from './errorHandler';
 import env from '../config/env';
 
@@ -19,7 +20,7 @@ const storage = multer.memoryStorage();
  * Only allows specific image types
  */
 const imageFileFilter = (
-  req: Express.Request,
+  _req: Express.Request,
   file: Express.Multer.File,
   callback: multer.FileFilterCallback
 ): void => {
@@ -67,9 +68,9 @@ export const uploadMultipleImages = multer({
  */
 export function handleMulterError(
   error: unknown,
-  req: Express.Request,
-  res: Express.Response,
-  next: Express.NextFunction
+  _req: Express.Request,
+  _res: Express.Response,
+  next: NextFunction
 ): void {
   if (error instanceof multer.MulterError) {
     if (error.code === 'LIMIT_FILE_SIZE') {

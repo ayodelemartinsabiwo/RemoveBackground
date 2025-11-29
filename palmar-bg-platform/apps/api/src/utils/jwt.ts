@@ -28,7 +28,7 @@ export interface DecodedToken extends TokenPayload, JwtPayload {}
  */
 export function signAccessToken(payload: TokenPayload): string {
   const options: SignOptions = {
-    expiresIn: env.JWT_EXPIRES_IN,
+    expiresIn: env.JWT_EXPIRES_IN as any,
     issuer: 'palmar-bg-api',
     audience: 'palmar-bg-web',
   };
@@ -43,7 +43,7 @@ export function signAccessToken(payload: TokenPayload): string {
  */
 export function signRefreshToken(payload: TokenPayload): string {
   const options: SignOptions = {
-    expiresIn: env.REFRESH_TOKEN_EXPIRES_IN,
+    expiresIn: env.REFRESH_TOKEN_EXPIRES_IN as any,
     issuer: 'palmar-bg-api',
     audience: 'palmar-bg-web',
   };
@@ -56,14 +56,14 @@ export function signRefreshToken(payload: TokenPayload): string {
  * @param token - JWT access token to verify
  * @returns DecodedToken | null - Decoded token payload or null if invalid
  */
-export function verifyAccessToken(token: string): DecodedToken | null {
+export function verifyAccessToken(token: string): TokenPayload | null {
   try {
     const options: VerifyOptions = {
       issuer: 'palmar-bg-api',
       audience: 'palmar-bg-web',
     };
 
-    const decoded = jwt.verify(token, env.JWT_SECRET, options) as DecodedToken;
+    const decoded = jwt.verify(token, env.JWT_SECRET, options) as TokenPayload;
     return decoded;
   } catch (error) {
     // Token invalid, expired, or malformed
@@ -76,7 +76,7 @@ export function verifyAccessToken(token: string): DecodedToken | null {
  * @param token - JWT refresh token to verify
  * @returns DecodedToken | null - Decoded token payload or null if invalid
  */
-export function verifyRefreshToken(token: string): DecodedToken | null {
+export function verifyRefreshToken(token: string): TokenPayload | null {
   try {
     const options: VerifyOptions = {
       issuer: 'palmar-bg-api',
@@ -87,7 +87,7 @@ export function verifyRefreshToken(token: string): DecodedToken | null {
       token,
       env.REFRESH_TOKEN_SECRET,
       options
-    ) as DecodedToken;
+    ) as TokenPayload;
     return decoded;
   } catch (error) {
     // Token invalid, expired, or malformed

@@ -80,8 +80,7 @@ export async function registerUser(input: RegisterInput): Promise<AuthResponse> 
         create: {
           planType: PlanType.FREE,
           creditsBalance: 3,
-          creditsUsed: 0,
-          isActive: true,
+          status: 'ACTIVE',
           autoRenew: false,
           currentPeriodStart: new Date(),
           currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
@@ -146,7 +145,7 @@ export async function loginUser(input: LoginInput): Promise<AuthResponse> {
     where: { email },
     include: {
       subscriptions: {
-        where: { isActive: true },
+        where: { status: 'ACTIVE' },
         orderBy: { createdAt: 'desc' },
         take: 1,
       },

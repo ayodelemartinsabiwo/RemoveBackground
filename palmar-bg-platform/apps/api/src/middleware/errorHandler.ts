@@ -33,6 +33,7 @@ export const HttpStatus = {
   CREATED: 201,
   BAD_REQUEST: 400,
   UNAUTHORIZED: 401,
+  PAYMENT_REQUIRED: 402,
   FORBIDDEN: 403,
   NOT_FOUND: 404,
   CONFLICT: 409,
@@ -128,9 +129,9 @@ export function errorHandler(
   error: Error,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ): void {
-  let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+  let statusCode: number = HttpStatus.INTERNAL_SERVER_ERROR;
   let message = 'Internal server error';
   let details: unknown = undefined;
 
@@ -172,7 +173,7 @@ export function errorHandler(
     success: false,
     error: {
       message,
-      ...(details && { details }),
+      ...(details ? { details } : {}),
       // Only include stack trace in development
       ...(env.NODE_ENV === 'development' && { stack: error.stack }),
     },
@@ -187,7 +188,7 @@ export function errorHandler(
  */
 export function notFoundHandler(
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): void {
   const error = new AppError(
