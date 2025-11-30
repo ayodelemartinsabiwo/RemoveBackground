@@ -12,7 +12,6 @@ async function main() {
 
   // Clear existing data (for development only)
   console.log('Clearing existing data...');
-  await prisma.download.deleteMany();
   await prisma.image.deleteMany();
   await prisma.creditTransaction.deleteMany();
   await prisma.subscription.deleteMany();
@@ -31,7 +30,7 @@ async function main() {
       lastName: 'User',
       role: Role.USER,
       emailVerified: true,
-      subscription: {
+      subscriptions: {
         create: {
           planType: PlanType.FREE,
           status: 'ACTIVE',
@@ -51,7 +50,7 @@ async function main() {
       lastName: 'User',
       role: Role.USER,
       emailVerified: true,
-      subscription: {
+      subscriptions: {
         create: {
           planType: PlanType.STARTER_MONTHLY,
           status: 'ACTIVE',
@@ -73,7 +72,7 @@ async function main() {
       lastName: 'User',
       role: Role.USER,
       emailVerified: true,
-      subscription: {
+      subscriptions: {
         create: {
           planType: PlanType.PROFESSIONAL_MONTHLY,
           status: 'ACTIVE',
@@ -95,7 +94,7 @@ async function main() {
       lastName: 'User',
       role: Role.ADMIN,
       emailVerified: true,
-      subscription: {
+      subscriptions: {
         create: {
           planType: PlanType.ENTERPRISE_MONTHLY,
           status: 'ACTIVE',
