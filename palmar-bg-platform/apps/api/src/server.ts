@@ -18,10 +18,19 @@ import { globalRateLimiter } from './middleware/rateLimit';
 import healthRoutes from './routes/health.routes';
 import authRoutes from './routes/auth.routes';
 import imageRoutes from './routes/image.routes';
+import userRoutes from './routes/user.routes';
 
 // Import database and services
 import prisma from './config/database';
 import redisClient from './config/redis';
+
+/**
+ * Fix BigInt JSON serialization
+ * PostgreSQL BigInt columns cannot be serialized by default
+ */
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
 
 /**
  * Create Express application
@@ -102,6 +111,7 @@ app.use('/', healthRoutes);
 const API_PREFIX = `/api/${env.API_VERSION}`;
 
 app.use(`${API_PREFIX}/auth`, authRoutes);
+app.use(`${API_PREFIX}/users`, userRoutes);
 app.use(`${API_PREFIX}/images`, imageRoutes);
 
 /**

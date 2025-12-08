@@ -5,7 +5,7 @@ import { useAuthStore } from '@/store/authStore'
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { isAuthenticated, user, logout } = useAuthStore()
+  const { isAuthenticated, logout } = useAuthStore()
 
   const handleLogout = () => {
     logout()
@@ -18,11 +18,9 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-primary-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">P</span>
-            </div>
+            <img src="/images/icon.ico" alt="Logo" className="h-9 w-auto" />
             <span className="font-bold text-xl text-gray-900">
-              Palmar Professional
+              Background Remover
             </span>
           </Link>
 
@@ -34,9 +32,9 @@ export default function Header() {
               </a>
             </li>
             <li>
-              <Link to="/pricing" className="text-gray-700 hover:text-primary-500 font-medium transition-colors">
-                Pricing
-              </Link>
+              <a href="#why-choose-us" className="text-gray-700 hover:text-primary-500 font-medium transition-colors">
+                Why Choose Us
+              </a>
             </li>
             <li>
               <a href="#how-it-works" className="text-gray-700 hover:text-primary-500 font-medium transition-colors">
@@ -44,9 +42,9 @@ export default function Header() {
               </a>
             </li>
             <li>
-              <a href="#desktop" className="text-gray-700 hover:text-primary-500 font-medium transition-colors">
-                Desktop Version
-              </a>
+              <span className="text-gray-400 font-medium cursor-not-allowed">
+                APIs/Plugin <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded ml-1">Coming Soon</span>
+              </span>
             </li>
           </ul>
 
@@ -100,13 +98,13 @@ export default function Header() {
                 </a>
               </li>
               <li>
-                <Link
-                  to="/pricing"
+                <a
+                  href="#why-choose-us"
                   className="block text-gray-700 hover:text-primary-500 font-medium"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Pricing
-                </Link>
+                  Why Choose Us
+                </a>
               </li>
               <li>
                 <a
@@ -118,13 +116,9 @@ export default function Header() {
                 </a>
               </li>
               <li>
-                <a
-                  href="#desktop"
-                  className="block text-gray-700 hover:text-primary-500 font-medium"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Desktop Version
-                </a>
+                <span className="block text-gray-400 font-medium">
+                  APIs/Plugin <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded ml-1">Coming Soon</span>
+                </span>
               </li>
               <li className="pt-4 border-t border-gray-200">
                 {isAuthenticated ? (

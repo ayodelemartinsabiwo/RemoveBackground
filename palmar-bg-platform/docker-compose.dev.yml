@@ -77,40 +77,50 @@ services:
       - palmar-network-dev
 
   # Node.js API Service (Development with hot reload)
-  api:
-    build:
-      context: ./apps/api
-      dockerfile: Dockerfile.dev
-    container_name: palmar-api-dev
-    environment:
-      NODE_ENV: development
-      PORT: 3001
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/palmar_bg
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      JWT_SECRET: dev-jwt-secret-key
-      JWT_REFRESH_SECRET: dev-refresh-secret-key
-      S3_ENDPOINT: http://minio:9000
-      S3_ACCESS_KEY: minioadmin
-      S3_SECRET_KEY: minioadmin
-      S3_BUCKET: palmar-bg-images
-      S3_REGION: us-east-1
-      LOG_LEVEL: debug
-    ports:
-      - "3001:3001"
-    volumes:
-      - ./apps/api/src:/app/src
-      - ./packages/database:/app/node_modules/@palmar/database
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      minio-setup:
-        condition: service_completed_successfully
-    networks:
-      - palmar-network-dev
-    command: npm run dev
+  # COMMENTED OUT: Run locally for better hot reload during development
+  # To run in Docker: Uncomment the entire api section below
+  # api:
+  #   build:
+  #     context: ./apps/api
+  #     dockerfile: Dockerfile.dev
+  #   container_name: palmar-api-dev
+  #   environment:
+  #     NODE_ENV: development
+  #     PORT: 3001
+  #     DATABASE_URL: postgresql://postgres:postgres@postgres:5432/palmar_bg
+  #     REDIS_HOST: redis
+  #     REDIS_PORT: 6379
+  #     REDIS_PASSWORD: redis_dev_password_change_in_production
+  #     JWT_SECRET: your-super-secret-jwt-key-must-be-at-least-32-characters-long-change-in-production
+  #     REFRESH_TOKEN_SECRET: your-super-secret-refresh-key-must-be-at-least-32-characters-change-in-production
+  #     JWT_EXPIRES_IN: 15m
+  #     JWT_REFRESH_EXPIRES_IN: 7d
+  #     S3_ENDPOINT: http://minio:9000
+  #     AWS_ACCESS_KEY_ID: minioadmin
+  #     AWS_SECRET_ACCESS_KEY: minioadmin
+  #     S3_BUCKET_NAME: palmar-bg-images
+  #     AWS_REGION: us-east-1
+  #     S3_FORCE_PATH_STYLE: "true"
+  #     LOG_LEVEL: debug
+  #     CORS_ORIGIN: http://localhost:5173,http://localhost:3000
+  #     ALLOWED_FILE_TYPES: image/jpeg,image/png,image/webp,image/bmp,image/tiff
+  #     MAX_FILE_SIZE: 26214400
+  #     PYTHON_WORKER_URL: http://worker:8000
+  #   ports:
+  #     - "3001:3001"
+  #   volumes:
+  #     - ./apps/api/src:/app/src
+  #     - ./packages/database:/app/node_modules/@palmar/database
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #     minio-setup:
+  #       condition: service_completed_successfully
+  #   networks:
+  #     - palmar-network-dev
+  #   command: sh -c "npx prisma generate --schema=/app/node_modules/@palmar/database/prisma/schema.prisma && (npm run dev & sleep 5 && npm run worker & wait)"
 
   # Python Worker (Development)
   worker:
@@ -125,17 +135,26 @@ services:
       S3_ENDPOINT: http://minio:9000
       S3_ACCESS_KEY: minioadmin
       S3_SECRET_KEY: minioadmin
-      S3_BUCKET: palmar-bg-images
+      S3_BUCKET_NAME: palmar-bg-images
       S3_REGION: us-east-1
-      MODEL_NAME: birefnet-portrait
+      S3_USE_SSL: "false"
+      MODEL_NAME: u2net
       SMALL_RESOLUTION: 512
       HD_RESOLUTION: 1920
       ULTRA_HD_RESOLUTION: 3840
       LOG_LEVEL: DEBUG
+      CELERY_WORKER_CONCURRENCY: "1"  # Reduce to 1 worker to save memory
     ports:
       - "8000:8000"
     volumes:
       - ./apps/worker/app:/app/app
+      - worker-models:/root/.u2net  # Persist downloaded AI models
+    deploy:
+      resources:
+        limits:
+          memory: 3G  # U2Net only needs 3GB vs BiRefNet 8GB+
+        reservations:
+          memory: 2G
     depends_on:
       postgres:
         condition: service_healthy
@@ -146,56 +165,34 @@ services:
     networks:
       - palmar-network-dev
 
-  # Celery Worker (Development)
-  celery:
-    build:
-      context: ./apps/worker
-      dockerfile: Dockerfile.dev
-    container_name: palmar-celery-dev
-    command: celery -A app.celery_app worker --loglevel=debug --concurrency=1
-    environment:
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/palmar_bg
-      S3_ENDPOINT: http://minio:9000
-      S3_ACCESS_KEY: minioadmin
-      S3_SECRET_KEY: minioadmin
-      S3_BUCKET: palmar-bg-images
-      S3_REGION: us-east-1
-      MODEL_NAME: birefnet-portrait
-      SMALL_RESOLUTION: 512
-      HD_RESOLUTION: 1920
-      ULTRA_HD_RESOLUTION: 3840
-    volumes:
-      - ./apps/worker/app:/app/app
-    depends_on:
-      redis:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      minio-setup:
-        condition: service_completed_successfully
-    networks:
-      - palmar-network-dev
+  # NOTE: Celery worker removed - now using BullMQ (Node.js queue)
+  # BullMQ worker runs automatically with API server (see command above)
+  # Python FastAPI worker receives jobs via HTTP from BullMQ worker
 
   # React Web Frontend (Development with hot reload)
-  web:
-    build:
-      context: ./apps/web
-      dockerfile: Dockerfile.dev
-    container_name: palmar-web-dev
-    environment:
-      VITE_API_BASE_URL: http://localhost:3001/api
-    ports:
-      - "3000:5173"
-    volumes:
-      - ./apps/web/src:/app/src
-      - ./apps/web/public:/app/public
-    depends_on:
-      - api
-    networks:
-      - palmar-network-dev
-    command: npm run dev -- --host
+  # COMMENTED OUT: Run locally for better hot reload during development
+  # To run in Docker: Uncomment the entire web section below
+  # web:
+  #   build:
+  #     context: ./apps/web
+  #     dockerfile: Dockerfile.dev
+  #   container_name: palmar-web-dev
+  #   environment:
+  #     VITE_API_URL: http://localhost:3001
+  #     VITE_APP_NAME: Palmar Background Remover
+  #     VITE_MAX_FILE_SIZE: 26214400
+  #     VITE_ALLOWED_FILE_TYPES: image/jpeg,image/png,image/webp,image/bmp,image/tiff
+  #   ports:
+  #     - "5173:5173"
+  #   volumes:
+  #     - ./apps/web/src:/app/src
+  #     - ./apps/web/public:/app/public
+  #     - ./apps/web/tailwind.config.js:/app/tailwind.config.js
+  #   depends_on:
+  #     - api
+  #   networks:
+  #     - palmar-network-dev
+  #   command: npm run dev -- --host
 
 volumes:
   postgres_dev_data:
@@ -204,6 +201,8 @@ volumes:
     driver: local
   minio_dev_data:
     driver: local
+  worker-models:
+    driver: local  # Persist AI models to avoid re-downloading
 
 networks:
   palmar-network-dev:

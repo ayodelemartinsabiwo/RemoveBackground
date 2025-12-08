@@ -22,7 +22,7 @@ export const globalRateLimiter = rateLimit({
   legacyHeaders: false, // Disable X-RateLimit-* headers
   store: new RedisStore({
     // @ts-expect-error - RedisStore expects ioredis client
-    client: redisClient,
+    sendCommand: (...args: string[]) => redisClient.call(...args),
     prefix: 'rl:global:',
   }),
   handler: (_req, _res) => {
@@ -49,7 +49,7 @@ export const authRateLimiter = rateLimit({
   legacyHeaders: false,
   store: new RedisStore({
     // @ts-expect-error - RedisStore expects ioredis client
-    client: redisClient,
+    sendCommand: (...args: string[]) => redisClient.call(...args),
     prefix: 'rl:auth:',
   }),
   handler: (_req, _res) => {
@@ -78,7 +78,7 @@ export const uploadRateLimiter = rateLimit({
   legacyHeaders: false,
   store: new RedisStore({
     // @ts-expect-error - RedisStore expects ioredis client
-    client: redisClient,
+    sendCommand: (...args: string[]) => redisClient.call(...args),
     prefix: 'rl:upload:',
   }),
   handler: (_req, _res) => {
@@ -106,7 +106,7 @@ export const downloadRateLimiter = rateLimit({
   legacyHeaders: false,
   store: new RedisStore({
     // @ts-expect-error - RedisStore expects ioredis client
-    client: redisClient,
+    sendCommand: (...args: string[]) => redisClient.call(...args),
     prefix: 'rl:download:',
   }),
   handler: (_req, _res) => {

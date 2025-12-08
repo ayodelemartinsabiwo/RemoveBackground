@@ -1,5 +1,8 @@
 FROM node:20-alpine
 
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 
 # Install dependencies
@@ -9,8 +12,11 @@ RUN npm install
 # Copy source
 COPY . .
 
+# Make startup script executable
+RUN chmod +x /app/start.sh
+
 # Expose port
 EXPOSE 3001
 
-# Development command with hot reload
-CMD ["npm", "run", "dev"]
+# Development command - run startup script
+CMD ["/app/start.sh"]

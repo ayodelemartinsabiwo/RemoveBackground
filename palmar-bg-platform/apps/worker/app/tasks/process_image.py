@@ -24,15 +24,7 @@ class CallbackTask(Task):
         print(f'Task {task_id} succeeded')
 
 
-@celery_app.task(
-    base=CallbackTask,
-    bind=True,
-    max_retries=3,
-    default_retry_delay=60,
-    name='app.tasks.process_image.process_image_task'
-)
-def process_image_task(
-    self,
+async def process_image_task(
     image_id: str,
     user_id: str,
     s3_original_key: str,
@@ -61,7 +53,7 @@ def process_image_task(
         print(f"Processing image {image_id} for user {user_id}")
 
         # Update status to PROCESSING
-        asyncio.run(_update_image_status(image_id, 'PROCESSING'))
+        await _update_image_status(image_id, 'PROCESSING')
 
         # Step 1: Download original image from S3
         print(f"Downloading from S3: {s3_original_key}")
@@ -137,12 +129,12 @@ def process_image_task(
 
         # Step 6: Update database with S3 keys and status
         print("Updating database...")
-        asyncio.run(_update_image_results(
+        await _update_image_results(
             image_id,
             s3_keys.get('small'),
             s3_keys.get('hd'),
             s3_keys.get('ultra_hd')
-        ))
+        )
 
         print(f"✓ Successfully processed image {image_id}")
 
@@ -158,14 +150,11 @@ def process_image_task(
 
         # Update status to FAILED
         try:
-            asyncio.run(_update_image_status(image_id, 'FAILED', str(exc)))
+            await _update_image_status(image_id, 'FAILED', str(exc))
         except:
             pass
 
-        # Retry logic
-        if self.request.retries < self.max_retries:
-            print(f"Retrying... (attempt {self.request.retries + 1}/{self.max_retries})")
-            raise self.retry(exc=exc)
+        # Retry logic removed (BullMQ handles retries now)
 
         return {
             'success': False,
@@ -184,8 +173,8 @@ async def _update_image_status(
         async with AsyncSessionLocal() as session:
             if error_message:
                 query = text("""
-                    UPDATE "Image"
-                    SET status = :status, "errorMessage" = :error_message, "updatedAt" = NOW()
+                    UPDATE images
+                    SET processing_status = :status, error_message = :error_message
                     WHERE id = :image_id
                 """)
                 await session.execute(
@@ -194,8 +183,8 @@ async def _update_image_status(
                 )
             else:
                 query = text("""
-                    UPDATE "Image"
-                    SET status = :status, "updatedAt" = NOW()
+                    UPDATE images
+                    SET processing_status = :status
                     WHERE id = :image_id
                 """)
                 await session.execute(query, {"status": status, "image_id": image_id})
@@ -217,14 +206,13 @@ async def _update_image_results(
     try:
         async with AsyncSessionLocal() as session:
             query = text("""
-                UPDATE "Image"
+                UPDATE images
                 SET
-                    status = 'COMPLETED',
-                    "processedSmallUrl" = :small_url,
-                    "processedHdUrl" = :hd_url,
-                    "processedUltraHdUrl" = :ultra_hd_url,
-                    "processedAt" = NOW(),
-                    "updatedAt" = NOW()
+                    processing_status = 'COMPLETED',
+                    processed_small_url = :small_url,
+                    processed_hd_url = :hd_url,
+                    processed_ultra_hd_url = :ultra_hd_url,
+                    processed_at = NOW()
                 WHERE id = :image_id
             """)
 

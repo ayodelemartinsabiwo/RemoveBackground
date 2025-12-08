@@ -6,6 +6,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.api import health_router
+from app.api.process import router as process_router
+from app.api.trigger import router as celery_router
 from app.core import redis_client, s3_client, init_db, close_db, settings
 
 
@@ -72,6 +74,8 @@ app.add_middleware(
 
 # Include routers
 app.include_router(health_router)
+app.include_router(process_router)
+app.include_router(celery_router)  # Celery trigger endpoint
 
 
 @app.get("/")

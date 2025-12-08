@@ -8,6 +8,7 @@ export interface User {
   firstName?: string;
   lastName?: string;
   role: 'USER' | 'ADMIN' | 'SUPER_ADMIN';
+  subscription?: Subscription;
   createdAt: string;
   updatedAt: string;
 }
@@ -55,6 +56,7 @@ export interface Image {
   userId: string;
   originalFilename: string;
   originalS3Key: string;
+  originalUrl?: string;
   processedSmallUrl?: string;
   processedHdUrl?: string;
   processedUltraHdUrl?: string;

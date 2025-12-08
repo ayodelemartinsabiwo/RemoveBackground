@@ -4,7 +4,11 @@
  * Zero tolerance for configuration errors
  */
 
+import { config } from 'dotenv';
 import { z } from 'zod';
+
+// Load environment variables from .env file
+config();
 
 const envSchema = z.object({
   // Server
@@ -18,7 +22,7 @@ const envSchema = z.object({
   // Redis
   REDIS_HOST: z.string().min(1),
   REDIS_PORT: z.string().transform(Number).pipe(z.number().min(1).max(65535)),
-  REDIS_PASSWORD: z.string().min(1),
+  REDIS_PASSWORD: z.string().optional().default(''),
   REDIS_DB: z.string().transform(Number).pipe(z.number().min(0).max(15)).default('0'),
 
   // JWT

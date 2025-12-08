@@ -8,7 +8,7 @@ import { BackgroundType, DownloadTier, ProcessingStatus } from '@prisma/client';
 import prisma from '../config/database';
 import logger from '../utils/logger';
 import { uploadFile, generateImageKey, generatePresignedDownloadUrl } from './s3.service';
-import { addImageProcessingJob } from './queue.service';
+import { triggerImageProcessing } from './celery.service';
 import { deductCredits, getCreditCost, refundCredits } from './credit.service';
 import { AppError, HttpStatus } from '../middleware/errorHandler';
 
@@ -84,17 +84,16 @@ export async function uploadAndProcessImage(input: UploadImageInput) {
     },
   });
 
-  // Add processing job to queue
-  await addImageProcessingJob({
+  // Trigger Celery task for image processing
+  await triggerImageProcessing({
     imageId: image.id,
     userId,
     s3Key,
     backgroundType,
     backgroundConfig,
-    downloadTier: DownloadTier.SMALL, // Default processing
   });
 
-  logger.info('Image processing job queued', {
+  logger.info('Image processing task triggered via Celery', {
     imageId: image.id,
     userId,
   });
@@ -221,8 +220,36 @@ export async function getUserImages(
     where: { userId },
   });
 
+  // Generate presigned URLs for thumbnails (24 hour expiry for dashboard)
+  const imagesWithUrls = await Promise.all(
+    images.map(async (image) => {
+      const originalUrl = await generatePresignedDownloadUrl(image.originalS3Key, 86400);
+
+      // Only generate processed URLs if they exist
+      const processedSmallUrl = image.processedSmallUrl
+        ? await generatePresignedDownloadUrl(image.processedSmallUrl, 86400)
+        : null;
+
+      const processedHdUrl = image.processedHdUrl
+        ? await generatePresignedDownloadUrl(image.processedHdUrl, 86400)
+        : null;
+
+      const processedUltraHdUrl = image.processedUltraHdUrl
+        ? await generatePresignedDownloadUrl(image.processedUltraHdUrl, 86400)
+        : null;
+
+      return {
+        ...image,
+        originalUrl,
+        processedSmallUrl,
+        processedHdUrl,
+        processedUltraHdUrl,
+      };
+    })
+  );
+
   return {
-    images,
+    images: imagesWithUrls,
     total,
     limit,
     offset,
@@ -248,7 +275,28 @@ export async function getImageDetails(imageId: string, userId: string) {
     throw new AppError('Unauthorized access', HttpStatus.FORBIDDEN);
   }
 
-  return image;
+  // Generate presigned URLs for all image versions
+  const originalUrl = await generatePresignedDownloadUrl(image.originalS3Key, 86400);
+
+  const processedSmallUrl = image.processedSmallUrl
+    ? await generatePresignedDownloadUrl(image.processedSmallUrl, 86400)
+    : null;
+
+  const processedHdUrl = image.processedHdUrl
+    ? await generatePresignedDownloadUrl(image.processedHdUrl, 86400)
+    : null;
+
+  const processedUltraHdUrl = image.processedUltraHdUrl
+    ? await generatePresignedDownloadUrl(image.processedUltraHdUrl, 86400)
+    : null;
+
+  return {
+    ...image,
+    originalUrl,
+    processedSmallUrl,
+    processedHdUrl,
+    processedUltraHdUrl,
+  };
 }
 
 /**

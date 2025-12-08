@@ -2,6 +2,7 @@
 Celery application configuration
 """
 from celery import Celery
+from celery.signals import worker_process_init
 from app.core.config import settings
 
 # Create Celery app
@@ -11,6 +12,24 @@ celery_app = Celery(
     backend=settings.celery_backend,
     include=['app.tasks.process_image']
 )
+
+
+@worker_process_init.connect
+def init_worker(**kwargs):
+    """
+    Initialize connections when Celery worker process starts
+    This runs in each forked worker process
+    """
+    from app.core.s3 import s3_client
+
+    print("🔧 Initializing Celery worker process...")
+
+    # Initialize S3 client in this worker process
+    try:
+        s3_client.connect()
+        print(f"✓ S3 connected in worker process: {s3_client.bucket_name}")
+    except Exception as e:
+        print(f"✗ Failed to connect S3 in worker: {e}")
 
 # Configure Celery
 celery_app.conf.update(

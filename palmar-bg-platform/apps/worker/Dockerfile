@@ -31,6 +31,9 @@ COPY . .
 # Create model cache directory
 RUN mkdir -p /root/.u2net
 
+# Make start script executable
+RUN chmod +x start_celery.sh
+
 # Expose port for FastAPI
 EXPOSE 8000
 
@@ -38,5 +41,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
 
-# Production command
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+# Production command - runs both Celery worker and FastAPI trigger endpoint
+CMD ["./start_celery.sh"]

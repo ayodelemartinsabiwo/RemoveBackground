@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom'
-import { Check, Upload, Sparkles, Zap, Shield, Download, Image as ImageIcon, Palette, CloudDownload } from 'lucide-react'
+import { Check, Upload, Sparkles, Zap, Shield, Download, Image as ImageIcon, Palette, Cloud } from 'lucide-react'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
+import HeroShowcase from '@/components/home/HeroShowcase'
+import ProTips from '@/components/home/ProTips'
 
 export default function HomePage() {
   return (
@@ -9,7 +11,7 @@ export default function HomePage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary-50 via-orange-50 to-white py-20 md:py-32 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-primary-50 via-orange-50 to-white pt-8 md:pt-12 pb-16 md:pb-20 overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
@@ -38,34 +40,33 @@ export default function HomePage() {
             </div>
 
             {/* User Categories */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 max-w-4xl mx-auto">
-              <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 mb-20 max-w-4xl mx-auto">
+              <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                 <div className="text-3xl mb-2">🎨</div>
-                <h4 className="font-semibold text-gray-900">Creative Pros</h4>
-                <p className="text-sm text-gray-600">Designers & Artists</p>
+                <h4 className="font-semibold text-gray-900">Creative Professionals</h4>
               </div>
-              <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+              <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                 <div className="text-3xl mb-2">🛍️</div>
-                <h4 className="font-semibold text-gray-900">E-commerce</h4>
-                <p className="text-sm text-gray-600">Product Photos</p>
+                <h4 className="font-semibold text-gray-900">E-commerce & Business</h4>
               </div>
-              <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+              <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                 <div className="text-3xl mb-2">📸</div>
-                <h4 className="font-semibold text-gray-900">Creators</h4>
-                <p className="text-sm text-gray-600">Content Makers</p>
+                <h4 className="font-semibold text-gray-900">Content Creators</h4>
               </div>
-              <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+              <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                 <div className="text-3xl mb-2">👤</div>
-                <h4 className="font-semibold text-gray-900">Personal</h4>
-                <p className="text-sm text-gray-600">Photos & More</p>
+                <h4 className="font-semibold text-gray-900">Personal Users</h4>
               </div>
             </div>
           </div>
+
+          {/* Hero Showcase with 3 Floating Demo Cards */}
+          <HeroShowcase />
         </div>
       </section>
 
       {/* Why Choose Us */}
-      <section className="py-20 bg-gray-50">
+      <section id="why-choose-us" className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -185,7 +186,7 @@ export default function HomePage() {
             <div className="flex gap-4">
               <div className="flex-shrink-0">
                 <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                  <CloudDownload className="w-6 h-6 text-primary-500" />
+                  <Cloud className="w-6 h-6 text-primary-500" />
                 </div>
               </div>
               <div>
@@ -212,6 +213,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Pro Tips Section with Flip Cards */}
+      <ProTips />
 
       {/* How It Works */}
       <section id="how-it-works" className="py-20 bg-gradient-to-br from-primary-50 to-orange-50">
@@ -311,20 +315,6 @@ export default function HomePage() {
                 <li className="flex items-start gap-3">
                   <Check className="w-6 h-6 text-green-400 flex-shrink-0 mt-0.5" />
                   <div>
-                    <div className="font-semibold">All AI Models Included</div>
-                    <div className="text-gray-400 text-sm">BiRefNet-portrait and U2Net for maximum quality</div>
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-6 h-6 text-green-400 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <div className="font-semibold">Batch Processing</div>
-                    <div className="text-gray-400 text-sm">Process multiple images at once for efficiency</div>
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-6 h-6 text-green-400 flex-shrink-0 mt-0.5" />
-                  <div>
                     <div className="font-semibold">Your Data Stays Local</div>
                     <div className="text-gray-400 text-sm">Complete privacy - nothing uploaded to the cloud</div>
                   </div>
@@ -348,7 +338,7 @@ export default function HomePage() {
                   <div className="text-white/90 mb-6">Lifetime License</div>
 
                   <a
-                    href="https://github.com/ayodelemartinsabiwo/RemoveBackground/releases"
+                    href="https://github.com/ayodelemartinsabiwo/RemoveBackground/releases/download/v1.0.0/BackgroundRemover_Setup.exe"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-white text-primary-600 font-bold rounded-lg hover:bg-gray-100 transition-colors shadow-lg hover:shadow-xl text-lg mb-6"
