@@ -78,9 +78,10 @@ export const uploadImage = asyncHandler(async (req: Request, res: Response) => {
     backgroundConfig,
   });
 
+  // Return image directly for consistency
   res.status(HttpStatus.CREATED).json({
     success: true,
-    data: { image },
+    data: { image }, // Keep { image } wrapper for backward compatibility with frontend
     message: 'Image uploaded and queued for processing',
   });
 });
@@ -142,9 +143,11 @@ export const getImage = asyncHandler(async (req: Request, res: Response) => {
 
   const image = await getImageDetails(id, req.user.id);
 
+  // Return image directly, not wrapped in { image }
+  // Frontend expects response.data.data to be the image object
   res.status(HttpStatus.OK).json({
     success: true,
-    data: { image },
+    data: image,
   });
 });
 
